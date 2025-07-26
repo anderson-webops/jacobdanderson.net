@@ -13,9 +13,8 @@
     "build": "vite-ssg build",
     "dev": "vite --port 3333 --open",
     "start": "vite --port 3333 --open --host",
-    "lint": "eslint .",
+    "serve": "vite --port 3333 --open --host",
     "preview": "vite preview",
-    "serve": "vite preview",
     "preview-https": "serve dist",
     "test": "vitest",
     "test:e2e": "cypress open",
@@ -24,7 +23,8 @@
     "up": "taze major -I",
     "postinstall": "npx simple-git-hooks",
     "sizecheck": "npx vite-bundle-visualizer",
-    "lint-fix": ""
+    "lint": "eslint \"src/**/*.{js,ts,vue}\"",
+    "lint-fix": "eslint \"src/**/*.{js,ts,vue}\" --fix"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
