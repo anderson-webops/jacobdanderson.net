@@ -2,6 +2,7 @@ import antfu from "@antfu/eslint-config";
 
 
 export default antfu({
+    unocss: true,
 	root: true,
 	env: {
 		browser: true,
@@ -63,4 +64,5 @@ export default antfu({
 	vue: true,
 	yaml: true,
 	jsonc: false,
+    //pnpm: true,
 });

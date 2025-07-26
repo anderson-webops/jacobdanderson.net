@@ -2,6 +2,21 @@
 import About from "~/pages/about.vue";
 import Experience from "~/pages/experience.vue";
 import Projects from "~/pages/projects.vue";
+
+defineOptions({
+	name: 'IndexPage',
+})
+
+const router = useRouter()
+function go() {
+	if (name.value)
+		router.push(`/hi/${encodeURIComponent(name.value)}`)
+}
+
+const { t } = useI18n()
+useHead({
+	title: () => t('button.home'),
+})
 </script>
 
 <template>

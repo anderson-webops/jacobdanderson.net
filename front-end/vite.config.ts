@@ -1,6 +1,7 @@
 import path from "node:path";
 import VueI18n from "@intlify/unplugin-vue-i18n/vite";
 import Shiki from "@shikijs/markdown-it";
+import { unheadVueComposablesImports } from '@unhead/vue'
 import Vue from "@vitejs/plugin-vue";
 import LinkAttributes from "markdown-it-link-attributes";
 import Unocss from "unocss/vite";
@@ -11,13 +12,12 @@ import Markdown from "unplugin-vue-markdown/vite";
 import { VueRouterAutoImports } from "unplugin-vue-router";
 import VueRouter from "unplugin-vue-router/vite";
 import { defineConfig } from "vite";
-import Pages from "vite-plugin-pages";
 import { VitePWA } from "vite-plugin-pwa";
 import VueDevTools from "vite-plugin-vue-devtools";
 import Layouts from "vite-plugin-vue-layouts-next";
 import WebfontDownload from "vite-plugin-webfont-dl";
 import generateSitemap from "vite-ssg-sitemap";
-
+import 'vitest/config'
 
 export default defineConfig({
 	resolve: {
@@ -46,11 +46,13 @@ export default defineConfig({
 		
 		// https://github.com/antfu/unplugin-auto-import
 		AutoImport({
+            include: [/\.[jt]sx?$/, /\.vue$/, /\.vue\?vue/, /\.md$/],
 			imports: [
 				"vue",
 				"vue-i18n",
 				"@vueuse/head",
 				"@vueuse/core",
+                unheadVueComposablesImports,
 				VueRouterAutoImports,
 				{
 					// add any other imports you were relying on
@@ -99,10 +101,6 @@ export default defineConfig({
 					},
 				}));
 			},
-		}),
-		
-		Pages({
-			// Plugin options
 		}),
 		
 		// https://github.com/antfu/vite-plugin-pwa
@@ -159,7 +157,7 @@ export default defineConfig({
 	ssgOptions: {
 		script: "async",
 		formatting: "minify",
-		crittersOptions: {
+        beastiesOptions: {
 			reduceInlineStyles: false,
 		},
 		onFinished() {

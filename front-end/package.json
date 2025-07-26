@@ -6,6 +6,7 @@
 	"keywords": [],
 	"license": "ISC",
 	"type": "module",
+    "private": true,
 	"packageManager": "npm@11.2.0",
 	"main": "dist/script.js",
 	"scripts": {
@@ -34,7 +35,6 @@
 		"@unocss/reset": "^66.1.0-beta.5",
 		"@vueuse/core": "^13.0.0",
 		"@vueuse/head": "^2.0.0",
-		"beasties": "^0.2.0",
 		"leaflet": "^1.9.4",
 		"nprogress": "^0.2.0",
 		"pinia": "^3.0.1",
@@ -59,6 +59,7 @@
 		"@vitejs/plugin-vue": "^5.2.1",
 		"@vue-macros/volar": "^3.0.0-beta.5",
 		"@vue/test-utils": "^2.4.6",
+        "beasties": "^0.2.0",
 		"cross-env": "^7.0.3",
 		"cypress": "^14.2.0",
 		"cypress-vite": "^1.6.0",
@@ -92,6 +93,11 @@
 		"vitest": "^3.0.8",
 		"vue-tsc": "^2.2.8"
 	},
+    "resolutions": {
+      "unplugin": "catalog:build",
+      "vite": "catalog:build",
+      "vite-plugin-inspect": "catalog:build"
+    },
 	"simple-git-hooks": {
 		"pre-commit": "npx lint-staged"
 	},
