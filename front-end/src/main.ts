@@ -1,11 +1,11 @@
+import type { UserModule } from "~/types.ts";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faFacebook, faGithub, faInstagram } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { setupLayouts } from "virtual:generated-layouts";
 import { ViteSSG } from "vite-ssg";
-import { routes } from "vue-router/auto-routes";
-import type { UserModule } from "~/types.ts";
 
+import { routes } from "vue-router/auto-routes";
 import App from "./App.vue";
 // Assuming you have styles defined in these files
 import "@unocss/reset/tailwind.css";

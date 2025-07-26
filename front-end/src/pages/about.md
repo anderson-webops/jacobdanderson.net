@@ -4,13 +4,13 @@ title: About
 
 <script setup>
 const { t } = useI18n()
-useHead({ title: () => t('button.about') })
+useHead({ title: () => t("button.about") });
 </script>
 
 <div class="text-center">
   <!-- You can use Vue components inside markdown -->
   <div i-carbon-dicom-overlay class="text-4xl -mb-6 m-auto" />
-  <h3>{{ t('button.about') }}</h3>
+  <h3>{{ t("button.about") }}</h3>
 </div>
 
 [Vitesse](https://github.com/antfu/vitesse) is an opinionated [Vite](https://github.com/vitejs/vite) starter template

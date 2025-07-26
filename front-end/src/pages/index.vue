@@ -3,20 +3,25 @@ import About from "~/pages/about.vue";
 import Experience from "~/pages/experience.vue";
 import Projects from "~/pages/projects.vue";
 
-defineOptions({
-	name: 'IndexPage',
-})
 
+defineOptions({
+	name: "IndexPage",
+});
+
+/*
+// Option for dynamic routing
 const router = useRouter()
 function go() {
 	if (name.value)
 		router.push(`/hi/${encodeURIComponent(name.value)}`)
-}
+} */
 
+/*
+// TODO: Check out what this does later
 const { t } = useI18n()
 useHead({
 	title: () => t('button.home'),
-})
+}) */
 </script>
 
 <template>

@@ -31,12 +31,12 @@ declare global {
   const debouncedWatch: typeof import('@vueuse/core')['debouncedWatch']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
-  const defineLoader: typeof import('vue-router/auto')['defineLoader']
-  const definePage: typeof import('unplugin-vue-router/runtime')['definePage']
+  const defineLoader: typeof import("vue-router/auto")["defineLoader"];
+  const definePage: typeof import("unplugin-vue-router/runtime")["definePage"];
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const effectScope: typeof import('vue')['effectScope']
   const extendRef: typeof import('@vueuse/core')['extendRef']
-  const getActiveHead: typeof import('@unhead/vue')['getActiveHead']
+  const getActiveHead: typeof import("@unhead/vue")["getActiveHead"];
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
@@ -200,6 +200,7 @@ declare global {
   const useLink: typeof import('vue-router/auto')['useLink']
   const useLocalStorage: typeof import('@vueuse/core')['useLocalStorage']
   const useMagicKeys: typeof import('@vueuse/core')['useMagicKeys']
+  const useMainStore: typeof import("./stores/index")["useMainStore"];
   const useManualRefHistory: typeof import('@vueuse/core')['useManualRefHistory']
   const useMediaControls: typeof import('@vueuse/core')['useMediaControls']
   const useMediaQuery: typeof import('@vueuse/core')['useMediaQuery']
@@ -314,6 +315,8 @@ declare global {
   // @ts-ignore
   export type {
     Component,
+    Slot,
+    Slots,
     ComponentPublicInstance,
     ComputedRef,
     DirectiveBinding,
@@ -332,7 +335,9 @@ declare global {
 }
 
 // for vue template auto import
-import { UnwrapRef } from 'vue'
+import { UnwrapRef } from "vue";
+
+
 declare module 'vue' {
   interface GlobalComponents {}
   interface ComponentCustomProperties {
@@ -527,6 +532,7 @@ declare module 'vue' {
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
     readonly useLocalStorage: UnwrapRef<typeof import('@vueuse/core')['useLocalStorage']>
     readonly useMagicKeys: UnwrapRef<typeof import('@vueuse/core')['useMagicKeys']>
+    readonly useMainStore: UnwrapRef<typeof import("./stores/index")["useMainStore"]>;
     readonly useManualRefHistory: UnwrapRef<typeof import('@vueuse/core')['useManualRefHistory']>
     readonly useMediaControls: UnwrapRef<typeof import('@vueuse/core')['useMediaControls']>
     readonly useMediaQuery: UnwrapRef<typeof import('@vueuse/core')['useMediaQuery']>
