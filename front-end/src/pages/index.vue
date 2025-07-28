@@ -5,7 +5,7 @@ import Projects from "~/pages/projects.vue";
 
 
 defineOptions({
-	name: "IndexPage",
+  name: "IndexPage"
 });
 
 /*
@@ -25,45 +25,45 @@ useHead({
 </script>
 
 <template>
-	<div class="page">
-		<About class="about" />
-		<div class="projects-experience">
-			<Projects class="projects" />
-			<Experience class="experience" />
-		</div>
-	</div>
+  <div class="page">
+    <About class="about" />
+    <div class="projects-experience">
+      <Projects class="projects" />
+      <Experience class="experience" />
+    </div>
+  </div>
 </template>
 
 <style scoped>
 .about {
-	width: 100%;
+  width: 100%;
 }
 
 .projects-experience {
-	display: flex;
-	flex-direction: row;
-	width: 100%;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
 }
 
 .projects,
 .experience {
-	width: 50%;
+  width: 50%;
 }
 
 .projects {
-	margin-right: 10px;
+  margin-right: 10px;
 }
 
 @media (max-width: 600px) {
-	.projects-experience {
-		flex-direction: column;
-	}
-
-	.projects,
-	.experience {
-		width: 100%;
-		margin: 0;
-	}
+  .projects-experience {
+    flex-direction: column;
+  }
+  
+  .projects,
+  .experience {
+    width: 100%;
+    margin: 0;
+  }
 }
 </style>
 
