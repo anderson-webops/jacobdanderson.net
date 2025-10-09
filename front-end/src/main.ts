@@ -1,6 +1,7 @@
 import type { UserModule } from "~/types.ts";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faFacebook, faGithub, faInstagram } from "@fortawesome/free-brands-svg-icons";
+import { faChalkboardTeacher } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { setupLayouts } from "virtual:generated-layouts";
 import { ViteSSG } from "vite-ssg";
@@ -13,7 +14,7 @@ import "./styles/main.css";
 import "uno.css";
 
 // FontAwesome library setup
-library.add(faFacebook, faGithub, faInstagram);
+library.add(faFacebook, faGithub, faInstagram, faChalkboardTeacher);
 
 // https://github.com/antfu/vite-ssg
 export const createApp = ViteSSG(

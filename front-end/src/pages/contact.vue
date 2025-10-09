@@ -1,117 +1,111 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed } from "vue";
+import { useMainStore } from "~/stores";
 
-
-const form = ref({
-  name: "",
-  email: "",
-  message: ""
-});
-
-function handleSubmit() {
-  console.log("Form submitted:", form.value);
-  // eslint-disable-next-line no-alert
-  alert("Message sent! We'll get back to you soon.");
-  
-  // Reset form after submission
-  form.value.name = "";
-  form.value.email = "";
-  form.value.message = "";
-}
+const store = useMainStore();
+const profile = computed(() => store.userProfile);
 </script>
 
 <template>
-  <div class="page">
-    <div class="item">
-      <h1>Contact Me</h1>
+  <div class="contact-page">
+    <section class="card">
+      <h1>Let's connect</h1>
       <p>
-        If you have any questions or feedback, please feel free to reach out to
-        us through the form below.
+        I'd love to talk about embedded systems projects, research collaborations, or custom lessons for your
+        student. Reach out directly and I'll respond within two business days.
       </p>
-      
-      <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <label for="name">Name:</label>
-          <input id="name" v-model="form.name" required type="text" />
+      <div class="info-grid">
+        <div>
+          <span class="label">Email</span>
+          <a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
         </div>
-        
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input id="email" v-model="form.email" required type="email" />
+        <div>
+          <span class="label">Phone</span>
+          <a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
         </div>
-        
-        <div class="form-group">
-          <label for="message">Message:</label>
-          <textarea id="message" v-model="form.message" required rows="4" />
+        <div>
+          <span class="label">Location</span>
+          <span>{{ profile.location }}</span>
         </div>
-        
-        <button type="submit">Send Message</button>
-      </form>
-    </div>
+      </div>
+      <RouterLink class="cta" to="/classes">Learn about private lessons →</RouterLink>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.form-group {
-  margin-bottom: 20px;
+.contact-page {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0 5rem;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
+.card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group textarea {
-  width: 100%;
-  min-width: 600px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff; /* Default light mode background */
-  color: #000; /* Default light mode text color */
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: #0f172a;
 }
 
-/* Dark mode styles */
-body.dark .form-group input[type="text"],
-body.dark .form-group input[type="email"],
-body.dark .form-group textarea {
-  background-color: #333; /* Dark mode background */
-  color: #fff; /* Dark mode text color */
-  border: 1px solid #666; /* Dark mode border color */
+p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.65;
 }
 
-button[type="submit"] {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.info-grid {
+  display: grid;
+  gap: 1rem;
 }
 
-button[type="submit"]:hover {
-  background-color: #45a049;
+.info-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #1f2937;
 }
 
-@media (max-width: 800px) {
-  .item {
-    max-width: 100%;
-  }
-  
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group textarea {
-    min-width: auto;
+.label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.08em;
+}
+
+a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.cta {
+  font-weight: 600;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 2rem;
   }
 }
 </style>
 
 <route lang="json">
 {
-"meta": {
-"layout": "default"
-}
+  "meta": {
+    "layout": "default"
+  }
 }
 </route>
