@@ -1,17 +1,33 @@
 <script lang="ts" setup>
-import { ref } from "vue";
-
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 const isExpanded = ref(false);
-const activeLink = ref("Home");
+const route = useRoute();
 
-const links = ref([
+const links = [
   { name: "Home", path: "/" },
   { name: "Projects", path: "/projects" },
   { name: "Experience", path: "/experience" },
   { name: "About", path: "/about" },
+  { name: "Classes", path: "/classes" },
   { name: "Contact", path: "/contact" }
-]);
+];
+
+const activeLink = ref(links[0].name);
+
+const activePath = computed(() => route.path);
+
+watch(
+  activePath,
+  (currentPath) => {
+    const match = links.find((link) => currentPath.startsWith(link.path) && link.path !== "/") ||
+      links.find((link) => link.path === currentPath) ||
+      links[0];
+    activeLink.value = match.name;
+  },
+  { immediate: true }
+);
 
 function toggleMenu() {
   isExpanded.value = !isExpanded.value;
@@ -19,22 +35,22 @@ function toggleMenu() {
 
 function setActiveLink(linkName: string) {
   activeLink.value = linkName;
-  isExpanded.value = false; // Close the menu after a link is clicked
+  isExpanded.value = false;
 }
 </script>
 
 <template>
-  <header>
+  <header class="header">
     <nav class="flex-container">
       <div class="logo-container">
-        <RouterLink to="/">
+        <RouterLink to="/" class="logo-link">
           <img
             alt="Jacob Anderson Logo"
             class="logo"
             src="https://jacobdanderson.s3.amazonaws.com/images/Logo+1+Saywa.png"
           />
+          <span class="site-name">Jacob Anderson</span>
         </RouterLink>
-        <span class="site-name">Jacob Anderson</span>
       </div>
       <div class="hamburger" @click="toggleMenu">
         <div :class="{ open: isExpanded }" class="bar" />
@@ -58,14 +74,22 @@ function setActiveLink(linkName: string) {
 </template>
 
 <style scoped>
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(16px);
+}
+
 .flex-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background-color: #fff;
-  border-bottom: 1px solid #ccc;
-  position: relative;
+  padding: 1.25rem clamp(1rem, 4vw, 2rem);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 22px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+  margin-bottom: 2rem;
 }
 
 .logo-container {
@@ -73,53 +97,81 @@ function setActiveLink(linkName: string) {
   align-items: center;
 }
 
+.logo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
 .logo {
-  width: 50px;
+  width: 52px;
   height: auto;
-  margin-right: 10px;
 }
 
 .site-name {
-  font-size: 1.5em;
-  font-weight: bold;
-  color: #333;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.02em;
 }
 
 .nav-links {
   display: flex;
-  gap: 30px;
+  gap: 1.5rem;
   list-style: none;
-  margin: 10px;
+  margin: 0;
   padding: 0;
+  align-items: center;
+}
+
+.nav-links li {
+  position: relative;
 }
 
 .nav-link {
   text-decoration: none;
-  color: #333;
-  font-size: 1em;
-  padding: 0 10px;
+  color: #1f2937;
+  font-weight: 600;
+  padding-bottom: 0.35rem;
+  display: inline-flex;
+  transition: color 0.2s ease;
 }
 
-.nav-link:hover {
-  color: #007bff;
+.nav-links li.active .nav-link,
+.nav-link:hover,
+.nav-link:focus {
+  color: #0f766e;
+}
+
+.nav-links li.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.4rem;
+  width: 100%;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0f766e, #14b8a6);
 }
 
 .hamburger {
   display: none;
   flex-direction: column;
   cursor: pointer;
+  gap: 0.35rem;
 }
 
 .bar {
-  width: 25px;
+  width: 28px;
   height: 3px;
-  background-color: #333;
-  margin: 4px 0;
-  transition: 0.4s;
+  background-color: #0f172a;
+  border-radius: 999px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .bar.open:nth-child(1) {
-  transform: rotate(-45deg) translate(-5px, 6px);
+  transform: translateY(6px) rotate(-45deg);
 }
 
 .bar.open:nth-child(2) {
@@ -127,35 +179,37 @@ function setActiveLink(linkName: string) {
 }
 
 .bar.open:nth-child(3) {
-  transform: rotate(45deg) translate(-5px, -6px);
+  transform: translateY(-6px) rotate(45deg);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .flex-container {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
   .hamburger {
     display: flex;
   }
-  
+
   .nav-links {
-    display: none;
-    flex-direction: column;
     width: 100%;
-    background-color: #fff;
-    position: absolute;
-    top: 60px;
-    left: 0; /* Center horizontally */
-    transform: translateX(-3%); /* Shift to the center */
-    padding: 20px;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    flex-direction: column;
+    align-items: flex-start;
+    display: none;
+    padding-top: 0.75rem;
   }
-  
+
   .nav-links.expanded {
     display: flex;
   }
-  
+
   .nav-links li {
-    margin: 10px 0;
-    text-align: center;
+    width: 100%;
+  }
+
+  .nav-links li.active::after {
+    display: none;
   }
 }
 </style>

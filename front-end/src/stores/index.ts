@@ -1,146 +1,243 @@
 import { defineStore } from "pinia";
 
+export interface ExperienceItem {
+  role: string;
+  company: string;
+  location: string;
+  timeframe: string;
+  highlights: string[];
+}
+
+export interface ProjectItem {
+  name: string;
+  timeframe: string;
+  description: string;
+  tech?: string[];
+}
+
+export interface EducationItem {
+  degree: string;
+  institution: string;
+  timeframe: string;
+  details: string;
+  highlights?: string[];
+}
+
+export interface Skills {
+  programmingLanguages: string[];
+  frameworksAndTools: string[];
+  competencies: string[];
+  spokenLanguages: string[];
+}
+
+export interface UserProfile {
+  name: string;
+  location: string;
+  email: string;
+  phone: string;
+  tagline: string;
+  about: string;
+  heroHighlights: string[];
+  education: EducationItem[];
+  experiences: ExperienceItem[];
+  projects: ProjectItem[];
+  skills: Skills;
+  achievements: string[];
+  teaching: {
+    rate: number;
+    summary: string;
+    focusAreas: string[];
+    link: string;
+  };
+}
 
 export const useMainStore = defineStore("main", {
   state: () => ({
     userProfile: {
       name: "Jacob Anderson",
-      age: 24,
-      interests: [
-        "Music",
-        "Programming",
-        "Chess",
-        "Playing Piano",
-        "Hardware Design",
-        "Mentoring Others"
-      ],
+      location: "Alpharetta, Georgia",
+      email: "jacobdanderson@gmail.com",
+      phone: "404-626-0025",
+      tagline:
+        "Computer engineer focused on resilient embedded systems, data-driven research, and impactful learning experiences.",
       about:
-        "My name is Jacob Anderson, I am from Georgia and absolutely love music! I have a passion for programming and hardware design, and I enjoy mentoring others and contributing to projects with practical outcomes.",
+        "I am a computer engineer and educator who enjoys building embedded systems that solve real-world problems and mentoring students as they master new skills.",
+      heroHighlights: [
+        "M.S. Computer Engineering student at Georgia Tech (August 2025 – Present)",
+        "B.S. Computer Engineering, Minor in Computer Science, Brigham Young University (GPA 3.79)",
+        "Experience across embedded systems, radiation-effects research, and STEM instruction"
+      ],
       education: [
         {
-          degree: "Bachelor of Computer Engineering, Minor: Computer Science",
-          institution: "Brigham Young University, Provo, UT",
-          description: "Current GPA: 3.78, August 2020 to Present"
+          degree: "M.S. Computer Engineering (in progress)",
+          institution: "Georgia Institute of Technology",
+          timeframe: "Aug 2025 – Present",
+          details: "Graduate studies exploring advanced computer engineering topics and resilient system design.",
+          highlights: ["Continuing research interests in embedded sensing and radiation effects."]
         },
         {
-          degree: "Dual Enrollment",
-          institution: "Georgia State University",
-          description: "GPA 3.52, Aug 2017 to May 2018"
+          degree: "B.S. Computer Engineering, Minor in Computer Science",
+          institution: "Brigham Young University",
+          timeframe: "Aug 2020 – Apr 2025",
+          details: "Graduated with a 3.79 GPA; coursework in embedded systems, digital design, software construction, and networking.",
+          highlights: [
+            "Senior Capstone: Designed the interface and communication subsystem for Epiroc's industrial drill monitoring platform.",
+            "Research assistant focusing on non-invasive glucose monitoring and radiation-effects simulation frameworks."
+          ]
         }
       ],
-      work: [
+      experiences: [
+        {
+          role: "Private Instructor & Instructor Success Trainer",
+          company: "Juni Learning",
+          location: "Remote",
+          timeframe: "May 2021 – Present",
+          highlights: [
+            "Teach one-on-one programming, STEM, and Spanish lessons for students ages 7–18.",
+            "Adapt sessions to a wide range of learning styles and goals.",
+            "Mentor new instructors and review curriculum delivery as an Instructor Success Trainer."
+          ]
+        },
         {
           role: "Undergraduate Research Assistant",
           company: "Brigham Young University",
-          description:
-            "Assisted in developing a non-invasive glucose device with Dr. Chiang and Dr. Davis, focusing on system integration and data analysis. Sep 2022 to Present"
+          location: "Provo, UT",
+          timeframe: "Sep 2022 – Oct 2024",
+          highlights: [
+            "Co-developed non-invasive glucose monitoring prototypes with a multidisciplinary team.",
+            "Created MATLAB and Python signal-processing workflows to calibrate sensors and analyze clinical data.",
+            "Contributed to the Purdue SCALE OSCRE framework to improve single-event effect simulations and co-authored the initial technical paper."
+          ]
         },
         {
-          role: "Private Instructor and Instructor Success Trainer (IST)",
-          company: "Juni Learning",
-          description:
-            "Taught youth (7-18) programming, math, and science 1-on-1, with a focus on real-world applications. May 2021 to April 2024"
+          role: "IMMERSE Summer Researcher",
+          company: "Purdue SCALE & Brigham Young University",
+          location: "Provo, UT",
+          timeframe: "Summer 2024",
+          highlights: [
+            "Led integration of the open-source OSCRE radiation-effects simulation framework.",
+            "Automated toolchain setup for Xschem and Ngspice to accelerate SEE analysis.",
+            "Documented workflows and collaborated across institutions to guide future contributors."
+          ]
+        },
+        {
+          role: "Capstone Engineer – Industrial Drill Sensor Integration",
+          company: "Epiroc / Brigham Young University",
+          location: "Provo, UT",
+          timeframe: "Jan 2024 – Apr 2024",
+          highlights: [
+            "Designed the embedded interface for real-time temperature and pressure monitoring.",
+            "Implemented I2C sensor communication and BLE data streaming to the supervisory server.",
+            "Delivered a production-ready operator display for drill status insights."
+          ]
+        },
+        {
+          role: "Programmer & Web Designer",
+          company: "AudioT & Freelance",
+          location: "Remote",
+          timeframe: "May 2020 – Jun 2021",
+          highlights: [
+            "Developed web experiences with HTML, CSS, JavaScript, and Vue for academic and startup partners.",
+            "Programmed Raspberry Pi prototypes with Python and Bash to support AudioT's product experiments.",
+            "Managed deployments and iterative feature updates with an emphasis on usability."
+          ]
         },
         {
           role: "Full-Time Service Volunteer",
-          company: "The Church of Jesus Christ of Latter-day Saints, Ecuador",
-          description:
-            "Held leadership/manager positions over 12 volunteers, coordinating efforts and providing training. July 2018 to Apr 2020"
-        },
-        {
-          role: "Programmer and Assistant",
-          company: "AudioT",
-          description:
-            "Worked for the start-up AudioT, programming Raspberry Pi’s using Python and Bash. May 2020 to August 2020"
-        },
-        {
-          role: "Web Designer",
-          company: "Freelance",
-          description:
-            "Developed and maintained websites using HTML, CSS, JavaScript, and Vue for various clients. July 2020 to June 2021"
-        }
-      ],
-      skills: [
-        "Fluent in Spanish – Reading and Writing proficiency Moderate to High",
-        "Programming – C, C++, Java, TypeScript, Python, System Verilog, HTML, CSS, JavaScript (moderate fluency), Scratch, RISC-V Assembly, React, and Vue",
-        "Hardware Design – System Integration, Circuit Design, Data Analysis",
-        "Mentorship – Teaching programming, math, and science to youth and peers"
-      ],
-      achievements: [
-        "Rank of Eagle Scout in the BSA organization",
-        "Phi Eta Sigma Honor Society Member",
-        "Contributor to a non-invasive glucose monitoring device research project"
-      ],
-      otherActivities: [
-        "Study Abroad at Georgia Tech Lorraine in Metz, France, Winter semesters of 2015 and 2016",
-        "First Lego League Robotics Team 2011 to 2014",
-        "Shakespeare Tavern of Atlanta, Volunteer",
-        "Community service involvement, including Project Read in Provo"
-      ],
-      experience: [
-        {
-          role: "Research Assistant",
-          location: "BYU",
-          description:
-            "Assisting in research for developing a non-invasive glucose monitoring device, with a focus on system integration and data analysis."
-        },
-        {
-          role: "Employee",
-          location: "Chick-Fil-A",
-          description:
-            "Worked at Chick-Fil-A, gaining experience in customer service and teamwork."
-        },
-        {
-          role: "Employee",
-          location: "Crumbl",
-          description:
-            "Worked at Crumbl over the summer, focusing on customer service and product preparation."
-        },
-        {
-          role: "Web Developer",
-          location: "Freelance",
-          description:
-            "Developed websites for clients, including a basic website for my Dad using HTML and CSS."
-        },
-        {
-          role: "Web Developer",
-          location: "Startup",
-          description:
-            "Worked on web development for a startup initiated by one of my dad's students, contributing to the growth of the project."
+          company: "Ecuador Mission",
+          location: "Ecuador",
+          timeframe: "Jul 2018 – Apr 2020",
+          highlights: [
+            "Coordinated training and assignments for a district of 12 volunteers.",
+            "Maintained operational records while serving communities 10+ hours daily.",
+            "Developed leadership, resilience, and bilingual communication skills."
+          ]
         }
       ],
       projects: [
         {
-          name: "Website for Dad",
+          name: "Industrial Drill Monitoring Platform",
+          timeframe: "2024",
           description:
-            "Developed a basic website for my Dad using HTML and CSS."
+            "Capstone system that streams drill temperature and pressure data to operators in real time using BLE and custom embedded firmware.",
+          tech: ["C", "I2C", "BLE", "Embedded UI"]
         },
         {
-          name: "Student Startup Website",
+          name: "Open-Source Circuit Radiation Effects (OSCRE)",
+          timeframe: "2024",
           description:
-            "Developed and maintained a website for a startup initiated by one of my dad's students."
+            "Collaborative Purdue SCALE framework integrating Xschem and Ngspice tooling to simulate single-event effects in radiation environments.",
+          tech: ["Python", "Bash", "Ngspice", "Xschem"]
         },
         {
-          name: "Eagle Project",
+          name: "Zilch Game Engine",
+          timeframe: "Ongoing",
           description:
-            "Created an orienteering course for my Eagle Scout project, contributing to community development."
+            "Personal project evolving a dice game from C++ prototypes to a Java-based architecture that applies object-oriented patterns for extensibility.",
+          tech: ["Java", "C++", "Game Design"]
+        },
+        {
+          name: "Web Portfolio Management",
+          timeframe: "Ongoing",
+          description:
+            "Maintain personal and client-facing sites built with Vue and Vitesse, focusing on responsive UI design and performance.",
+          tech: ["Vue", "Vitesse", "TypeScript"]
         }
-      ]
-    }
+      ],
+      skills: {
+        programmingLanguages: [
+          "C",
+          "C++",
+          "Java",
+          "Python",
+          "TypeScript",
+          "HTML & CSS",
+          "JavaScript",
+          "SystemVerilog",
+          "VHDL",
+          "Swift",
+          "MATLAB",
+          "RISC-V Assembly"
+        ],
+        frameworksAndTools: [
+          "Vue",
+          "Vitesse",
+          "React",
+          "SwiftUI",
+          "NumPy",
+          "Pandas",
+          "Matplotlib"
+        ],
+        competencies: [
+          "Embedded systems design",
+          "Signal processing & data analysis",
+          "Radiation-effects simulation",
+          "Wireless & sensor integration",
+          "Technical instruction and mentorship"
+        ],
+        spokenLanguages: [
+          "English",
+          "Spanish (fluent)",
+          "Portuguese (conversational)"
+        ]
+      },
+      achievements: [
+        "Eagle Scout, Boy Scouts of America",
+        "Phi Eta Sigma Honor Society member"
+      ],
+      teaching: {
+        rate: 40,
+        summary:
+          "I work with kids and teens to build confidence in programming, STEM fundamentals, and conversational Spanish through personalized lessons.",
+        focusAreas: ["Programming", "STEM enrichment", "Spanish"],
+        link: "https://classes.jacobdanderson.net"
+      }
+    } as UserProfile
   }),
-  
-  // Define actions for fetching or mutating the state
-  actions: {
-    // Example: Fetch user profile data from an API
-    fetchUserProfile() {
-      // Implementation for fetching user profile data
-    }
-  },
-  
-  // Define getters to compute derived state or access specific parts of the state
+
+  actions: {},
+
   getters: {
-    // Example getter for getting all project names
-    projectNames: (state) =>
-      state.userProfile.projects.map((project) => project.name)
+    projectNames: (state) => state.userProfile.projects.map((project) => project.name)
   }
 });

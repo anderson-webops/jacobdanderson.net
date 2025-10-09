@@ -1,117 +1,108 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed } from "vue";
+import { useMainStore } from "~/stores";
 
-
-const form = ref({
-  name: "",
-  email: "",
-  message: ""
-});
-
-function handleSubmit() {
-  console.log("Form submitted:", form.value);
-  // eslint-disable-next-line no-alert
-  alert("Message sent! We'll get back to you soon.");
-  
-  // Reset form after submission
-  form.value.name = "";
-  form.value.email = "";
-  form.value.message = "";
-}
+const store = useMainStore();
+const profile = computed(() => store.userProfile);
 </script>
 
 <template>
-  <div class="page">
-    <div class="item">
-      <h1>Contact Me</h1>
+  <div class="page contact">
+    <section class="contact__card">
+      <h1>Connect with Jacob</h1>
       <p>
-        If you have any questions or feedback, please feel free to reach out to
-        us through the form below.
+        I enjoy collaborating on research-driven engineering, embedded systems, and meaningful learning
+        opportunities. The fastest way to reach me is by email, and I am happy to schedule a call.
       </p>
-      
-      <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <label for="name">Name:</label>
-          <input id="name" v-model="form.name" required type="text" />
+
+      <div class="contact__details">
+        <div>
+          <span>Email</span>
+          <a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
         </div>
-        
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input id="email" v-model="form.email" required type="email" />
+        <div>
+          <span>Phone</span>
+          <a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
         </div>
-        
-        <div class="form-group">
-          <label for="message">Message:</label>
-          <textarea id="message" v-model="form.message" required rows="4" />
+        <div>
+          <span>Location</span>
+          <p>{{ profile.location }}</p>
         </div>
-        
-        <button type="submit">Send Message</button>
-      </form>
-    </div>
+      </div>
+
+      <RouterLink class="contact__cta" to="/classes">
+        Interested in private lessons? Explore my teaching approach →
+      </RouterLink>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.form-group {
-  margin-bottom: 20px;
+.contact {
+  display: flex;
+  justify-content: center;
 }
 
-.form-group label {
+.contact__card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  text-align: left;
+}
+
+.contact__card p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.contact__details {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.contact__details span {
   display: block;
-  margin-bottom: 5px;
+  font-weight: 600;
+  color: #0f766e;
+  margin-bottom: 0.25rem;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group textarea {
-  width: 100%;
-  min-width: 600px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff; /* Default light mode background */
-  color: #000; /* Default light mode text color */
+.contact__details a,
+.contact__details p {
+  margin: 0;
+  color: #1f2937;
 }
 
-/* Dark mode styles */
-body.dark .form-group input[type="text"],
-body.dark .form-group input[type="email"],
-body.dark .form-group textarea {
-  background-color: #333; /* Dark mode background */
-  color: #fff; /* Dark mode text color */
-  border: 1px solid #666; /* Dark mode border color */
+.contact__cta {
+  align-self: flex-start;
+  font-weight: 600;
+  color: #0f766e;
+  text-decoration: none;
 }
 
-button[type="submit"] {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.contact__cta:hover,
+.contact__cta:focus {
+  text-decoration: underline;
 }
 
-button[type="submit"]:hover {
-  background-color: #45a049;
-}
-
-@media (max-width: 800px) {
-  .item {
-    max-width: 100%;
-  }
-  
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group textarea {
-    min-width: auto;
+@media (max-width: 768px) {
+  .contact__card {
+    padding: 2.25rem;
   }
 }
 </style>
 
 <route lang="json">
 {
-"meta": {
-"layout": "default"
-}
+  "meta": {
+    "layout": "default"
+  }
 }
 </route>
