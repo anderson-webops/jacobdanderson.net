@@ -1,54 +1,60 @@
 <script lang="ts" setup>
-import { ref } from "vue";
-
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 const isExpanded = ref(false);
-const activeLink = ref("Home");
+const route = useRoute();
 
-const links = ref([
+const links = [
   { name: "Home", path: "/" },
-  { name: "Projects", path: "/projects" },
-  { name: "Experience", path: "/experience" },
   { name: "About", path: "/about" },
+  { name: "Experience", path: "/experience" },
+  { name: "Projects", path: "/projects" },
+  { name: "Teaching", path: "/classes" },
   { name: "Contact", path: "/contact" }
-]);
+];
+
+const activePath = computed(() => route.path);
 
 function toggleMenu() {
   isExpanded.value = !isExpanded.value;
 }
 
-function setActiveLink(linkName: string) {
-  activeLink.value = linkName;
-  isExpanded.value = false; // Close the menu after a link is clicked
+function closeMenu() {
+  isExpanded.value = false;
 }
+
+watch(
+  () => route.path,
+  () => {
+    isExpanded.value = false;
+  }
+);
 </script>
 
 <template>
-  <header>
-    <nav class="flex-container">
-      <div class="logo-container">
-        <RouterLink to="/">
-          <img
-            alt="Jacob Anderson Logo"
-            class="logo"
-            src="https://jacobdanderson.s3.amazonaws.com/images/Logo+1+Saywa.png"
-          />
-        </RouterLink>
-        <span class="site-name">Jacob Anderson</span>
-      </div>
-      <div class="hamburger" @click="toggleMenu">
-        <div :class="{ open: isExpanded }" class="bar" />
-        <div :class="{ open: isExpanded }" class="bar" />
-        <div :class="{ open: isExpanded }" class="bar" />
-      </div>
-      <ul :class="{ expanded: isExpanded }" class="nav-links">
-        <li
-          v-for="link in links"
-          :key="link.path"
-          :class="{ active: activeLink === link.name }"
-          @click="setActiveLink(link.name)"
-        >
-          <RouterLink :to="link.path" class="nav-link">
+  <header class="site-header">
+    <nav class="nav">
+      <RouterLink class="brand" to="/" @click="closeMenu">
+        <img
+          alt="Jacob Anderson logo"
+          class="logo"
+          src="https://jacobdanderson.s3.amazonaws.com/images/Logo+1+Saywa.png"
+        />
+        <span>Jacob Anderson</span>
+      </RouterLink>
+      <button aria-label="Toggle navigation" class="hamburger" type="button" @click="toggleMenu">
+        <span :class="{ open: isExpanded }" />
+        <span :class="{ open: isExpanded }" />
+        <span :class="{ open: isExpanded }" />
+      </button>
+      <ul :class="{ expanded: isExpanded }" class="links">
+        <li v-for="link in links" :key="link.path">
+          <RouterLink
+            :class="{ active: activePath.startsWith(link.path) && link.path !== '/' ? true : activePath === link.path }"
+            :to="link.path"
+            @click="closeMenu"
+          >
             {{ link.name }}
           </RouterLink>
         </li>
@@ -58,104 +64,139 @@ function setActiveLink(linkName: string) {
 </template>
 
 <style scoped>
-.flex-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: #fff;
-  border-bottom: 1px solid #ccc;
-  position: relative;
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(12px);
+  background: rgba(248, 250, 252, 0.85);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
 }
 
-.logo-container {
+.nav {
+  max-width: 1080px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #0f172a;
+  text-decoration: none;
 }
 
 .logo {
-  width: 50px;
-  height: auto;
-  margin-right: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
 }
 
-.site-name {
-  font-size: 1.5em;
-  font-weight: bold;
-  color: #333;
-}
-
-.nav-links {
+.links {
   display: flex;
-  gap: 30px;
+  align-items: center;
+  gap: 1.5rem;
   list-style: none;
-  margin: 10px;
+  margin: 0;
   padding: 0;
 }
 
-.nav-link {
+.links li a {
+  position: relative;
+  font-weight: 600;
+  color: #334155;
   text-decoration: none;
-  color: #333;
-  font-size: 1em;
-  padding: 0 10px;
+  padding-bottom: 0.25rem;
+  transition: color 0.2s ease;
 }
 
-.nav-link:hover {
-  color: #007bff;
+.links li a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: #2563eb;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+.links li a:hover {
+  color: #1d4ed8;
+}
+
+.links li a:hover::after,
+.links li a.active::after {
+  transform: scaleX(1);
+}
+
+.links li a.active {
+  color: #1d4ed8;
 }
 
 .hamburger {
   display: none;
   flex-direction: column;
+  gap: 0.35rem;
+  background: none;
+  border: none;
   cursor: pointer;
+  padding: 0.35rem;
 }
 
-.bar {
-  width: 25px;
+.hamburger span {
+  width: 26px;
   height: 3px;
-  background-color: #333;
-  margin: 4px 0;
-  transition: 0.4s;
+  background: #0f172a;
+  border-radius: 999px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-.bar.open:nth-child(1) {
-  transform: rotate(-45deg) translate(-5px, 6px);
+.hamburger span.open:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
 }
 
-.bar.open:nth-child(2) {
+.hamburger span.open:nth-child(2) {
   opacity: 0;
 }
 
-.bar.open:nth-child(3) {
-  transform: rotate(45deg) translate(-5px, -6px);
+.hamburger span.open:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
 }
 
 @media (max-width: 768px) {
   .hamburger {
     display: flex;
   }
-  
-  .nav-links {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    background-color: #fff;
+
+  .links {
     position: absolute;
-    top: 60px;
-    left: 0; /* Center horizontally */
-    transform: translateX(-3%); /* Shift to the center */
-    padding: 20px;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    padding: 1.25rem 1.5rem 1.75rem;
+    gap: 1rem;
+    display: none;
   }
-  
-  .nav-links.expanded {
+
+  .links.expanded {
     display: flex;
   }
-  
-  .nav-links li {
-    margin: 10px 0;
-    text-align: center;
+
+  .links li a {
+    width: 100%;
   }
 }
 </style>
