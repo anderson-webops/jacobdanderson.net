@@ -1,117 +1,119 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed } from "vue";
+import { useMainStore } from "~/stores";
 
-
-const form = ref({
-  name: "",
-  email: "",
-  message: ""
-});
-
-function handleSubmit() {
-  console.log("Form submitted:", form.value);
-  // eslint-disable-next-line no-alert
-  alert("Message sent! We'll get back to you soon.");
-  
-  // Reset form after submission
-  form.value.name = "";
-  form.value.email = "";
-  form.value.message = "";
-}
+const store = useMainStore();
+const profile = computed(() => store.userProfile);
 </script>
 
 <template>
-  <div class="page">
-    <div class="item">
-      <h1>Contact Me</h1>
+  <section class="page contact-page">
+    <div class="item contact-card">
+      <h1>Let's Connect</h1>
       <p>
-        If you have any questions or feedback, please feel free to reach out to
-        us through the form below.
+        I love collaborating on thoughtful products, tackling complex engineering problems, and helping students discover a love
+        for technology. Reach out directly using the details below.
       </p>
-      
-      <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <label for="name">Name:</label>
-          <input id="name" v-model="form.name" required type="text" />
+      <dl class="contact-list">
+        <div>
+          <dt>Email</dt>
+          <dd><a :href="`mailto:${profile.email}`">{{ profile.email }}</a></dd>
         </div>
-        
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input id="email" v-model="form.email" required type="email" />
+        <div>
+          <dt>Phone</dt>
+          <dd><a :href="`tel:${profile.phone}`">{{ profile.phone }}</a></dd>
         </div>
-        
-        <div class="form-group">
-          <label for="message">Message:</label>
-          <textarea id="message" v-model="form.message" required rows="4" />
+        <div>
+          <dt>Location</dt>
+          <dd>{{ profile.location }}</dd>
         </div>
-        
-        <button type="submit">Send Message</button>
-      </form>
+      </dl>
+      <RouterLink class="cta" to="/classes">Learn about my classes</RouterLink>
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>
-.form-group {
-  margin-bottom: 20px;
+.contact-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
+.contact-card {
+  max-width: 640px;
+  text-align: left;
+  align-items: flex-start;
+  gap: 20px;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group textarea {
+.contact-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.contact-list {
   width: 100%;
-  min-width: 600px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff; /* Default light mode background */
-  color: #000; /* Default light mode text color */
+  display: grid;
+  gap: 16px;
+  margin: 0;
 }
 
-/* Dark mode styles */
-body.dark .form-group input[type="text"],
-body.dark .form-group input[type="email"],
-body.dark .form-group textarea {
-  background-color: #333; /* Dark mode background */
-  color: #fff; /* Dark mode text color */
-  border: 1px solid #666; /* Dark mode border color */
+.contact-list div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-button[type="submit"] {
-  background-color: #4caf50;
-  color: white;
+.contact-list dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.contact-list dd {
+  margin: 0;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.contact-list a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.contact-list a:hover,
+.contact-list a:focus {
+  text-decoration: underline;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-button[type="submit"]:hover {
-  background-color: #45a049;
-}
-
-@media (max-width: 800px) {
-  .item {
-    max-width: 100%;
-  }
-  
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group textarea {
-    min-width: auto;
-  }
+.cta:hover,
+.cta:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(14, 165, 233, 0.25);
 }
 </style>
 
 <route lang="json">
 {
-"meta": {
-"layout": "default"
-}
+  "meta": {
+    "layout": "default"
+  }
 }
 </route>
