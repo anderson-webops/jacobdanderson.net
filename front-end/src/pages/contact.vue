@@ -1,117 +1,92 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed } from "vue";
+import { useMainStore } from "~/stores";
 
-
-const form = ref({
-  name: "",
-  email: "",
-  message: ""
-});
-
-function handleSubmit() {
-  console.log("Form submitted:", form.value);
-  // eslint-disable-next-line no-alert
-  alert("Message sent! We'll get back to you soon.");
-  
-  // Reset form after submission
-  form.value.name = "";
-  form.value.email = "";
-  form.value.message = "";
-}
+const store = useMainStore();
+const contact = computed(() => store.userProfile.contact);
 </script>
 
 <template>
-  <div class="page">
-    <div class="item">
-      <h1>Contact Me</h1>
+  <div class="contact-page">
+    <header class="page-header">
+      <h1>Let's Connect</h1>
       <p>
-        If you have any questions or feedback, please feel free to reach out to
-        us through the form below.
+        I'm always open to collaborating on impactful engineering projects, research partnerships, and
+        youth-focused learning opportunities. Reach out and let's start a conversation.
       </p>
-      
-      <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <label for="name">Name:</label>
-          <input id="name" v-model="form.name" required type="text" />
-        </div>
-        
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input id="email" v-model="form.email" required type="email" />
-        </div>
-        
-        <div class="form-group">
-          <label for="message">Message:</label>
-          <textarea id="message" v-model="form.message" required rows="4" />
-        </div>
-        
-        <button type="submit">Send Message</button>
-      </form>
+    </header>
+    <div class="contact-cards">
+      <article class="card">
+        <h2>Email</h2>
+        <a :href="`mailto:${contact.email}`">{{ contact.email }}</a>
+      </article>
+      <article class="card">
+        <h2>Phone</h2>
+        <a :href="`tel:${contact.phone}`">{{ contact.phone }}</a>
+      </article>
+      <article class="card">
+        <h2>Location</h2>
+        <p>{{ contact.location }}</p>
+      </article>
     </div>
   </div>
 </template>
 
 <style scoped>
-.form-group {
-  margin-bottom: 20px;
+.contact-page {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  padding-bottom: 4rem;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
+.page-header h1 {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  margin-bottom: 1rem;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group textarea {
-  width: 100%;
-  min-width: 600px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff; /* Default light mode background */
-  color: #000; /* Default light mode text color */
+.page-header p {
+  max-width: 60ch;
+  color: #4b5563;
+  font-size: 1.1rem;
+  line-height: 1.7;
 }
 
-/* Dark mode styles */
-body.dark .form-group input[type="text"],
-body.dark .form-group input[type="email"],
-body.dark .form-group textarea {
-  background-color: #333; /* Dark mode background */
-  color: #fff; /* Dark mode text color */
-  border: 1px solid #666; /* Dark mode border color */
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
 }
 
-button[type="submit"] {
-  background-color: #4caf50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.75rem;
+  border: 1px solid rgba(62, 99, 221, 0.12);
+  box-shadow: 0 16px 34px -28px rgba(15, 25, 55, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
 }
 
-button[type="submit"]:hover {
-  background-color: #45a049;
+.card a,
+.card p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1f2937;
+  text-decoration: none;
 }
 
-@media (max-width: 800px) {
-  .item {
-    max-width: 100%;
-  }
-  
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group textarea {
-    min-width: auto;
-  }
+.card a:hover {
+  color: #3e63dd;
 }
 </style>
 
 <route lang="json">
 {
-"meta": {
-"layout": "default"
-}
+  "meta": {
+    "layout": "default"
+  }
 }
 </route>
