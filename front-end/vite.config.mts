@@ -21,7 +21,6 @@ import VueDevTools from "vite-plugin-vue-devtools";
 import Layouts from "vite-plugin-vue-layouts-next";
 import generateSitemap from "vite-ssg-sitemap";
 
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
@@ -96,7 +95,7 @@ export default defineConfig({
 				);
 			}
 		}),
-		
+
 		/* 7️⃣  PWA */
 		VitePWA({
 			registerType: "autoUpdate",
@@ -152,7 +151,7 @@ export default defineConfig({
 				globPatterns: ["**/*.{js,css,html,png,svg,ico}"]
 			}
 		}),
-		
+
 		/* 8️⃣  i18n, fonts, devtools */
 		// https://github.com/intlify/bundle-tools/tree/main/packages/unplugin-vue-i18n
 		VueI18n({
@@ -161,18 +160,18 @@ export default defineConfig({
 			fullInstall: true,
 			include: [path.resolve(__dirname, "locales/**")]
 		}),
-		
+
 		// https://github.com/webfansplz/vite-plugin-vue-devtools
 		VueDevTools()
 	],
-	
+
 	/* vitest */
 	// https://github.com/vitest-dev/vitest
 	test: {
 		include: ["test/**/*.test.ts"],
 		environment: "jsdom"
 	},
-	
+
 	/* vite-ssg */
 	// https://github.com/antfu/vite-ssg
 	ssgOptions: {
@@ -185,12 +184,12 @@ export default defineConfig({
 			generateSitemap();
 		}
 	},
-	
+
 	ssr: {
 		// TODO: workaround until they support native ESM
 		noExternal: ["workbox-window", /vue-i18n/]
 	},
-	
+
 	server: {
 		proxy: {
 			"/api": {
