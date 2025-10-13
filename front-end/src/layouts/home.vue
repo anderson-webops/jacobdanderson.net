@@ -4,7 +4,7 @@
     <RouterView />
     <TheFooter />
     <!-- <div mx-auto mt-5 text-center text-sm opacity-50>
-			[Home Layout]
-		</div> -->
+      [Home Layout]
+    </div> -->
   </main>
 </template>

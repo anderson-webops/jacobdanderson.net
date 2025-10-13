@@ -2,8 +2,9 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
+
 defineOptions({
-  name: "IndexPage",
+  name: "IndexPage"
 });
 
 const store = useMainStore();
@@ -23,8 +24,14 @@ const featuredProjects = computed(() => store.featuredProjects);
           {{ profile.summary }}
         </p>
         <div class="hero-actions">
-          <RouterLink class="btn primary" to="/projects">View projects</RouterLink>
-          <RouterLink class="btn secondary" to="/classes">Book a lesson</RouterLink>
+          <RouterLink class="btn primary" to="/projects"
+          >View projects
+          </RouterLink
+          >
+          <RouterLink class="btn secondary" to="/classes"
+          >Book a lesson
+          </RouterLink
+          >
         </div>
         <ul class="contact">
           <li>
@@ -33,64 +40,96 @@ const featuredProjects = computed(() => store.featuredProjects);
           </li>
           <li>
             <span class="label">Email</span>
-            <a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
+            <a :href="`mailto:${profile.email}`">{{
+                profile.email
+                                                 }}</a>
           </li>
           <li>
             <span class="label">Phone</span>
-            <a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
+            <a :href="`tel:${profile.phone}`">{{
+                profile.phone
+                                              }}</a>
           </li>
         </ul>
       </div>
       <div class="hero-card">
         <h2>Current focus</h2>
-        <div class="edu" v-for="(item, index) in profile.education" :key="index">
+        <div
+          v-for="(item, index) in profile.education"
+          :key="index"
+          class="edu"
+        >
           <p class="program">{{ item.program }}</p>
           <p class="institution">{{ item.institution }}</p>
           <p class="timeframe">{{ item.timeframe }}</p>
         </div>
       </div>
     </section>
-
+    
     <section class="featured">
       <div class="section-header">
         <h2>Recent experience</h2>
-        <RouterLink class="cta" to="/experience">Explore full timeline →</RouterLink>
+        <RouterLink class="cta" to="/experience"
+        >Explore full timeline →
+        </RouterLink
+        >
       </div>
       <div class="card-grid">
-        <article v-for="(item, index) in featuredExperience" :key="index" class="card">
+        <article
+          v-for="(item, index) in featuredExperience"
+          :key="index"
+          class="card"
+        >
           <h3>{{ item.title }}</h3>
           <p class="org">{{ item.organization }}</p>
           <p class="time">{{ item.timeframe }}</p>
           <ul>
-            <li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
+            <li
+              v-for="(
+								highlight, highlightIndex
+							) in item.highlights"
+              :key="highlightIndex"
+            >
               {{ highlight }}
             </li>
           </ul>
         </article>
       </div>
     </section>
-
+    
     <section class="featured">
       <div class="section-header">
         <h2>Highlighted projects</h2>
-        <RouterLink class="cta" to="/projects">See more work →</RouterLink>
+        <RouterLink class="cta" to="/projects"
+        >See more work →
+        </RouterLink
+        >
       </div>
       <div class="card-grid projects">
-        <article v-for="(project, index) in featuredProjects" :key="index" class="card">
+        <article
+          v-for="(project, index) in featuredProjects"
+          :key="index"
+          class="card"
+        >
           <header class="card-header">
             <h3>{{ project.name }}</h3>
             <span class="time">{{ project.timeframe }}</span>
           </header>
           <p class="description">{{ project.description }}</p>
           <ul>
-            <li v-for="(highlight, highlightIndex) in project.highlights" :key="highlightIndex">
+            <li
+              v-for="(
+								highlight, highlightIndex
+							) in project.highlights"
+              :key="highlightIndex"
+            >
               {{ highlight }}
             </li>
           </ul>
         </article>
       </div>
     </section>
-
+    
     <section class="skills">
       <h2>Core strengths</h2>
       <div class="skills-grid">
@@ -102,7 +141,11 @@ const featuredProjects = computed(() => store.featuredProjects);
         <div class="skill-card">
           <h3>What I love working on</h3>
           <ul>
-            <li v-for="(competency, index) in profile.skills.competencies" :key="index">
+            <li
+              v-for="(competency, index) in profile.skills
+								.competencies"
+              :key="index"
+            >
               {{ competency }}
             </li>
           </ul>
@@ -110,7 +153,10 @@ const featuredProjects = computed(() => store.featuredProjects);
         <div class="skill-card">
           <h3>Languages</h3>
           <p>{{ profile.skills.languagesSpoken.join(" · ") }}</p>
-          <RouterLink class="class-link" to="/classes">Ask about tutoring →</RouterLink>
+          <RouterLink class="class-link" to="/classes"
+          >Ask about tutoring →
+          </RouterLink
+          >
         </div>
       </div>
     </section>
@@ -142,7 +188,11 @@ const featuredProjects = computed(() => store.featuredProjects);
   position: absolute;
   inset: 0;
   border-radius: 20px;
-  background: radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.12), transparent 60%);
+  background: radial-gradient(
+    circle at bottom right,
+    rgba(37, 99, 235, 0.12),
+    transparent 60%
+  );
   pointer-events: none;
 }
 
@@ -196,7 +246,8 @@ h1 {
   border-radius: 999px;
   font-weight: 600;
   text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease,
+  box-shadow 0.2s ease;
 }
 
 .btn.primary {
@@ -385,7 +436,11 @@ h1 {
 }
 
 .skill-card {
-  background: linear-gradient(160deg, rgba(59, 130, 246, 0.1), rgba(14, 165, 233, 0.08));
+  background: linear-gradient(
+    160deg,
+    rgba(59, 130, 246, 0.1),
+    rgba(14, 165, 233, 0.08)
+  );
   border-radius: 18px;
   padding: 1.6rem;
   color: #0f172a;
@@ -419,12 +474,12 @@ h1 {
   .hero {
     padding: 2.2rem;
   }
-
+  
   .hero-actions {
     flex-direction: column;
     align-items: flex-start;
   }
-
+  
   .skills-grid {
     grid-template-columns: 1fr;
   }
@@ -433,8 +488,8 @@ h1 {
 
 <route lang="json">
 {
-  "meta": {
-    "layout": "default"
-  }
+"meta": {
+"layout": "default"
+}
 }
 </route>

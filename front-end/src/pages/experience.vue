@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
+
 const store = useMainStore();
 const experiences = computed(() => store.userProfile.experience);
 </script>
@@ -11,13 +12,18 @@ const experiences = computed(() => store.userProfile.experience);
     <header>
       <h1>Experience</h1>
       <p>
-        A snapshot of the roles where I've applied embedded systems, software engineering, and instructional
-        design to real-world problems.
+        A snapshot of the roles where I've applied embedded systems,
+        software engineering, and instructional design to real-world
+        problems.
       </p>
     </header>
-
+    
     <section class="timeline">
-      <article v-for="(item, index) in experiences" :key="index" class="entry">
+      <article
+        v-for="(item, index) in experiences"
+        :key="index"
+        class="entry"
+      >
         <div class="meta">
           <span class="timeframe">{{ item.timeframe }}</span>
           <span class="location">{{ item.location }}</span>
@@ -25,7 +31,10 @@ const experiences = computed(() => store.userProfile.experience);
         <h2>{{ item.title }}</h2>
         <p class="organization">{{ item.organization }}</p>
         <ul>
-          <li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
+          <li
+            v-for="(highlight, highlightIndex) in item.highlights"
+            :key="highlightIndex"
+          >
             {{ highlight }}
           </li>
         </ul>
@@ -113,8 +122,8 @@ ul {
 
 <route lang="json">
 {
-  "meta": {
-    "layout": "default"
-  }
+"meta": {
+"layout": "default"
+}
 }
 </route>

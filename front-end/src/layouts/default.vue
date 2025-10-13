@@ -4,6 +4,6 @@
     <RouterView class="px-4 py-5" />
     <TheFooter />
     <!--    <div mx-auto mt-5 text-center text-sm opacity-50> [Default Layout]
-		</div> -->
+    </div> -->
   </main>
 </template>

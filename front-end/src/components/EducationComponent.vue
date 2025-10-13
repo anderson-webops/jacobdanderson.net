@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
+
 const educationStore = useMainStore();
 const education = computed(() => educationStore.userProfile.education);
 </script>
@@ -9,14 +10,21 @@ const education = computed(() => educationStore.userProfile.education);
 <template>
   <section class="education">
     <h2>Education</h2>
-    <div v-for="(item, index) in education" :key="index" class="education-card">
+    <div
+      v-for="(item, index) in education"
+      :key="index"
+      class="education-card"
+    >
       <header>
         <h3>{{ item.program }}</h3>
         <span class="timeframe">{{ item.timeframe }}</span>
       </header>
       <p class="institution">{{ item.institution }}</p>
       <ul>
-        <li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
+        <li
+          v-for="(highlight, highlightIndex) in item.highlights"
+          :key="highlightIndex"
+        >
           {{ highlight }}
         </li>
       </ul>
