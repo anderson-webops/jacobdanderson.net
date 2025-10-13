@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
+
 const isExpanded = ref(false);
 const route = useRoute();
 
@@ -43,7 +44,12 @@ watch(
         />
         <span>Jacob Anderson</span>
       </RouterLink>
-      <button aria-label="Toggle navigation" class="hamburger" type="button" @click="toggleMenu">
+      <button
+        aria-label="Toggle navigation"
+        class="hamburger"
+        type="button"
+        @click="toggleMenu"
+      >
         <span :class="{ open: isExpanded }" />
         <span :class="{ open: isExpanded }" />
         <span :class="{ open: isExpanded }" />
@@ -51,7 +57,13 @@ watch(
       <ul :class="{ expanded: isExpanded }" class="links">
         <li v-for="link in links" :key="link.path">
           <RouterLink
-            :class="{ active: activePath.startsWith(link.path) && link.path !== '/' ? true : activePath === link.path }"
+            :class="{
+							active:
+								activePath.startsWith(link.path) &&
+								link.path !== '/'
+									? true
+									: activePath === link.path
+						}"
             :to="link.path"
             @click="closeMenu"
           >
@@ -158,7 +170,8 @@ watch(
   height: 3px;
   background: #0f172a;
   border-radius: 999px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.3s ease,
+  opacity 0.3s ease;
 }
 
 .hamburger span.open:nth-child(1) {
@@ -177,7 +190,7 @@ watch(
   .hamburger {
     display: flex;
   }
-
+  
   .links {
     position: absolute;
     top: 100%;
@@ -190,11 +203,11 @@ watch(
     gap: 1rem;
     display: none;
   }
-
+  
   .links.expanded {
     display: flex;
   }
-
+  
   .links li a {
     width: 100%;
   }

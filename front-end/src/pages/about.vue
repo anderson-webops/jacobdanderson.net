@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
+
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
 </script>
@@ -20,26 +21,32 @@ const profile = computed(() => store.userProfile);
           </div>
           <div>
             <span class="label">Email</span>
-            <a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
+            <a :href="`mailto:${profile.email}`">{{
+                profile.email
+                                                 }}</a>
           </div>
           <div>
             <span class="label">Phone</span>
-            <a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
+            <a :href="`tel:${profile.phone}`">{{
+                profile.phone
+                                              }}</a>
           </div>
         </div>
       </div>
       <div class="portrait" role="presentation" />
     </section>
-
+    
     <section class="mission">
       <h2>How I approach engineering</h2>
       <p>
-        I care about building dependable systems that connect hardware, firmware, and intuitive interfaces.
-        Whether I'm prototyping sensor networks or supporting a student through a new programming concept, I
-        focus on clarity, measurable outcomes, and long-term maintainability.
+        I care about building dependable systems that connect hardware,
+        firmware, and intuitive interfaces. Whether I'm prototyping
+        sensor networks or supporting a student through a new
+        programming concept, I focus on clarity, measurable outcomes,
+        and long-term maintainability.
       </p>
     </section>
-
+    
     <section class="skills-section">
       <div>
         <h2>Technical toolkit</h2>
@@ -49,24 +56,33 @@ const profile = computed(() => store.userProfile);
       <div>
         <h2>Core strengths</h2>
         <ul>
-          <li v-for="(competency, index) in profile.skills.competencies" :key="index">
+          <li
+            v-for="(competency, index) in profile.skills
+							.competencies"
+            :key="index"
+          >
             {{ competency }}
           </li>
         </ul>
       </div>
       <div>
         <h2>Languages</h2>
-        <p class="list">{{ profile.skills.languagesSpoken.join(" · ") }}</p>
+        <p class="list">
+          {{ profile.skills.languagesSpoken.join(" · ") }}
+        </p>
       </div>
     </section>
-
+    
     <EducationComponent class="education" />
-
+    
     <section class="recognition">
       <div>
         <h2>Achievements</h2>
         <ul>
-          <li v-for="(achievement, index) in profile.achievements" :key="index">
+          <li
+            v-for="(achievement, index) in profile.achievements"
+            :key="index"
+          >
             {{ achievement }}
           </li>
         </ul>
@@ -74,7 +90,10 @@ const profile = computed(() => store.userProfile);
       <div>
         <h2>Beyond the lab</h2>
         <ul>
-          <li v-for="(activity, index) in profile.activities" :key="index">
+          <li
+            v-for="(activity, index) in profile.activities"
+            :key="index"
+          >
             {{ activity }}
           </li>
         </ul>
@@ -155,7 +174,11 @@ h1 {
   padding-top: 100%;
   border-radius: 24px;
   background: url("https://jacobdanderson.s3.amazonaws.com/images/Jacob_Anderson.jpg") center/cover,
-    linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(14, 165, 233, 0.12));
+  linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.15),
+    rgba(14, 165, 233, 0.12)
+  );
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
 }
 
@@ -236,8 +259,8 @@ h1 {
 
 <route lang="json">
 {
-  "meta": {
-    "layout": "default"
-  }
+"meta": {
+"layout": "default"
+}
 }
 </route>

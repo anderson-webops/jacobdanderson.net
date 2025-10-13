@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
+
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
 </script>
@@ -11,42 +12,74 @@ const profile = computed(() => store.userProfile);
     <section class="hero">
       <h1>1:1 lessons for curious learners</h1>
       <p>
-        I teach custom programming, STEM, and Spanish lessons for students ages 7–18. Each session is
-        personalized to your learner's goals, whether that's building their first game, diving into robotics, or
-        strengthening conversational Spanish.
+        I teach custom programming, STEM, and Spanish lessons for
+        students ages 7–18. Each session is personalized to your
+        learner's goals, whether that's building their first game,
+        diving into robotics, or strengthening conversational Spanish.
       </p>
       <div class="price">
         <span class="amount">$40</span>
         <span class="details">per 60-minute lesson</span>
       </div>
-      <a class="cta" href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
+      <a
+        class="cta"
+        href="https://classes.jacobdanderson.net"
+        rel="noopener"
+        target="_blank"
+      >
         Visit classes.jacobdanderson.net →
       </a>
     </section>
-
+    
     <section class="grid">
       <article>
         <h2>What students gain</h2>
         <ul>
-          <li>Project-based lessons that build real portfolio pieces.</li>
-          <li>Clear progress tracking and feedback after every session.</li>
-          <li>Expert guidance from an educator who trains other instructors.</li>
+          <li>
+            Project-based lessons that build real portfolio pieces.
+          </li>
+          <li>
+            Clear progress tracking and feedback after every
+            session.
+          </li>
+          <li>
+            Expert guidance from an educator who trains other
+            instructors.
+          </li>
         </ul>
       </article>
       <article>
         <h2>Subjects I teach</h2>
         <ul>
-          <li>Programming fundamentals, web development, and game design.</li>
-          <li>Embedded systems concepts, circuits, and microcontroller projects.</li>
+          <li>
+            Programming fundamentals, web development, and game
+            design.
+          </li>
+          <li>
+            Embedded systems concepts, circuits, and microcontroller
+            projects.
+          </li>
           <li>Spanish conversation and academic support.</li>
         </ul>
       </article>
       <article>
         <h2>How to get started</h2>
         <ul>
-          <li>Email me at <a :href="`mailto:${profile.email}`">{{ profile.email }}</a>.</li>
-          <li>Share a few goals for your student and preferred schedule.</li>
-          <li>We'll set up a free consultation to tailor the lesson plan.</li>
+          <li>
+            Email me at
+            <a :href="`mailto:${profile.email}`">{{
+                profile.email
+                                                 }}</a
+            >.
+          </li>
+          <li>
+            Share a few goals for your student and preferred
+            schedule.
+          </li>
+          <li>
+            We'll set up a free consultation to tailor the lesson
+            plan.
+          </li>
         </ul>
       </article>
     </section>
@@ -62,7 +95,11 @@ const profile = computed(() => store.userProfile);
 }
 
 .hero {
-  background: linear-gradient(145deg, rgba(59, 130, 246, 0.14), rgba(14, 165, 233, 0.1));
+  background: linear-gradient(
+    145deg,
+    rgba(59, 130, 246, 0.14),
+    rgba(14, 165, 233, 0.1)
+  );
   border-radius: 24px;
   padding: 3rem;
   box-shadow: 0 24px 48px rgba(37, 99, 235, 0.18);
@@ -109,7 +146,8 @@ const profile = computed(() => store.userProfile);
   font-weight: 600;
   text-decoration: none;
   box-shadow: 0 16px 32px rgba(29, 78, 216, 0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease,
+  box-shadow 0.2s ease;
 }
 
 .cta:hover {
@@ -162,8 +200,8 @@ article a {
 
 <route lang="json">
 {
-  "meta": {
-    "layout": "default"
-  }
+"meta": {
+"layout": "default"
+}
 }
 </route>

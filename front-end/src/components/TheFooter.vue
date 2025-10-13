@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { computed } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { computed } from "vue";
 import { useMainStore } from "~/stores";
+
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
@@ -19,17 +20,31 @@ const profile = computed(() => store.userProfile);
         <a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
       </div>
       <div class="social">
-        <a href="https://github.com/Jacoba1100254352" rel="noopener" target="_blank">
+        <a
+          href="https://github.com/Jacoba1100254352"
+          rel="noopener"
+          target="_blank"
+        >
           <FontAwesomeIcon :icon="['fab', 'github']" size="lg" />
           <span>GitHub</span>
         </a>
-        <a href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
-          <FontAwesomeIcon :icon="['fas', 'chalkboard-teacher']" size="lg" />
+        <a
+          href="https://classes.jacobdanderson.net"
+          rel="noopener"
+          target="_blank"
+        >
+          <FontAwesomeIcon
+            :icon="['fas', 'chalkboard-teacher']"
+            size="lg"
+          />
           <span>Book a lesson</span>
         </a>
       </div>
     </div>
-    <p class="copyright">© {{ new Date().getFullYear() }} Jacob Anderson. All rights reserved.</p>
+    <p class="copyright">
+      © {{ new Date().getFullYear() }} Jacob Anderson. All rights
+      reserved.
+    </p>
   </footer>
 </template>
 
@@ -104,7 +119,7 @@ a:hover {
     flex-direction: column;
     align-items: flex-start;
   }
-
+  
   .social {
     width: 100%;
   }

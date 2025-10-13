@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
+
 const store = useMainStore();
 const projects = computed(() => store.userProfile.projects);
 </script>
@@ -11,20 +12,29 @@ const projects = computed(() => store.userProfile.projects);
     <header>
       <h1>Projects</h1>
       <p>
-        Selected initiatives that highlight my approach to embedded systems, research tooling, and user-focused
-        product development.
+        Selected initiatives that highlight my approach to embedded
+        systems, research tooling, and user-focused product development.
       </p>
     </header>
-
+    
     <section class="grid">
-      <article v-for="(project, index) in projects" :key="index" class="project-card">
+      <article
+        v-for="(project, index) in projects"
+        :key="index"
+        class="project-card"
+      >
         <header>
           <h2>{{ project.name }}</h2>
           <span class="timeframe">{{ project.timeframe }}</span>
         </header>
         <p class="description">{{ project.description }}</p>
         <ul>
-          <li v-for="(highlight, highlightIndex) in project.highlights" :key="highlightIndex">
+          <li
+            v-for="(
+							highlight, highlightIndex
+						) in project.highlights"
+            :key="highlightIndex"
+          >
             {{ highlight }}
           </li>
         </ul>
@@ -119,8 +129,8 @@ ul {
 
 <route lang="json">
 {
-  "meta": {
-    "layout": "default"
-  }
+"meta": {
+"layout": "default"
+}
 }
 </route>

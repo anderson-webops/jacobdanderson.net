@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
+
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
 </script>
@@ -11,8 +12,9 @@ const profile = computed(() => store.userProfile);
     <section class="card">
       <h1>Let's connect</h1>
       <p>
-        I'd love to talk about embedded systems projects, research collaborations, or custom lessons for your
-        student. Reach out directly and I'll respond within two business days.
+        I'd love to talk about embedded systems projects, research
+        collaborations, or custom lessons for your student. Reach out
+        directly and I'll respond within two business days.
       </p>
       <div class="info-grid">
         <div>
@@ -28,7 +30,10 @@ const profile = computed(() => store.userProfile);
           <span>{{ profile.location }}</span>
         </div>
       </div>
-      <RouterLink class="cta" to="/classes">Learn about private lessons →</RouterLink>
+      <RouterLink class="cta" to="/classes"
+      >Learn about private lessons →
+      </RouterLink
+      >
     </section>
   </div>
 </template>
@@ -104,8 +109,8 @@ a {
 
 <route lang="json">
 {
-  "meta": {
-    "layout": "default"
-  }
+"meta": {
+"layout": "default"
+}
 }
 </route>
