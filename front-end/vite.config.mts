@@ -116,33 +116,33 @@ export default defineConfig({
 				display: "standalone",
 				icons: [
 					{
-						src: "/Favicons/android-chrome-192x192.png",
+						src: "https://jacobdanderson.s3.us-east-1.amazonaws.com/Favicons/favicons+Logo+Bo+Light/android-chrome-192x192.png",
 						sizes: "192x192",
 						type: "image/png"
 					},
 					{
-						src: "/Favicons/android-chrome-512x512.png",
+						src: "https://jacobdanderson.s3.us-east-1.amazonaws.com/Favicons/favicons+Logo+Bo+Light/android-chrome-512x512.png",
 						sizes: "512x512",
 						type: "image/png"
 					},
 					{
-						src: "/Favicons/apple-touch-icon.png",
+						src: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/apple-touch-icon.png",
 						sizes: "180x180",
 						type: "image/png",
 						purpose: "apple-touch-icon"
 					},
 					{
-						src: "/Favicons/favicon-32x32.png",
+						src: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon-32x32.png",
 						sizes: "32x32",
 						type: "image/png"
 					},
 					{
-						src: "/Favicons/favicon-16x16.png",
+						src: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon-16x16.png",
 						sizes: "16x16",
 						type: "image/png"
 					},
 					{
-						src: "/Favicons/favicon.ico",
+						src: "https://jacobdanderson.s3.us-east-1.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon.ico",
 						sizes: "48x48",
 						type: "image/x-icon"
 					}
