@@ -16,7 +16,7 @@ const featuredProjects = computed(() => store.featuredProjects);
 	<div class="landing">
 		<section class="hero">
 			<div class="hero-content">
-				<p class="update">Last updated {{ profile.lastUpdated }}</p>
+				<!--				<p class="update">Last updated {{ profile.lastUpdated }}</p> -->
 				<h1>{{ profile.name }}</h1>
 				<p class="headline">{{ profile.headline }}</p>
 				<p class="summary">
@@ -198,14 +198,14 @@ const featuredProjects = computed(() => store.featuredProjects);
 	gap: 1.5rem;
 }
 
-.update {
+/*.update {
 	font-size: 0.85rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
 	color: #2563eb;
 	margin: 0;
-}
+}*/
 
 h1 {
 	font-size: clamp(2.5rem, 5vw, 3.5rem);
