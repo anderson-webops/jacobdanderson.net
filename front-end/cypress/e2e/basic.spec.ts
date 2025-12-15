@@ -3,21 +3,19 @@ context("Basic", () => {
 		cy.visit("/");
 	});
 	
-	it("basic nav", () => {
-		cy.url().should("eq", "http://localhost:3333/");
+	it("shows the home hero", () => {
+		cy.url().should("eq", `${Cypress.config().baseUrl}/`);
 		
-		cy.contains("[Home Layout]").should("exist");
-		
-		cy.get("#input").type("Vitesse{Enter}").url().should("eq", "http://localhost:3333/hi/Vitesse");
-		
-		cy.contains("[Default Layout]").should("exist");
-		
-		cy.get("[btn]").click().url().should("eq", "http://localhost:3333/");
+		cy.contains("Jacob Anderson").should("exist");
+		cy.contains("Embedded systems engineer").should("exist");
+		cy.contains("View projects").should("exist");
 	});
 	
-	it("markdown", () => {
-		cy.get("[data-test-id=\"about\"]").click().url().should("eq", "http://localhost:3333/about");
+	it("navigates to About", () => {
+		cy.contains("About").click();
+		cy.url().should("eq", `${Cypress.config().baseUrl}/about`);
 		
-		cy.get(".shiki").should("exist");
+		cy.contains("About Jacob").should("exist");
+		cy.contains("Technical toolkit").should("exist");
 	});
 });

@@ -8,52 +8,51 @@ import vueParser from "vue-eslint-parser";
 import base from "../eslint.config.js"; // shared root config
 import auto from "./.eslintrc-auto-import.json" with { type: "json" };
 
-
 export default base
-/* project-specific additions */
-.append({
-  languageOptions: { globals: { ...globals.browser, ...auto.globals } },
-  plugins: { prettier },
-  rules: {
-    "prettier/prettier": "error",
-    "vue/multi-word-component-names": "off",
-    "ts/no-explicit-any": "off",
-    "no-undef": "off" // auto-imported globals
-  }
-})
+	/* project-specific additions */
+	.append({
+		languageOptions: { globals: { ...globals.browser, ...auto.globals } },
+		plugins: { prettier },
+		rules: {
+			"prettier/prettier": "error",
+			"vue/multi-word-component-names": "off",
+			"ts/no-explicit-any": "off",
+			"no-undef": "off" // auto-imported globals
+		}
+	})
 
-/* overrides ---------------------------------------------------- */
-.append(
-  // TypeScript
-  {
-    files: ["**/*.ts"],
-    languageOptions: {
-      parser: ts.parser,
-      parserOptions: { project: "./tsconfig.json" },
-      globals: { ...globals.node, ...auto.globals }
-    }
-  },
-  
-  // Vue SFCs
-  {
-    files: ["**/*.vue"],
-    plugins: { vue: vuePlugin },
-    languageOptions: {
-      parser: vueParser,
-      parserOptions: {
-        parser: ts.parser,
-        extraFileExtensions: [".vue"]
-      }
-    },
-    rules: { "vue/no-unused-vars": "off" }
-  },
-  
-  // build / config scripts
-  {
-    files: ["**/*.{js,cjs,mjs}", "*.config.js", "vite.config.{js,ts}"],
-    languageOptions: { sourceType: "module" }
-  }
-)
+	/* overrides ---------------------------------------------------- */
+	.append(
+		// TypeScript
+		{
+			files: ["**/*.ts"],
+			languageOptions: {
+				parser: ts.parser,
+				parserOptions: { project: "./tsconfig.json" },
+				globals: { ...globals.node, ...auto.globals }
+			}
+		},
 
-/* keep Prettier conflict-killer last */
-.append(ppFlat);
+		// Vue SFCs
+		{
+			files: ["**/*.vue"],
+			plugins: { vue: vuePlugin },
+			languageOptions: {
+				parser: vueParser,
+				parserOptions: {
+					parser: ts.parser,
+					extraFileExtensions: [".vue"]
+				}
+			},
+			rules: { "vue/no-unused-vars": "off" }
+		},
+
+		// build / config scripts
+		{
+			files: ["**/*.{js,cjs,mjs}", "*.config.js", "vite.config.{js,ts}"],
+			languageOptions: { sourceType: "module" }
+		}
+	)
+
+	/* keep Prettier conflict-killer last */
+	.append(ppFlat);
