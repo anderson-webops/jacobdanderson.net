@@ -4,20 +4,21 @@ export const useMainStore = defineStore("main", {
 	state: () => ({
 		userProfile: {
 			name: "Jacob Anderson",
-			headline: "Embedded systems engineer & educator",
-			location: "Alpharetta, GA · Remote-friendly",
+			headline: "Cofounder & educator",
+			location: "Alpharetta, GA",
 			email: "jacobdanderson@gmail.com",
 			phone: "404-626-0025",
-			lastUpdated: "September 2025",
+			lastUpdated: "December 2025",
 			summary:
-				"I design reliable embedded systems, integrate sensor networks, and teach the next generation of developers. I'm beginning the M.S. in Computer Engineering program at Georgia Tech after earning my B.S. from BYU, where I focused on firmware, hardware design, and human-centered engineering projects.",
+				"I am CTO and cofounder of Stride. I am pursuing my M.S. in Computer Engineering program at Georgia Tech after earning my B.S. in Computer Engineering from BYU.",
 			education: [
 				{
 					program: "M.S. Computer Engineering",
 					institution: "Georgia Institute of Technology, Atlanta, GA",
 					timeframe: "Aug 2025 – Present",
 					highlights: [
-						"Graduate focus on secure and resilient embedded systems (GPA TBD)"
+						"GPA 4.0",
+						"Graduate focus on building broad, systems-level expertise across multiple computer engineering domains."
 					]
 				},
 				{
@@ -39,7 +40,8 @@ export const useMainStore = defineStore("main", {
 					location: "Remote",
 					highlights: [
 						"Teach individualized programming, STEM, and Spanish lessons for students ages 7–18.",
-						"Coach new instructors, evaluate curriculum delivery, and maintain quality standards."
+						"Coach new instructors, evaluate curriculum delivery, and maintain quality standards.",
+						"Develop and expand curriculum."
 					]
 				},
 				{

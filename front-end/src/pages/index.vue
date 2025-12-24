@@ -43,7 +43,7 @@ const featuredProjects = computed(() => store.featuredProjects);
 					</li>
 					<li>
 						<span class="label">Phone</span>
-						<a :href="`tel:${profile.phone}`">{{
+						<a :href="`sms:${profile.phone}`">{{
 							profile.phone
 						}}</a>
 					</li>

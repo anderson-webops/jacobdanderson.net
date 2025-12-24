@@ -8,7 +8,7 @@ catalogs:
     "@vitejs/plugin-vue": ^6.0.3
     beasties: ^0.3.5
     markdown-it-link-attributes: ^4.0.1
-    rollup: ^4.53.4
+    rollup: ^4.54.0
     shiki: ^3.20.0
     unocss: ^66.5.10
     unplugin: ^2.3.11
@@ -27,11 +27,11 @@ catalogs:
     vite-ssg-sitemap: ^0.10.0
 
   dev:
-    "@antfu/eslint-config": ^6.7.1
+    "@antfu/eslint-config": ^6.7.3
     "@iconify-json/carbon": ^1.2.15
     "@vue-macros/volar": ^3.1.1
     "@vue/test-utils": ^2.4.6
-    cypress: ^15.7.1
+    cypress: ^15.8.1
     cypress-vite: ^1.8.0
     eslint: ^9.39.2
     eslint-plugin-cypress: ^5.2.0
@@ -41,8 +41,8 @@ catalogs:
     simple-git-hooks: ^2.13.1
     taze: ^19.9.2
     typescript: ^5.9.3
-    vitest: ^4.0.15
-    vue-tsc: ^3.1.8
+    vitest: ^4.0.16
+    vue-tsc: ^3.2.1
 
   frontend:
     "@unhead/vue": ^2.0.19
@@ -50,8 +50,8 @@ catalogs:
     "@vueuse/core": ^14.1.0
     nprogress: ^0.2.0
     pinia: ^3.0.4
-    vue: ^3.5.25
-    vue-i18n: ^11.2.2
+    vue: ^3.5.26
+    vue-i18n: ^11.2.7
     vue-router: ^4.6.4
 
   types:
