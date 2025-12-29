@@ -31,7 +31,7 @@
 		"@fortawesome/free-solid-svg-icons": "^7.1.0",
 		"@fortawesome/vue-fontawesome": "^3.1.2",
 		"@unhead/vue": "^2.1.1",
-		"@unocss/reset": "^66.5.10",
+		"@unocss/reset": "^66.5.11",
 		"@vueuse/core": "^14.1.0",
 		"axios": "^1.13.2",
 		"bootstrap": "^5.3.8",
@@ -73,7 +73,7 @@
 		"unplugin-vue-components": "^30.0.0",
 		"unplugin-vue-macros": "^2.14.5",
 		"unplugin-vue-markdown": "^29.2.0",
-		"unplugin-vue-router": "^0.19.1",
+		"unplugin-vue-router": "^0.19.2",
 		"vite": "^7.3.0",
 		"vite-bundle-visualizer": "^1.2.1",
 		"vite-plugin-inspect": "^11.3.3",
@@ -95,7 +95,7 @@
 	},
 	"lint-staged": {
 		"*.ts": [
-			""
+			"eslint --fix"
 		]
 	},
 	"browserslist": [
