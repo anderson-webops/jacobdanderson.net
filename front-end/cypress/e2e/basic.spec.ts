@@ -7,7 +7,7 @@ context("Basic", () => {
 		cy.url().should("eq", `${Cypress.config().baseUrl}/`);
 		
 		cy.contains("Jacob Anderson").should("exist");
-		cy.contains("Embedded systems engineer").should("exist");
+		cy.contains("Cofounder & educator").should("exist");
 		cy.contains("View projects").should("exist");
 	});
 	
