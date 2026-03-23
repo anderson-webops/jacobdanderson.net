@@ -42,7 +42,16 @@ useHead({
           type: 'image/svg+xml',
           href: () => preferredDark.value ? '/favicon-dark.svg': '/favicon.svg',
         }, */
-	]
+	],
+	script: import.meta.env.PROD
+		? [
+				{
+					defer: true,
+					src: "https://analytics.jacobdanderson.net/script.js",
+					"data-website-id": "19f6cd2d-77d7-408e-9bb4-a5c38ce46bdc"
+				}
+			]
+		: []
 });
 </script>
 
