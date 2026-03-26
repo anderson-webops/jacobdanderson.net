@@ -26,11 +26,11 @@ const profile = computed(() => store.userProfile);
 				</div>
 
 				<dl class="details-grid">
-					<div>
+					<div class="detail-item">
 						<dt>Location</dt>
 						<dd>{{ profile.location }}</dd>
 					</div>
-					<div>
+					<div class="detail-item">
 						<dt>Email</dt>
 						<dd>
 							<a :href="`mailto:${profile.email}`">{{
@@ -38,7 +38,7 @@ const profile = computed(() => store.userProfile);
 							}}</a>
 						</dd>
 					</div>
-					<div>
+					<div class="detail-item">
 						<dt>Phone</dt>
 						<dd>
 							<a :href="`tel:${profile.phone}`">{{
@@ -57,9 +57,11 @@ const profile = computed(() => store.userProfile);
 				</p>
 			</div>
 
-			<div class="portrait-card section-panel">
-				<div class="portrait" role="presentation" />
-			</div>
+			<img
+				class="portrait-image"
+				src="https://jacobdanderson.s3.amazonaws.com/images/Jacob_Anderson.jpg"
+				alt="Portrait of Jacob Anderson"
+			/>
 		</section>
 
 		<section class="highlights-grid">
@@ -144,10 +146,10 @@ const profile = computed(() => store.userProfile);
 	display: grid;
 	grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
 	gap: 1.4rem;
+	align-items: start;
 }
 
 .summary-card,
-.portrait-card,
 .highlight-card,
 .recognition-card {
 	padding: 1.7rem;
@@ -182,8 +184,20 @@ const profile = computed(() => store.userProfile);
 
 .details-grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1rem;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	column-gap: 1.25rem;
+	row-gap: 1rem;
+	margin: 0;
+}
+
+.detail-item,
+.details-grid dd {
+	min-width: 0;
+}
+
+.details-grid dt,
+.details-grid dd {
+	margin: 0;
 }
 
 .details-grid dt {
@@ -204,23 +218,22 @@ const profile = computed(() => store.userProfile);
 	text-decoration: none;
 }
 
-.portrait-card {
-	display: flex;
+.details-grid dd,
+.details-grid a {
+	display: block;
+	overflow-wrap: anywhere;
 }
 
-.portrait {
+.portrait-image {
 	width: 100%;
-	min-height: 100%;
-	border-radius: 22px;
-	background:
-		url("https://jacobdanderson.s3.amazonaws.com/images/Jacob_Anderson.jpg")
-			center 18% / cover,
-		linear-gradient(
-			135deg,
-			rgba(33, 74, 104, 0.18),
-			rgba(167, 125, 71, 0.16)
-		);
-	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+	height: auto;
+	align-self: start;
+	border-radius: 30px;
+	border: 1px solid rgba(255, 255, 255, 0.72);
+	box-shadow:
+		0 22px 40px rgba(17, 29, 43, 0.1),
+		0 0 0 1px rgba(17, 29, 43, 0.06);
+	background: rgba(255, 255, 255, 0.4);
 }
 
 .highlights-grid,
@@ -276,7 +289,6 @@ const profile = computed(() => store.userProfile);
 	}
 
 	.summary-card,
-	.portrait-card,
 	.highlight-card,
 	.recognition-card {
 		padding: 1.4rem;
