@@ -8,53 +8,56 @@ const profile = computed(() => store.userProfile);
 
 <template>
 	<div class="about-page">
-		<header class="page-intro">
-			<p class="eyebrow">About</p>
-			<h1>
-				Systems-minded engineering with a strong emphasis on clarity.
-			</h1>
-			<p>{{ profile.summary }}</p>
-		</header>
+		<section class="about-intro">
+			<div class="about-copy">
+				<header class="page-intro">
+					<p class="eyebrow">About</p>
+					<h1>
+						Systems-minded engineering with a strong emphasis on
+						clarity.
+					</h1>
+					<p>{{ profile.summary }}</p>
+				</header>
 
-		<section class="intro-grid">
-			<div class="summary-card section-panel">
-				<div class="summary-top">
-					<span class="summary-label">Professional snapshot</span>
-					<span class="summary-date"
-						>Updated {{ profile.lastUpdated }}</span
-					>
+				<div class="summary-card section-panel">
+					<div class="summary-top">
+						<span class="summary-label">Professional snapshot</span>
+						<span class="summary-date"
+							>Updated {{ profile.lastUpdated }}</span
+						>
+					</div>
+
+					<dl class="details-grid">
+						<div class="detail-item">
+							<dt>Location</dt>
+							<dd>{{ profile.location }}</dd>
+						</div>
+						<div class="detail-item">
+							<dt>Email</dt>
+							<dd>
+								<a :href="`mailto:${profile.email}`">{{
+									profile.email
+								}}</a>
+							</dd>
+						</div>
+						<div class="detail-item">
+							<dt>Phone</dt>
+							<dd>
+								<a :href="`tel:${profile.phone}`">{{
+									profile.phone
+								}}</a>
+							</dd>
+						</div>
+					</dl>
+
+					<p class="summary-text">
+						I care about building dependable systems that connect
+						hardware, firmware, and intuitive interfaces. Whether I
+						am prototyping sensor networks or teaching a student
+						through a new programming concept, I focus on measurable
+						outcomes, maintainability, and clear communication.
+					</p>
 				</div>
-
-				<dl class="details-grid">
-					<div class="detail-item">
-						<dt>Location</dt>
-						<dd>{{ profile.location }}</dd>
-					</div>
-					<div class="detail-item">
-						<dt>Email</dt>
-						<dd>
-							<a :href="`mailto:${profile.email}`">{{
-								profile.email
-							}}</a>
-						</dd>
-					</div>
-					<div class="detail-item">
-						<dt>Phone</dt>
-						<dd>
-							<a :href="`tel:${profile.phone}`">{{
-								profile.phone
-							}}</a>
-						</dd>
-					</div>
-				</dl>
-
-				<p class="summary-text">
-					I care about building dependable systems that connect
-					hardware, firmware, and intuitive interfaces. Whether I am
-					prototyping sensor networks or teaching a student through a
-					new programming concept, I focus on measurable outcomes,
-					maintainability, and clear communication.
-				</p>
 			</div>
 
 			<img
@@ -142,11 +145,22 @@ const profile = computed(() => store.userProfile);
 	gap: 2.4rem;
 }
 
-.intro-grid {
+.about-intro {
 	display: grid;
-	grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-	gap: 1.4rem;
+	grid-template-columns: minmax(0, 1.28fr) minmax(300px, 0.82fr);
+	gap: 1.6rem;
 	align-items: start;
+}
+
+.about-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	min-width: 0;
+}
+
+.about-intro .page-intro {
+	max-width: none;
 }
 
 .summary-card,
@@ -228,6 +242,7 @@ const profile = computed(() => store.userProfile);
 	width: 100%;
 	height: auto;
 	align-self: start;
+	justify-self: end;
 	border-radius: 30px;
 	border: 1px solid rgba(255, 255, 255, 0.72);
 	box-shadow:
@@ -271,10 +286,15 @@ const profile = computed(() => store.userProfile);
 }
 
 @media (max-width: 960px) {
-	.intro-grid,
+	.about-intro,
 	.highlights-grid,
 	.recognition-grid {
 		grid-template-columns: 1fr;
+	}
+
+	.portrait-image {
+		max-width: 520px;
+		justify-self: start;
 	}
 }
 
