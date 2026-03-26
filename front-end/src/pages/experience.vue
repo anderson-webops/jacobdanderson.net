@@ -8,12 +8,12 @@ const experiences = computed(() => store.userProfile.experience);
 
 <template>
 	<div class="experience-page">
-		<header>
-			<h1>Experience</h1>
+		<header class="page-intro">
+			<p class="eyebrow">Experience</p>
+			<h1>Roles that connect engineering, research, and instruction.</h1>
 			<p>
-				A snapshot of the roles where I've applied embedded systems,
-				software engineering, and instructional design to real-world
-				problems.
+				A selection of work spanning embedded systems, research tooling,
+				product development, and technical education.
 			</p>
 		</header>
 
@@ -21,9 +21,9 @@ const experiences = computed(() => store.userProfile.experience);
 			<article
 				v-for="(item, index) in experiences"
 				:key="index"
-				class="entry"
+				class="entry section-panel"
 			>
-				<div class="meta">
+				<div class="entry-meta">
 					<span class="timeframe">{{ item.timeframe }}</span>
 					<span class="location">{{ item.location }}</span>
 				</div>
@@ -46,75 +46,52 @@ const experiences = computed(() => store.userProfile.experience);
 .experience-page {
 	display: flex;
 	flex-direction: column;
-	gap: 2.5rem;
-	padding: 2rem 0 4rem;
-}
-
-header {
-	text-align: left;
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
-h1 {
-	margin: 0;
-	font-size: clamp(2rem, 5vw, 3rem);
-	color: #0f172a;
-}
-
-header p {
-	margin: 0;
-	color: #334155;
-	max-width: 720px;
-	line-height: 1.65;
+	gap: 2rem;
 }
 
 .timeline {
 	display: grid;
-	gap: 1.75rem;
+	gap: 1rem;
 }
 
 .entry {
-	background: #ffffff;
-	border-radius: 18px;
-	padding: 1.75rem;
-	box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
-	border: 1px solid rgba(148, 163, 184, 0.18);
+	padding: 1.6rem;
+	border-left: 4px solid rgba(33, 74, 104, 0.24);
 }
 
-.meta {
+.entry-meta {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 1rem;
 	font-size: 0.9rem;
-	color: #2563eb;
-	font-weight: 600;
+	font-weight: 700;
+	color: var(--color-accent);
+	margin-bottom: 0.75rem;
 }
 
-h2 {
-	margin: 0.5rem 0 0;
-	color: #0f172a;
+.entry h2 {
+	font-size: 1.7rem;
+	line-height: 1.12;
 }
 
 .organization {
-	margin: 0.35rem 0 1rem;
+	margin-top: 0.45rem;
+	color: var(--color-text-muted);
 	font-weight: 600;
-	color: #1d4ed8;
 }
 
-ul {
-	margin: 0;
+.entry ul {
+	margin: 1rem 0 0;
 	padding-left: 1.1rem;
-	color: #475569;
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: 0.55rem;
+	color: var(--color-text-muted);
 }
 
 @media (max-width: 640px) {
 	.entry {
-		padding: 1.4rem;
+		padding: 1.35rem;
 	}
 }
 </style>

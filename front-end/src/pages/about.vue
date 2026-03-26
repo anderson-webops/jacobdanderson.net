@@ -8,52 +8,81 @@ const profile = computed(() => store.userProfile);
 
 <template>
 	<div class="about-page">
-		<section class="intro">
-			<div class="text">
-				<p class="update">Last updated {{ profile.lastUpdated }}</p>
-				<h1>About Jacob</h1>
-				<p class="summary">{{ profile.summary }}</p>
-				<div class="details">
-					<div>
-						<span class="label">Location</span>
-						<span>{{ profile.location }}</span>
-					</div>
-					<div>
-						<span class="label">Email</span>
-						<a :href="`mailto:${profile.email}`">{{
-							profile.email
-						}}</a>
-					</div>
-					<div>
-						<span class="label">Phone</span>
-						<a :href="`tel:${profile.phone}`">{{
-							profile.phone
-						}}</a>
-					</div>
+		<header class="page-intro">
+			<p class="eyebrow">About</p>
+			<h1>
+				Systems-minded engineering with a strong emphasis on clarity.
+			</h1>
+			<p>{{ profile.summary }}</p>
+		</header>
+
+		<section class="intro-grid">
+			<div class="summary-card section-panel">
+				<div class="summary-top">
+					<span class="summary-label">Professional snapshot</span>
+					<span class="summary-date"
+						>Updated {{ profile.lastUpdated }}</span
+					>
 				</div>
+
+				<dl class="details-grid">
+					<div>
+						<dt>Location</dt>
+						<dd>{{ profile.location }}</dd>
+					</div>
+					<div>
+						<dt>Email</dt>
+						<dd>
+							<a :href="`mailto:${profile.email}`">{{
+								profile.email
+							}}</a>
+						</dd>
+					</div>
+					<div>
+						<dt>Phone</dt>
+						<dd>
+							<a :href="`tel:${profile.phone}`">{{
+								profile.phone
+							}}</a>
+						</dd>
+					</div>
+				</dl>
+
+				<p class="summary-text">
+					I care about building dependable systems that connect
+					hardware, firmware, and intuitive interfaces. Whether I am
+					prototyping sensor networks or teaching a student through a
+					new programming concept, I focus on measurable outcomes,
+					maintainability, and clear communication.
+				</p>
 			</div>
-			<div class="portrait" role="presentation" />
+
+			<div class="portrait-card section-panel">
+				<div class="portrait" role="presentation" />
+			</div>
 		</section>
 
-		<section class="mission">
-			<h2>How I approach engineering</h2>
-			<p>
-				I care about building dependable systems that connect hardware,
-				firmware, and intuitive interfaces. Whether I'm prototyping
-				sensor networks or supporting a student through a new
-				programming concept, I focus on clarity, measurable outcomes,
-				and long-term maintainability.
-			</p>
-		</section>
+		<section class="highlights-grid">
+			<article class="highlight-card section-panel">
+				<span class="card-label">Technical toolkit</span>
+				<h2>Languages and frameworks</h2>
+				<div class="tag-list">
+					<span
+						v-for="(tool, index) in [
+							...profile.skills.languages.slice(0, 7),
+							...profile.skills.frameworks.slice(0, 4)
+						]"
+						:key="index"
+						class="tag"
+					>
+						{{ tool }}
+					</span>
+				</div>
+			</article>
 
-		<section class="skills-section">
-			<div>
-				<h2>Technical toolkit</h2>
-				<p class="list">{{ profile.skills.languages.join(", ") }}</p>
-				<p class="list">{{ profile.skills.frameworks.join(", ") }}</p>
-			</div>
-			<div>
-				<h2>Core strengths</h2>
+			<article class="highlight-card section-panel">
+				<span class="card-label">Core strengths</span>
+				<h2>Where I create the most value</h2>
 				<ul>
 					<li
 						v-for="(competency, index) in profile.skills
@@ -63,19 +92,20 @@ const profile = computed(() => store.userProfile);
 						{{ competency }}
 					</li>
 				</ul>
-			</div>
-			<div>
-				<h2>Languages</h2>
-				<p class="list">
-					{{ profile.skills.languagesSpoken.join(" · ") }}
-				</p>
-			</div>
+			</article>
+
+			<article class="highlight-card section-panel">
+				<span class="card-label">Languages</span>
+				<h2>Communication beyond code</h2>
+				<p>{{ profile.skills.languagesSpoken.join(" · ") }}</p>
+			</article>
 		</section>
 
-		<EducationComponent class="education" />
+		<EducationComponent />
 
-		<section class="recognition">
-			<div>
+		<section class="recognition-grid">
+			<article class="recognition-card section-panel">
+				<span class="card-label">Recognition</span>
 				<h2>Achievements</h2>
 				<ul>
 					<li
@@ -85,9 +115,11 @@ const profile = computed(() => store.userProfile);
 						{{ achievement }}
 					</li>
 				</ul>
-			</div>
-			<div>
-				<h2>Beyond the lab</h2>
+			</article>
+
+			<article class="recognition-card section-panel">
+				<span class="card-label">Beyond the lab</span>
+				<h2>Community and personal interests</h2>
 				<ul>
 					<li
 						v-for="(activity, index) in profile.activities"
@@ -96,7 +128,7 @@ const profile = computed(() => store.userProfile);
 						{{ activity }}
 					</li>
 				</ul>
-			</div>
+			</article>
 		</section>
 	</div>
 </template>
@@ -105,163 +137,149 @@ const profile = computed(() => store.userProfile);
 .about-page {
 	display: flex;
 	flex-direction: column;
-	gap: 3rem;
-	padding: 2rem 0 4rem;
+	gap: 2.4rem;
 }
 
-.intro {
+.intro-grid {
 	display: grid;
-	gap: 2rem;
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-	align-items: center;
+	grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+	gap: 1.4rem;
 }
 
-.text {
+.summary-card,
+.portrait-card,
+.highlight-card,
+.recognition-card {
+	padding: 1.7rem;
+}
+
+.summary-card {
 	display: flex;
 	flex-direction: column;
-	gap: 1.25rem;
+	gap: 1.4rem;
 }
 
-.update {
-	font-size: 0.85rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: #2563eb;
-	margin: 0;
-}
-
-h1 {
-	margin: 0;
-	font-size: clamp(2rem, 4vw, 3rem);
-	color: #0f172a;
-}
-
-.summary {
-	margin: 0;
-	color: #334155;
-	line-height: 1.65;
-}
-
-.details {
-	display: grid;
-	gap: 0.75rem;
-}
-
-.details div {
+.summary-top {
 	display: flex;
-	gap: 0.75rem;
-	align-items: baseline;
-	color: #1f2937;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
 }
 
-.label {
-	font-size: 0.8rem;
+.summary-label,
+.card-label {
+	font-size: 0.76rem;
 	font-weight: 700;
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: #64748b;
-	letter-spacing: 0.08em;
+	color: var(--color-highlight);
 }
 
-.details a {
-	color: #2563eb;
+.summary-date {
+	font-size: 0.92rem;
+	color: var(--color-text-muted);
+}
+
+.details-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.details-grid dt {
+	font-size: 0.76rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--color-text-muted);
+	margin-bottom: 0.45rem;
+}
+
+.details-grid dd,
+.details-grid a,
+.summary-text,
+.highlight-card p {
+	color: var(--color-text-muted);
+	line-height: 1.75;
 	text-decoration: none;
+}
+
+.portrait-card {
+	display: flex;
 }
 
 .portrait {
 	width: 100%;
-	padding-top: 100%;
-	border-radius: 24px;
+	min-height: 100%;
+	border-radius: 22px;
 	background:
 		url("https://jacobdanderson.s3.amazonaws.com/images/Jacob_Anderson.jpg")
-			center/cover,
+			center 18% / cover,
 		linear-gradient(
 			135deg,
-			rgba(59, 130, 246, 0.15),
-			rgba(14, 165, 233, 0.12)
+			rgba(33, 74, 104, 0.18),
+			rgba(167, 125, 71, 0.16)
 		);
-	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
-.mission {
-	background: #ffffff;
-	padding: 2rem;
-	border-radius: 20px;
-	box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
-	border: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-.mission h2 {
-	margin-top: 0;
-	color: #0f172a;
-}
-
-.mission p {
-	margin: 0;
-	color: #334155;
-	line-height: 1.7;
-}
-
-.skills-section {
+.highlights-grid,
+.recognition-grid {
 	display: grid;
-	gap: 1.5rem;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1.2rem;
 }
 
-.skills-section h2 {
-	color: #0f172a;
-	margin-bottom: 0.75rem;
+.recognition-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.list {
-	margin: 0;
-	color: #1f2937;
-}
-
-.skills-section ul {
-	margin: 0;
-	padding-left: 1.1rem;
-	color: #475569;
+.highlight-card,
+.recognition-card {
 	display: flex;
 	flex-direction: column;
-	gap: 0.45rem;
+	gap: 1rem;
 }
 
-.education {
-	margin-top: 1rem;
+.highlight-card h2,
+.recognition-card h2 {
+	font-size: 1.55rem;
+	line-height: 1.15;
 }
 
-.recognition {
-	display: grid;
-	gap: 2rem;
-	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.recognition h2 {
-	color: #0f172a;
-	margin-bottom: 0.75rem;
-}
-
-.recognition ul {
+.highlight-card ul,
+.recognition-card ul {
 	margin: 0;
 	padding-left: 1.1rem;
-	color: #475569;
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: 0.55rem;
+	color: var(--color-text-muted);
 }
 
-@media (max-width: 640px) {
-	.mission {
-		padding: 1.5rem;
+@media (max-width: 960px) {
+	.intro-grid,
+	.highlights-grid,
+	.recognition-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 720px) {
+	.details-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.summary-top {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.summary-card,
+	.portrait-card,
+	.highlight-card,
+	.recognition-card {
+		padding: 1.4rem;
 	}
 }
 </style>
-
-<route lang="json">
-{
-	"meta": {
-		"layout": "default"
-	}
-}
-</route>
