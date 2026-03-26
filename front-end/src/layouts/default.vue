@@ -1,9 +1,9 @@
 <template>
-	<main text="center gray-700 dark:gray-200">
+	<main class="site-shell">
 		<TheHeader />
-		<RouterView class="px-4 py-5" />
+		<div class="site-main">
+			<RouterView />
+		</div>
 		<TheFooter />
-		<!--    <div mx-auto mt-5 text-center text-sm opacity-50> [Default Layout]
-    </div> -->
 	</main>
 </template>

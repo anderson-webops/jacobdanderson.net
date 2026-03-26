@@ -8,11 +8,16 @@ const projects = computed(() => store.userProfile.projects);
 
 <template>
 	<div class="projects-page">
-		<header>
-			<h1>Projects</h1>
+		<header class="page-intro">
+			<p class="eyebrow">Projects</p>
+			<h1>
+				Selected work across research, embedded systems, and product
+				development.
+			</h1>
 			<p>
-				Selected initiatives that highlight my approach to embedded
-				systems, research tooling, and user-focused product development.
+				These projects reflect the way I approach technical work:
+				practical systems thinking, clear documentation, and thoughtful
+				execution.
 			</p>
 		</header>
 
@@ -20,12 +25,13 @@ const projects = computed(() => store.userProfile.projects);
 			<article
 				v-for="(project, index) in projects"
 				:key="index"
-				class="project-card"
+				class="project-card section-panel"
 			>
-				<header>
-					<h2>{{ project.name }}</h2>
+				<div class="card-top">
+					<span class="card-label">Project</span>
 					<span class="timeframe">{{ project.timeframe }}</span>
-				</header>
+				</div>
+				<h2>{{ project.name }}</h2>
 				<p class="description">{{ project.description }}</p>
 				<ul>
 					<li
@@ -46,82 +52,71 @@ const projects = computed(() => store.userProfile.projects);
 .projects-page {
 	display: flex;
 	flex-direction: column;
-	gap: 2.5rem;
-	padding: 2rem 0 4rem;
-}
-
-header {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
-h1 {
-	margin: 0;
-	font-size: clamp(2rem, 5vw, 3rem);
-	color: #0f172a;
-}
-
-header p {
-	margin: 0;
-	color: #334155;
-	max-width: 720px;
-	line-height: 1.65;
+	gap: 2rem;
 }
 
 .grid {
 	display: grid;
-	gap: 1.8rem;
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1.2rem;
 }
 
 .project-card {
-	background: #ffffff;
-	border-radius: 18px;
-	padding: 1.75rem;
-	box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
-	border: 1px solid rgba(148, 163, 184, 0.18);
+	padding: 1.6rem;
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 0.9rem;
 }
 
-.project-card header {
+.card-top {
 	display: flex;
 	justify-content: space-between;
-	align-items: baseline;
-	gap: 0.5rem;
+	align-items: center;
+	gap: 0.75rem;
 }
 
-h2 {
-	margin: 0;
-	font-size: 1.4rem;
-	color: #0f172a;
+.card-label {
+	font-size: 0.76rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--color-highlight);
 }
 
 .timeframe {
-	font-weight: 600;
-	color: #2563eb;
-	font-size: 0.95rem;
+	font-size: 0.92rem;
+	font-weight: 700;
+	color: var(--color-accent);
+}
+
+.project-card h2 {
+	font-size: 1.6rem;
+	line-height: 1.12;
 }
 
 .description {
-	margin: 0;
-	color: #334155;
+	color: var(--color-text-muted);
+	line-height: 1.75;
 }
 
-ul {
+.project-card ul {
 	margin: 0;
 	padding-left: 1.1rem;
-	color: #475569;
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: 0.55rem;
+	color: var(--color-text-muted);
+}
+
+@media (max-width: 900px) {
+	.grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 640px) {
 	.project-card {
-		padding: 1.4rem;
+		padding: 1.35rem;
 	}
 }
 </style>

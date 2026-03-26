@@ -16,6 +16,12 @@ const links = [
 
 const activePath = computed(() => route.path);
 
+function isLinkActive(path: string) {
+	if (path === "/") return activePath.value === "/";
+
+	return activePath.value.startsWith(path);
+}
+
 function toggleMenu() {
 	isExpanded.value = !isExpanded.value;
 }
@@ -34,43 +40,58 @@ watch(
 
 <template>
 	<header class="site-header">
-		<nav class="nav">
-			<RouterLink class="brand" to="/" @click="closeMenu">
-				<img
-					alt="Jacob Anderson logo"
-					class="logo"
-					src="https://jacobdanderson.s3.amazonaws.com/images/Logo+1+Saywa.png"
-				/>
-				<span>Jacob Anderson</span>
-			</RouterLink>
-			<button
-				aria-label="Toggle navigation"
-				class="hamburger"
-				type="button"
-				@click="toggleMenu"
-			>
-				<span :class="{ open: isExpanded }" />
-				<span :class="{ open: isExpanded }" />
-				<span :class="{ open: isExpanded }" />
-			</button>
-			<ul :class="{ expanded: isExpanded }" class="links">
-				<li v-for="link in links" :key="link.path">
+		<div class="shell">
+			<nav aria-label="Primary" class="nav">
+				<RouterLink class="brand" to="/" @click="closeMenu">
+					<div class="brand-mark">JA</div>
+					<div class="brand-copy">
+						<span class="brand-name">Jacob Anderson</span>
+						<span class="brand-meta"
+							>Computer Engineer • Cofounder • Educator</span
+						>
+					</div>
+				</RouterLink>
+
+				<button
+					:aria-expanded="isExpanded"
+					aria-controls="primary-nav"
+					aria-label="Toggle navigation"
+					class="hamburger"
+					type="button"
+					@click="toggleMenu"
+				>
+					<span :class="{ open: isExpanded }" />
+					<span :class="{ open: isExpanded }" />
+					<span :class="{ open: isExpanded }" />
+				</button>
+
+				<div
+					id="primary-nav"
+					:class="{ expanded: isExpanded }"
+					class="nav-panel"
+				>
+					<ul class="links">
+						<li v-for="link in links" :key="link.path">
+							<RouterLink
+								:class="{ active: isLinkActive(link.path) }"
+								:to="link.path"
+								@click="closeMenu"
+							>
+								{{ link.name }}
+							</RouterLink>
+						</li>
+					</ul>
+
 					<RouterLink
-						:class="{
-							active:
-								activePath.startsWith(link.path) &&
-								link.path !== '/'
-									? true
-									: activePath === link.path
-						}"
-						:to="link.path"
+						class="nav-cta"
+						to="/contact"
 						@click="closeMenu"
 					>
-						{{ link.name }}
+						Get in touch
 					</RouterLink>
-				</li>
-			</ul>
-		</nav>
+				</div>
+			</nav>
+		</div>
 	</header>
 </template>
 
@@ -78,96 +99,144 @@ watch(
 .site-header {
 	position: sticky;
 	top: 0;
-	z-index: 20;
-	backdrop-filter: blur(12px);
-	background: rgba(248, 250, 252, 0.85);
-	border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+	z-index: 30;
+	padding: 1rem 0 0;
+}
+
+.shell {
+	width: min(1120px, calc(100% - 3rem));
+	margin: 0 auto;
 }
 
 .nav {
-	max-width: 1080px;
-	margin: 0 auto;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: 0.75rem 1.5rem;
+	gap: 1.25rem;
+	padding: 0.9rem 1.1rem;
+	border: 1px solid rgba(17, 29, 43, 0.1);
+	background: rgba(255, 252, 247, 0.76);
+	border-radius: 999px;
+	backdrop-filter: blur(18px);
+	box-shadow: 0 12px 30px rgba(17, 29, 43, 0.08);
 }
 
 .brand {
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	font-weight: 700;
-	font-size: 1.1rem;
-	color: #0f172a;
 	text-decoration: none;
+	min-width: 0;
 }
 
-.logo {
-	width: 42px;
-	height: 42px;
+.brand-mark {
+	width: 2.85rem;
+	height: 2.85rem;
 	border-radius: 50%;
-	box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+	display: grid;
+	place-items: center;
+	font-family: var(--font-display);
+	font-size: 1.05rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	color: var(--color-surface-strong);
+	background: linear-gradient(135deg, #17364d, #345f7a);
+	box-shadow: 0 12px 24px rgba(23, 54, 77, 0.22);
+}
+
+.brand-copy {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.brand-name {
+	font-size: 1rem;
+	font-weight: 800;
+	letter-spacing: 0.02em;
+	color: var(--color-text);
+}
+
+.brand-meta {
+	font-size: 0.74rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--color-text-muted);
+	white-space: nowrap;
+}
+
+.nav-panel {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
 }
 
 .links {
 	display: flex;
 	align-items: center;
-	gap: 1.5rem;
+	gap: 0.4rem;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
 .links li a {
-	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	font-weight: 600;
-	color: #334155;
+	color: var(--color-text-muted);
 	text-decoration: none;
-	padding-bottom: 0.25rem;
-	transition: color 0.2s ease;
-}
-
-.links li a::after {
-	content: "";
-	position: absolute;
-	left: 0;
-	bottom: 0;
-	width: 100%;
-	height: 2px;
-	background: #2563eb;
-	transform: scaleX(0);
-	transform-origin: left;
-	transition: transform 0.2s ease;
+	padding: 0.65rem 0.95rem;
+	border-radius: 999px;
 }
 
 .links li a:hover {
-	color: #1d4ed8;
-}
-
-/*.links li a:hover::after,
-.links li a.active::after {
-	transform: scaleX(1);
+	background: rgba(33, 74, 104, 0.08);
+	color: var(--color-accent);
 }
 
 .links li a.active {
-	color: #1d4ed8;
-}*/
+	background: rgba(23, 54, 77, 0.92);
+	color: var(--color-surface-strong);
+	box-shadow: 0 10px 22px rgba(23, 54, 77, 0.18);
+}
+
+.nav-cta {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.7rem 1.15rem;
+	border-radius: 999px;
+	border: 1px solid rgba(17, 29, 43, 0.12);
+	background: rgba(255, 255, 255, 0.88);
+	color: var(--color-accent-strong);
+	font-weight: 700;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.nav-cta:hover {
+	border-color: rgba(23, 54, 77, 0.22);
+	background: rgba(255, 255, 255, 0.96);
+	transform: translateY(-1px);
+}
 
 .hamburger {
 	display: none;
 	flex-direction: column;
 	gap: 0.35rem;
-	background: none;
-	border: none;
+	background: rgba(255, 255, 255, 0.82);
+	border: 1px solid rgba(17, 29, 43, 0.1);
+	border-radius: 999px;
 	cursor: pointer;
-	padding: 0.35rem;
+	padding: 0.75rem;
 }
 
 .hamburger span {
-	width: 26px;
-	height: 3px;
-	background: #0f172a;
+	width: 20px;
+	height: 2px;
+	background: var(--color-text);
 	border-radius: 999px;
 	transition:
 		transform 0.3s ease,
@@ -187,29 +256,71 @@ watch(
 }
 
 @media (max-width: 768px) {
+	.shell {
+		width: min(1120px, calc(100% - 1.5rem));
+	}
+
+	.nav {
+		border-radius: 24px;
+		padding: 0.95rem 1rem;
+		position: relative;
+	}
+
 	.hamburger {
 		display: flex;
 	}
 
-	.links {
+	.brand-meta {
+		white-space: normal;
+	}
+
+	.nav-panel {
 		position: absolute;
-		top: 100%;
+		top: calc(100% + 0.7rem);
 		left: 0;
 		right: 0;
 		flex-direction: column;
-		background: rgba(255, 255, 255, 0.96);
-		border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-		padding: 1.25rem 1.5rem 1.75rem;
+		align-items: stretch;
+		background: rgba(255, 252, 247, 0.98);
+		border: 1px solid rgba(17, 29, 43, 0.1);
+		border-radius: 24px;
+		padding: 1rem;
 		gap: 1rem;
 		display: none;
+		box-shadow: 0 18px 40px rgba(17, 29, 43, 0.12);
 	}
 
-	.links.expanded {
+	.nav-panel.expanded {
 		display: flex;
+	}
+
+	.links {
+		flex-direction: column;
+		align-items: stretch;
 	}
 
 	.links li a {
 		width: 100%;
+		justify-content: flex-start;
+	}
+
+	.nav-cta {
+		width: 100%;
+	}
+}
+
+@media (max-width: 560px) {
+	.brand {
+		gap: 0.65rem;
+	}
+
+	.brand-mark {
+		width: 2.55rem;
+		height: 2.55rem;
+	}
+
+	.brand-name {
+		font-size: 0.94rem;
 	}
 }
 </style>

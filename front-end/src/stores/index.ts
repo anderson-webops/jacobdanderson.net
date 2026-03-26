@@ -4,13 +4,13 @@ export const useMainStore = defineStore("main", {
 	state: () => ({
 		userProfile: {
 			name: "Jacob Anderson",
-			headline: "Cofounder & educator",
+			headline: "Computer Engineer, Cofounder, and Educator",
 			location: "Alpharetta, GA",
 			email: "jacobdanderson@gmail.com",
 			phone: "404-626-0025",
-			lastUpdated: "December 2025",
+			lastUpdated: "March 2026",
 			summary:
-				"I am CTO and cofounder of Stride. I am pursuing my M.S. in Computer Engineering program at Georgia Tech after earning my B.S. in Computer Engineering from BYU.",
+				"I am CTO and cofounder of Stride with experience spanning embedded systems, research tooling, and technical instruction. I am currently pursuing an M.S. in Computer Engineering at Georgia Tech after earning a B.S. in Computer Engineering with a minor in Computer Science from BYU.",
 			education: [
 				{
 					program: "M.S. Computer Engineering",

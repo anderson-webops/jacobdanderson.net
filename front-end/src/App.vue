@@ -6,12 +6,26 @@ useHead({
 	title: "Jacob Anderson",
 	meta: [
 		{
-			name: "Personal Website",
-			content: "This is the personal website of Jacob Anderson"
+			name: "description",
+			content:
+				"Jacob Anderson is a computer engineer, cofounder, and educator focused on embedded systems, research tooling, and technical instruction."
+		},
+		{
+			property: "og:title",
+			content: "Jacob Anderson"
+		},
+		{
+			property: "og:description",
+			content:
+				"Professional portfolio for Jacob Anderson covering engineering work, research projects, and private instruction."
+		},
+		{
+			property: "og:type",
+			content: "website"
 		},
 		{
 			name: "theme-color",
-			content: () => (isDark.value ? "#00aba9" : "#ffffff")
+			content: "#17364d"
 		}
 	],
 	link: [

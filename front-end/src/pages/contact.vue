@@ -8,30 +8,60 @@ const profile = computed(() => store.userProfile);
 
 <template>
 	<div class="contact-page">
-		<section class="card">
-			<h1>Let's connect</h1>
+		<header class="page-intro">
+			<p class="eyebrow">Contact</p>
+			<h1>Open to thoughtful conversations and well-scoped work.</h1>
 			<p>
-				I'd love to talk about embedded systems projects, research
-				collaborations, or custom lessons for your student. Reach out
-				directly and I'll respond within two business days.
+				If you would like to discuss a project, research collaboration,
+				or private instruction, reach out directly. I generally respond
+				within two business days.
 			</p>
-			<div class="info-grid">
-				<div>
-					<span class="label">Email</span>
-					<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
+		</header>
+
+		<section class="contact-grid">
+			<article class="contact-card section-panel">
+				<span class="card-label">Direct contact</span>
+				<h2>Start the conversation</h2>
+				<div class="detail-list">
+					<div>
+						<span class="detail-label">Email</span>
+						<a :href="`mailto:${profile.email}`">{{
+							profile.email
+						}}</a>
+					</div>
+					<div>
+						<span class="detail-label">Phone</span>
+						<a :href="`tel:${profile.phone}`">{{
+							profile.phone
+						}}</a>
+					</div>
+					<div>
+						<span class="detail-label">Location</span>
+						<span>{{ profile.location }}</span>
+					</div>
 				</div>
-				<div>
-					<span class="label">Phone</span>
-					<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
+
+				<div class="button-row">
+					<a class="button-primary" :href="`mailto:${profile.email}`">
+						Email Jacob
+					</a>
+					<RouterLink class="button-secondary" to="/classes">
+						View teaching options
+					</RouterLink>
 				</div>
-				<div>
-					<span class="label">Location</span>
-					<span>{{ profile.location }}</span>
-				</div>
-			</div>
-			<RouterLink class="cta" to="/classes"
-				>Learn about private lessons →
-			</RouterLink>
+			</article>
+
+			<article class="contact-card section-panel">
+				<span class="card-label">Good fit</span>
+				<h2>Best suited for</h2>
+				<ul>
+					<li>Embedded systems and technical product work.</li>
+					<li>
+						Research tooling, analysis workflows, and prototyping.
+					</li>
+					<li>Private programming, STEM, or Spanish instruction.</li>
+				</ul>
+			</article>
 		</section>
 	</div>
 </template>
@@ -39,68 +69,73 @@ const profile = computed(() => store.userProfile);
 <style scoped>
 .contact-page {
 	display: flex;
-	justify-content: center;
-	padding: 3rem 0 5rem;
+	flex-direction: column;
+	gap: 2rem;
 }
 
-.card {
-	background: #ffffff;
-	border-radius: 24px;
-	padding: 2.5rem;
-	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
-	border: 1px solid rgba(148, 163, 184, 0.2);
-	max-width: 640px;
+.contact-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+	gap: 1.2rem;
+}
+
+.contact-card {
+	padding: 1.7rem;
 	display: flex;
 	flex-direction: column;
-	gap: 1.75rem;
+	gap: 1.15rem;
 }
 
-h1 {
-	margin: 0;
-	font-size: clamp(2rem, 4vw, 3rem);
-	color: #0f172a;
+.card-label,
+.detail-label {
+	font-size: 0.76rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--color-highlight);
 }
 
-p {
-	margin: 0;
-	color: #334155;
-	line-height: 1.65;
+.contact-card h2 {
+	font-size: 1.8rem;
+	line-height: 1.12;
 }
 
-.info-grid {
+.detail-list {
 	display: grid;
 	gap: 1rem;
 }
 
-.info-grid div {
+.detail-list div {
 	display: flex;
 	flex-direction: column;
 	gap: 0.35rem;
-	color: #1f2937;
 }
 
-.label {
-	font-size: 0.8rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	color: #64748b;
-	letter-spacing: 0.08em;
-}
-
-a {
-	color: #2563eb;
+.detail-list a,
+.detail-list span:last-child {
+	color: var(--color-text-muted);
 	text-decoration: none;
-}
-
-.cta {
 	font-weight: 600;
-	color: #1d4ed8;
-	text-decoration: none;
+}
+
+ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	color: var(--color-text-muted);
+}
+
+@media (max-width: 900px) {
+	.contact-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 640px) {
-	.card {
-		padding: 2rem;
+	.contact-card {
+		padding: 1.4rem;
 	}
 }
 </style>
