@@ -23,8 +23,8 @@
 	--radius-lg: 22px;
 	--radius-md: 16px;
 	--font-body: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
-	--font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
-		serif;
+	--font-display:
+		"Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
 }
 
 html,
@@ -60,22 +60,7 @@ html {
 **************/
 
 body {
-	background:
-		radial-gradient(
-			circle at top left,
-			rgba(167, 125, 71, 0.16),
-			transparent 28%
-		),
-		radial-gradient(
-			circle at top right,
-			rgba(33, 74, 104, 0.14),
-			transparent 30%
-		),
-		linear-gradient(
-			180deg,
-			var(--color-background-alt) 0%,
-			var(--color-background) 100%
-		);
+	background: var(--color-background-alt);
 	font-family: var(--font-body);
 	font-size: 16px;
 	line-height: 1.6;
@@ -86,17 +71,7 @@ body {
 }
 
 body::before {
-	content: "";
-	position: fixed;
-	inset: 0;
-	background-image: linear-gradient(
-		rgba(255, 255, 255, 0.5) 1px,
-		transparent 1px
-	);
-	background-size: 100% 36px;
-	opacity: 0.25;
-	pointer-events: none;
-	z-index: 0;
+	content: none;
 }
 
 a {
@@ -290,6 +265,7 @@ main {
 main.site-shell {
 	display: flex;
 	flex-direction: column;
+	background: var(--color-background-alt);
 }
 
 .site-main {
@@ -300,10 +276,6 @@ main.site-shell {
 }
 
 @media (max-width: 768px) {
-	body::before {
-		background-size: 100% 28px;
-	}
-
 	.page-intro h1 {
 		font-size: clamp(2.1rem, 11vw, 3rem);
 	}
