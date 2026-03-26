@@ -81,14 +81,6 @@ watch(
 							</RouterLink>
 						</li>
 					</ul>
-
-					<RouterLink
-						class="nav-cta"
-						to="/contact"
-						@click="closeMenu"
-					>
-						Get in touch
-					</RouterLink>
 				</div>
 			</nav>
 		</div>
@@ -97,9 +89,6 @@ watch(
 
 <style scoped>
 .site-header {
-	position: sticky;
-	top: 0;
-	z-index: 30;
 	padding: 1rem 0 0;
 }
 
@@ -112,7 +101,7 @@ watch(
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 1.25rem;
+	gap: 0.9rem;
 	padding: 0.9rem 1.1rem;
 	border: 1px solid rgba(17, 29, 43, 0.1);
 	background: rgba(255, 252, 247, 0.76);
@@ -148,6 +137,7 @@ watch(
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
+	flex-shrink: 1;
 }
 
 .brand-name {
@@ -162,13 +152,16 @@ watch(
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	color: var(--color-text-muted);
-	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .nav-panel {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
+	justify-content: flex-end;
+	flex: 1;
+	min-width: 0;
 }
 
 .links {
@@ -200,26 +193,6 @@ watch(
 	background: rgba(23, 54, 77, 0.92);
 	color: var(--color-surface-strong);
 	box-shadow: 0 10px 22px rgba(23, 54, 77, 0.18);
-}
-
-.nav-cta {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0.7rem 1.15rem;
-	border-radius: 999px;
-	border: 1px solid rgba(17, 29, 43, 0.12);
-	background: rgba(255, 255, 255, 0.88);
-	color: var(--color-accent-strong);
-	font-weight: 700;
-	text-decoration: none;
-	white-space: nowrap;
-}
-
-.nav-cta:hover {
-	border-color: rgba(23, 54, 77, 0.22);
-	background: rgba(255, 255, 255, 0.96);
-	transform: translateY(-1px);
 }
 
 .hamburger {
@@ -271,7 +244,7 @@ watch(
 	}
 
 	.brand-meta {
-		white-space: normal;
+		display: none;
 	}
 
 	.nav-panel {
@@ -303,9 +276,15 @@ watch(
 		width: 100%;
 		justify-content: flex-start;
 	}
+}
 
-	.nav-cta {
-		width: 100%;
+@media (max-width: 1040px) {
+	.brand-meta {
+		display: none;
+	}
+
+	.links li a {
+		padding: 0.6rem 0.75rem;
 	}
 }
 

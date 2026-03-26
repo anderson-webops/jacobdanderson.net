@@ -296,11 +296,12 @@ const featuredTools = computed(() => [
 
 .hero-details {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 	gap: 1rem;
 }
 
 .hero-details div {
+	min-width: 0;
 	padding-top: 1rem;
 	border-top: 1px solid rgba(17, 29, 43, 0.12);
 }
@@ -316,9 +317,11 @@ const featuredTools = computed(() => [
 
 .hero-details dd,
 .hero-details a {
+	display: block;
 	color: var(--color-text);
 	font-weight: 600;
 	text-decoration: none;
+	overflow-wrap: anywhere;
 }
 
 .hero-panel {
