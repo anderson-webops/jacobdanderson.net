@@ -16,7 +16,6 @@ import Markdown from "unplugin-vue-markdown/vite";
 import { VueRouterAutoImports } from "unplugin-vue-router";
 import VueRouter from "unplugin-vue-router/vite";
 import { defineConfig } from "vite";
-import { VitePWA } from "vite-plugin-pwa";
 import VueDevTools from "vite-plugin-vue-devtools";
 import Layouts from "vite-plugin-vue-layouts-next";
 import generateSitemap from "vite-ssg-sitemap";
@@ -96,63 +95,7 @@ export default defineConfig({
 			}
 		}),
 
-		/* 7️⃣  PWA */
-		VitePWA({
-			registerType: "autoUpdate",
-			includeAssets: [
-				"favicon.ico",
-				"favicon-16x16.png",
-				"favicon-32x32.png",
-				"apple-touch-icon.png",
-				"android-chrome-192x192.png",
-				"android-chrome-512x512.png"
-			],
-			manifest: {
-				name: "Classes",
-				short_name: "Classes",
-				theme_color: "#ffffff",
-				background_color: "#ffffff",
-				display: "standalone",
-				icons: [
-					{
-						src: "https://jacobdanderson.s3.us-east-1.amazonaws.com/Favicons/favicons+Logo+Bo+Light/android-chrome-192x192.png",
-						sizes: "192x192",
-						type: "image/png"
-					},
-					{
-						src: "https://jacobdanderson.s3.us-east-1.amazonaws.com/Favicons/favicons+Logo+Bo+Light/android-chrome-512x512.png",
-						sizes: "512x512",
-						type: "image/png"
-					},
-					{
-						src: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/apple-touch-icon.png",
-						sizes: "180x180",
-						type: "image/png",
-						purpose: "apple-touch-icon"
-					},
-					{
-						src: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon-32x32.png",
-						sizes: "32x32",
-						type: "image/png"
-					},
-					{
-						src: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon-16x16.png",
-						sizes: "16x16",
-						type: "image/png"
-					},
-					{
-						src: "https://jacobdanderson.s3.us-east-1.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon.ico",
-						sizes: "48x48",
-						type: "image/x-icon"
-					}
-				]
-			},
-			workbox: {
-				globPatterns: ["**/*.{js,css,html,png,svg,ico}"]
-			}
-		}),
-
-		/* 8️⃣  i18n, fonts, devtools */
+		/* 7️⃣  i18n, fonts, devtools */
 		// https://github.com/intlify/bundle-tools/tree/main/packages/unplugin-vue-i18n
 		VueI18n({
 			runtimeOnly: true,
@@ -186,8 +129,7 @@ export default defineConfig({
 	},
 
 	ssr: {
-		// TODO: workaround until they support native ESM
-		noExternal: ["workbox-window", /vue-i18n/]
+		noExternal: [/vue-i18n/]
 	},
 
 	server: {
