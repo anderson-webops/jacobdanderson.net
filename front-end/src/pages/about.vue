@@ -9,62 +9,68 @@ const profile = computed(() => store.userProfile);
 <template>
 	<div class="about-page">
 		<section class="about-intro">
-			<div class="about-copy">
-				<header class="page-intro">
-					<p class="eyebrow">About</p>
-					<h1>
-						Systems-minded engineering with a strong emphasis on
-						clarity.
-					</h1>
-					<p>{{ profile.summary }}</p>
-				</header>
+			<p class="eyebrow">About</p>
 
-				<div class="summary-card section-panel">
-					<div class="summary-top">
-						<span class="summary-label">Professional snapshot</span>
-						<span class="summary-date"
-							>Updated {{ profile.lastUpdated }}</span
-						>
+			<div class="about-layout">
+				<div class="about-copy">
+					<header class="page-intro">
+						<h1>
+							Systems-minded engineering with a strong emphasis on
+							clarity.
+						</h1>
+						<p>{{ profile.summary }}</p>
+					</header>
+
+					<div class="summary-card section-panel">
+						<div class="summary-top">
+							<span class="summary-label"
+								>Professional snapshot</span
+							>
+							<span class="summary-date"
+								>Updated {{ profile.lastUpdated }}</span
+							>
+						</div>
+
+						<dl class="details-grid">
+							<div class="detail-item">
+								<dt>Location</dt>
+								<dd>{{ profile.location }}</dd>
+							</div>
+							<div class="detail-item">
+								<dt>Email</dt>
+								<dd>
+									<a :href="`mailto:${profile.email}`">{{
+										profile.email
+									}}</a>
+								</dd>
+							</div>
+							<div class="detail-item">
+								<dt>Phone</dt>
+								<dd>
+									<a :href="`tel:${profile.phone}`">{{
+										profile.phone
+									}}</a>
+								</dd>
+							</div>
+						</dl>
+
+						<p class="summary-text">
+							I care about building dependable systems that
+							connect hardware, firmware, and intuitive
+							interfaces. Whether I am prototyping sensor networks
+							or teaching a student through a new programming
+							concept, I focus on measurable outcomes,
+							maintainability, and clear communication.
+						</p>
 					</div>
-
-					<dl class="details-grid">
-						<div class="detail-item">
-							<dt>Location</dt>
-							<dd>{{ profile.location }}</dd>
-						</div>
-						<div class="detail-item">
-							<dt>Email</dt>
-							<dd>
-								<a :href="`mailto:${profile.email}`">{{
-									profile.email
-								}}</a>
-							</dd>
-						</div>
-						<div class="detail-item">
-							<dt>Phone</dt>
-							<dd>
-								<a :href="`tel:${profile.phone}`">{{
-									profile.phone
-								}}</a>
-							</dd>
-						</div>
-					</dl>
-
-					<p class="summary-text">
-						I care about building dependable systems that connect
-						hardware, firmware, and intuitive interfaces. Whether I
-						am prototyping sensor networks or teaching a student
-						through a new programming concept, I focus on measurable
-						outcomes, maintainability, and clear communication.
-					</p>
 				</div>
-			</div>
 
-			<img
-				class="portrait-image"
-				src="https://jacobdanderson.s3.amazonaws.com/images/Jacob_Anderson.jpg"
-				alt="Portrait of Jacob Anderson"
-			/>
+				<img
+					class="portrait-image"
+					src="https://jacobdanderson.s3.amazonaws.com/images/Jacob_Anderson.jpg"
+					alt="Portrait of Jacob Anderson"
+				/>
+			</div>
 		</section>
 
 		<section class="highlights-grid">
@@ -146,10 +152,16 @@ const profile = computed(() => store.userProfile);
 }
 
 .about-intro {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.about-layout {
 	display: grid;
 	grid-template-columns: minmax(0, 1.28fr) minmax(300px, 0.82fr);
 	gap: 1.6rem;
-	align-items: start;
+	align-items: center;
 }
 
 .about-copy {
@@ -241,7 +253,7 @@ const profile = computed(() => store.userProfile);
 .portrait-image {
 	width: 100%;
 	height: auto;
-	align-self: start;
+	align-self: center;
 	justify-self: end;
 	border-radius: 30px;
 	border: 1px solid rgba(255, 255, 255, 0.72);
@@ -286,7 +298,7 @@ const profile = computed(() => store.userProfile);
 }
 
 @media (max-width: 960px) {
-	.about-intro,
+	.about-layout,
 	.highlights-grid,
 	.recognition-grid {
 		grid-template-columns: 1fr;
