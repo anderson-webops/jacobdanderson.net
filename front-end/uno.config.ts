@@ -1,17 +1,12 @@
-import { createLocalFontProcessor } from "@unocss/preset-web-fonts/local";
 import {
 	defineConfig,
 	presetAttributify,
 	presetIcons,
 	presetTypography,
-	presetWebFonts,
 	presetWind3,
 	transformerDirectives,
 	transformerVariantGroup
 } from "unocss";
-
-const isTest = process.env.NODE_ENV === "test" || !!process.env.VITEST;
-
 
 export default defineConfig({
 	shortcuts: [
@@ -30,19 +25,7 @@ export default defineConfig({
 		presetIcons({
 			scale: 1.2
 		}),
-		presetTypography(),
-		...(!isTest
-			? [
-					presetWebFonts({
-						fonts: {
-							sans: "DM Sans",
-							serif: "DM Serif Display",
-							mono: "DM Mono"
-						},
-						processors: createLocalFontProcessor()
-					})
-				]
-			: [])
+		presetTypography()
 	],
 	transformers: [transformerDirectives(), transformerVariantGroup()],
 	safelist: "prose prose-sm m-auto text-left".split(" ")

@@ -1,0 +1,9 @@
+@font-face {
+	font-family: "DM Mono";
+	src:
+		url("/assets/fonts/dmmono-cd6ed524.woff2") format("woff2"),
+		url("/assets/fonts/dmmono-53a90e28.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+}
