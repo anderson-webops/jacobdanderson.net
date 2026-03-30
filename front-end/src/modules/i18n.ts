@@ -3,6 +3,8 @@ import type { Locale } from "vue-i18n";
 import type { UserModule } from "~/types";
 import { createI18n } from "vue-i18n";
 
+const LOCALE_FILENAME_REGEX = /([\w-]*)\.json$/;
+
 // Import i18n resources
 // https://vitejs.dev/guide/features.html#glob-import
 //
@@ -14,9 +16,10 @@ const i18n = createI18n({
 });
 
 const localesMap = Object.fromEntries(
-	Object.entries(import.meta.glob("../../locales/*.yml")).map(
-		([path, loadLocale]) => [path.match(/([\w-]*)\.yml$/)?.[1], loadLocale]
-	)
+	Object.entries(import.meta.glob("../../locales/*.json")).map(([path, loadLocale]) => [
+		path.match(LOCALE_FILENAME_REGEX)?.[1],
+		loadLocale
+	])
 ) as Record<Locale, () => Promise<{ default: Record<string, string> }>>;
 
 export const availableLocales: string[] = Object.keys(localesMap);
@@ -25,8 +28,7 @@ const loadedLanguages: string[] = [];
 
 function setI18nLanguage(lang: Locale) {
 	i18n.global.locale.value = lang as any;
-	if (typeof document !== "undefined")
-		document.querySelector("html")?.setAttribute("lang", lang);
+	if (typeof document !== "undefined") document.querySelector("html")?.setAttribute("lang", lang);
 	return lang;
 }
 
