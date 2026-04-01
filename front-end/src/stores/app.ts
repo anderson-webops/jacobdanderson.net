@@ -94,7 +94,5 @@ export const useAppStore = defineStore("app", () => {
 });
 
 if (import.meta.hot) {
-	import.meta.hot.accept(
-		acceptHMRUpdate(useAppStore as any, import.meta.hot)
-	);
+	import.meta.hot.accept(acceptHMRUpdate(useAppStore as any, import.meta.hot));
 }

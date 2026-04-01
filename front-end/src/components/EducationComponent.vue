@@ -16,11 +16,7 @@ const education = computed(() => educationStore.userProfile.education);
 		</div>
 
 		<div class="education-grid">
-			<article
-				v-for="(item, index) in education"
-				:key="index"
-				class="education-card section-panel"
-			>
+			<article v-for="(item, index) in education" :key="index" class="education-card section-panel">
 				<div class="card-top">
 					<span class="card-label">Program</span>
 					<span class="timeframe">{{ item.timeframe }}</span>
@@ -28,10 +24,7 @@ const education = computed(() => educationStore.userProfile.education);
 				<h3>{{ item.program }}</h3>
 				<p class="institution">{{ item.institution }}</p>
 				<ul>
-					<li
-						v-for="(highlight, highlightIndex) in item.highlights"
-						:key="highlightIndex"
-					>
+					<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
 						{{ highlight }}
 					</li>
 				</ul>

@@ -11,14 +11,10 @@ const profile = computed(() => store.userProfile);
 		<section class="hero section-panel">
 			<div class="hero-copy">
 				<p class="eyebrow">Private Instruction</p>
-				<h1>
-					Programming, STEM, and Spanish lessons built around each
-					student.
-				</h1>
+				<h1>Programming, STEM, and Spanish lessons built around each student.</h1>
 				<p>
-					I offer one-on-one instruction for students ages 7 to 18,
-					with lessons tailored to the learner’s goals, experience
-					level, and preferred pace.
+					I offer one-on-one instruction for students ages 7 to 18, with lessons tailored to the learner’s
+					goals, experience level, and preferred pace.
 				</p>
 
 				<div class="price">
@@ -27,20 +23,10 @@ const profile = computed(() => store.userProfile);
 				</div>
 
 				<div class="button-row">
-					<a
-						class="button-primary"
-						href="https://classes.jacobdanderson.net"
-						rel="noopener"
-						target="_blank"
-					>
+					<a class="button-primary" href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
 						Visit teaching site
 					</a>
-					<a
-						class="button-secondary"
-						:href="`mailto:${profile.email}`"
-					>
-						Ask a question
-					</a>
+					<a class="button-secondary" :href="`mailto:${profile.email}`"> Ask a question </a>
 				</div>
 			</div>
 
@@ -49,10 +35,7 @@ const profile = computed(() => store.userProfile);
 				<ul>
 					<li>Students who learn best through hands-on projects.</li>
 					<li>Families looking for structured technical coaching.</li>
-					<li>
-						Beginners and intermediate learners who need clear
-						guidance.
-					</li>
+					<li>Beginners and intermediate learners who need clear guidance.</li>
 				</ul>
 			</div>
 		</section>
@@ -62,17 +45,9 @@ const profile = computed(() => store.userProfile);
 				<span class="card-label">What students gain</span>
 				<h2>Progress you can actually see</h2>
 				<ul>
-					<li>
-						Project-based lessons that build real portfolio pieces.
-					</li>
-					<li>
-						Clear progress tracking and feedback after every
-						session.
-					</li>
-					<li>
-						Instruction from an educator who also trains other
-						instructors.
-					</li>
+					<li>Project-based lessons that build real portfolio pieces.</li>
+					<li>Clear progress tracking and feedback after every session.</li>
+					<li>Instruction from an educator who also trains other instructors.</li>
 				</ul>
 			</article>
 
@@ -80,14 +55,8 @@ const profile = computed(() => store.userProfile);
 				<span class="card-label">Subjects</span>
 				<h2>What I teach</h2>
 				<ul>
-					<li>
-						Programming fundamentals, web development, and game
-						design.
-					</li>
-					<li>
-						Embedded systems, circuits, and microcontroller
-						projects.
-					</li>
+					<li>Programming fundamentals, web development, and game design.</li>
+					<li>Embedded systems, circuits, and microcontroller projects.</li>
 					<li>Spanish conversation and academic support.</li>
 				</ul>
 			</article>
@@ -98,16 +67,11 @@ const profile = computed(() => store.userProfile);
 				<ul>
 					<li>
 						Email me at
-						<a :href="`mailto:${profile.email}`">{{
-							profile.email
-						}}</a
+						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a
 						>.
 					</li>
 					<li>Share your student’s goals and preferred schedule.</li>
-					<li>
-						We will set up a free consultation before the first
-						session.
-					</li>
+					<li>We will set up a free consultation before the first session.</li>
 				</ul>
 			</article>
 		</section>

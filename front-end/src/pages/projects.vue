@@ -10,23 +10,15 @@ const projects = computed(() => store.userProfile.projects);
 	<div class="projects-page">
 		<header class="page-intro">
 			<p class="eyebrow">Projects</p>
-			<h1>
-				Selected work across research, embedded systems, and product
-				development.
-			</h1>
+			<h1>Selected work across research, embedded systems, and product development.</h1>
 			<p>
-				These projects reflect the way I approach technical work:
-				practical systems thinking, clear documentation, and thoughtful
-				execution.
+				These projects reflect the way I approach technical work: practical systems thinking, clear
+				documentation, and thoughtful execution.
 			</p>
 		</header>
 
 		<section class="grid">
-			<article
-				v-for="(project, index) in projects"
-				:key="index"
-				class="project-card section-panel"
-			>
+			<article v-for="(project, index) in projects" :key="index" class="project-card section-panel">
 				<div class="card-top">
 					<span class="card-label">Project</span>
 					<span class="timeframe">{{ project.timeframe }}</span>
@@ -34,12 +26,7 @@ const projects = computed(() => store.userProfile.projects);
 				<h2>{{ project.name }}</h2>
 				<p class="description">{{ project.description }}</p>
 				<ul>
-					<li
-						v-for="(
-							highlight, highlightIndex
-						) in project.highlights"
-						:key="highlightIndex"
-					>
+					<li v-for="(highlight, highlightIndex) in project.highlights" :key="highlightIndex">
 						{{ highlight }}
 					</li>
 				</ul>

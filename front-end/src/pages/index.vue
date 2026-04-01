@@ -26,12 +26,8 @@ const featuredTools = computed(() => [
 				<p class="lede">{{ profile.summary }}</p>
 
 				<div class="button-row">
-					<RouterLink class="button-primary" to="/projects">
-						View projects
-					</RouterLink>
-					<RouterLink class="button-secondary" to="/contact">
-						Contact Jacob
-					</RouterLink>
+					<RouterLink class="button-primary" to="/projects"> View projects </RouterLink>
+					<RouterLink class="button-secondary" to="/contact"> Contact Jacob </RouterLink>
 				</div>
 
 				<dl class="hero-details">
@@ -42,17 +38,13 @@ const featuredTools = computed(() => [
 					<div>
 						<dt>Email</dt>
 						<dd>
-							<a :href="`mailto:${profile.email}`">{{
-								profile.email
-							}}</a>
+							<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
 						</dd>
 					</div>
 					<div>
 						<dt>Phone</dt>
 						<dd>
-							<a :href="`tel:${profile.phone}`">{{
-								profile.phone
-							}}</a>
+							<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
 						</dd>
 					</div>
 				</dl>
@@ -69,11 +61,7 @@ const featuredTools = computed(() => [
 				<div class="panel-block">
 					<span class="panel-label">Primary strengths</span>
 					<ul class="panel-list">
-						<li
-							v-for="(competency, index) in profile.skills
-								.competencies"
-							:key="index"
-						>
+						<li v-for="(competency, index) in profile.skills.competencies" :key="index">
 							{{ competency }}
 						</li>
 					</ul>
@@ -84,38 +72,28 @@ const featuredTools = computed(() => [
 		<section class="focus-grid">
 			<article class="focus-card section-panel">
 				<span class="focus-label">Engineering</span>
-				<h2>
-					Embedded and software systems that behave reliably in the
-					real world.
-				</h2>
+				<h2>Embedded and software systems that behave reliably in the real world.</h2>
 				<p>
-					I build across hardware, firmware, data pipelines, and web
-					interfaces with an emphasis on maintainability and clarity.
+					I build across hardware, firmware, data pipelines, and web interfaces with an emphasis on
+					maintainability and clarity.
 				</p>
 			</article>
 
 			<article class="focus-card section-panel">
 				<span class="focus-label">Research</span>
-				<h2>
-					Tooling and workflows that make technical work easier to
-					repeat.
-				</h2>
+				<h2>Tooling and workflows that make technical work easier to repeat.</h2>
 				<p>
-					My research work focuses on signal processing, analysis
-					pipelines, and simulation tooling that support dependable
-					results.
+					My research work focuses on signal processing, analysis pipelines, and simulation tooling that
+					support dependable results.
 				</p>
 			</article>
 
 			<article class="focus-card section-panel">
 				<span class="focus-label">Teaching</span>
-				<h2>
-					Instruction that makes complex subjects practical and
-					approachable.
-				</h2>
+				<h2>Instruction that makes complex subjects practical and approachable.</h2>
 				<p>
-					I teach programming, STEM, and Spanish with a structured,
-					project-based approach tailored to each learner.
+					I teach programming, STEM, and Spanish with a structured, project-based approach tailored to each
+					learner.
 				</p>
 			</article>
 		</section>
@@ -126,17 +104,11 @@ const featuredTools = computed(() => [
 					<p class="eyebrow">Selected Experience</p>
 					<h2>Recent roles</h2>
 				</div>
-				<RouterLink class="section-link" to="/experience">
-					Explore full timeline
-				</RouterLink>
+				<RouterLink class="section-link" to="/experience"> Explore full timeline </RouterLink>
 			</div>
 
 			<div class="card-grid">
-				<article
-					v-for="(item, index) in featuredExperience"
-					:key="index"
-					class="card section-panel"
-				>
+				<article v-for="(item, index) in featuredExperience" :key="index" class="card section-panel">
 					<div class="card-top">
 						<span class="card-kicker">{{ item.organization }}</span>
 						<span class="card-time">{{ item.timeframe }}</span>
@@ -144,12 +116,7 @@ const featuredTools = computed(() => [
 					<h3>{{ item.title }}</h3>
 					<p class="card-location">{{ item.location }}</p>
 					<ul>
-						<li
-							v-for="(
-								highlight, highlightIndex
-							) in item.highlights"
-							:key="highlightIndex"
-						>
+						<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
 							{{ highlight }}
 						</li>
 					</ul>
@@ -163,17 +130,11 @@ const featuredTools = computed(() => [
 					<p class="eyebrow">Selected Projects</p>
 					<h2>Recent work</h2>
 				</div>
-				<RouterLink class="section-link" to="/projects">
-					See more work
-				</RouterLink>
+				<RouterLink class="section-link" to="/projects"> See more work </RouterLink>
 			</div>
 
 			<div class="card-grid project-grid">
-				<article
-					v-for="(project, index) in featuredProjects"
-					:key="index"
-					class="card section-panel"
-				>
+				<article v-for="(project, index) in featuredProjects" :key="index" class="card section-panel">
 					<div class="card-top">
 						<span class="card-kicker">Project</span>
 						<span class="card-time">{{ project.timeframe }}</span>
@@ -181,12 +142,7 @@ const featuredTools = computed(() => [
 					<h3>{{ project.name }}</h3>
 					<p class="card-description">{{ project.description }}</p>
 					<ul>
-						<li
-							v-for="(
-								highlight, highlightIndex
-							) in project.highlights"
-							:key="highlightIndex"
-						>
+						<li v-for="(highlight, highlightIndex) in project.highlights" :key="highlightIndex">
 							{{ highlight }}
 						</li>
 					</ul>
@@ -197,29 +153,18 @@ const featuredTools = computed(() => [
 		<section class="capabilities section-panel">
 			<div class="capabilities-copy">
 				<p class="eyebrow">Technical Foundation</p>
-				<h2>
-					Broad engineering coverage with a bias toward practical
-					execution.
-				</h2>
+				<h2>Broad engineering coverage with a bias toward practical execution.</h2>
 				<p>
-					I work comfortably across embedded systems, web
-					applications, data analysis, and instruction, which makes it
-					easier to move projects from concept to delivery without
-					losing context.
+					I work comfortably across embedded systems, web applications, data analysis, and instruction, which
+					makes it easier to move projects from concept to delivery without losing context.
 				</p>
 			</div>
 
 			<div class="capabilities-grid">
 				<div class="capability-card">
-					<span class="capability-label"
-						>Languages and frameworks</span
-					>
+					<span class="capability-label">Languages and frameworks</span>
 					<div class="tag-list">
-						<span
-							v-for="(tool, index) in featuredTools"
-							:key="index"
-							class="tag"
-						>
+						<span v-for="(tool, index) in featuredTools" :key="index" class="tag">
 							{{ tool }}
 						</span>
 					</div>
@@ -228,9 +173,7 @@ const featuredTools = computed(() => [
 				<div class="capability-card">
 					<span class="capability-label">Languages spoken</span>
 					<p>{{ profile.skills.languagesSpoken.join(" · ") }}</p>
-					<RouterLink class="section-link" to="/classes">
-						Learn about private lessons
-					</RouterLink>
+					<RouterLink class="section-link" to="/classes"> Learn about private lessons </RouterLink>
 				</div>
 			</div>
 		</section>
@@ -261,11 +204,7 @@ const featuredTools = computed(() => [
 	width: 18rem;
 	height: 18rem;
 	border-radius: 50%;
-	background: radial-gradient(
-		circle,
-		rgba(167, 125, 71, 0.18),
-		transparent 70%
-	);
+	background: radial-gradient(circle, rgba(167, 125, 71, 0.18), transparent 70%);
 	pointer-events: none;
 }
 
@@ -339,11 +278,7 @@ const featuredTools = computed(() => [
 }
 
 .panel-block:last-child {
-	background: linear-gradient(
-		180deg,
-		rgba(255, 250, 243, 0.88),
-		rgba(241, 231, 216, 0.82)
-	);
+	background: linear-gradient(180deg, rgba(255, 250, 243, 0.88), rgba(241, 231, 216, 0.82));
 	color: var(--color-text);
 	border: 1px solid rgba(17, 29, 43, 0.08);
 	box-shadow: none;

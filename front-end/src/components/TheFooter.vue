@@ -12,14 +12,10 @@ const profile = computed(() => store.userProfile);
 			<div class="footer-grid">
 				<div class="brand-block">
 					<p class="eyebrow footer-eyebrow">Jacob Anderson</p>
-					<h2>
-						Engineering work with clear communication and dependable
-						execution.
-					</h2>
+					<h2>Engineering work with clear communication and dependable execution.</h2>
 					<p>
-						Based in {{ profile.location }} and available for
-						product engineering, research collaboration, and private
-						instruction.
+						Based in {{ profile.location }} and available for product engineering, research collaboration,
+						and private instruction.
 					</p>
 				</div>
 
@@ -33,31 +29,14 @@ const profile = computed(() => store.userProfile);
 					<span class="label">Explore</span>
 					<RouterLink to="/experience">Experience</RouterLink>
 					<RouterLink to="/projects">Projects</RouterLink>
-					<a
-						href="https://classes.jacobdanderson.net"
-						rel="noopener"
-						target="_blank"
-					>
-						Teaching site
-					</a>
-					<a
-						href="https://github.com/Jacoba1100254352"
-						rel="noopener"
-						target="_blank"
-					>
-						GitHub
-					</a>
+					<a href="https://classes.jacobdanderson.net" rel="noopener" target="_blank"> Teaching site </a>
+					<a href="https://github.com/Jacoba1100254352" rel="noopener" target="_blank"> GitHub </a>
 				</div>
 			</div>
 
 			<div class="footer-bottom">
-				<p>
-					© {{ new Date().getFullYear() }} Jacob Anderson. All rights
-					reserved.
-				</p>
-				<RouterLink class="footer-link" to="/contact">
-					Start a conversation
-				</RouterLink>
+				<p>© {{ new Date().getFullYear() }} Jacob Anderson. All rights reserved.</p>
+				<RouterLink class="footer-link" to="/contact"> Start a conversation </RouterLink>
 			</div>
 		</div>
 	</footer>
