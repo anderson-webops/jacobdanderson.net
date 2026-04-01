@@ -21,7 +21,7 @@ useHead({
 			{{ t("intro.hi", { name: user.savedName }) }}
 		</p>
 
-		<p opacity-75 text-sm>
+		<p text-sm opacity-75>
 			<em>{{ t("intro.dynamic-route") }}</em>
 		</p>
 

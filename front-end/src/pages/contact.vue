@@ -12,9 +12,8 @@ const profile = computed(() => store.userProfile);
 			<p class="eyebrow">Contact</p>
 			<h1>Open to thoughtful conversations and well-scoped work.</h1>
 			<p>
-				If you would like to discuss a project, research collaboration,
-				or private instruction, reach out directly. I generally respond
-				within two business days.
+				If you would like to discuss a project, research collaboration, or private instruction, reach out
+				directly. I generally respond within two business days.
 			</p>
 		</header>
 
@@ -25,15 +24,11 @@ const profile = computed(() => store.userProfile);
 				<div class="detail-list">
 					<div>
 						<span class="detail-label">Email</span>
-						<a :href="`mailto:${profile.email}`">{{
-							profile.email
-						}}</a>
+						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
 					</div>
 					<div>
 						<span class="detail-label">Phone</span>
-						<a :href="`tel:${profile.phone}`">{{
-							profile.phone
-						}}</a>
+						<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
 					</div>
 					<div>
 						<span class="detail-label">Location</span>
@@ -42,12 +37,8 @@ const profile = computed(() => store.userProfile);
 				</div>
 
 				<div class="button-row">
-					<a class="button-primary" :href="`mailto:${profile.email}`">
-						Email Jacob
-					</a>
-					<RouterLink class="button-secondary" to="/classes">
-						View teaching options
-					</RouterLink>
+					<a class="button-primary" :href="`mailto:${profile.email}`"> Email Jacob </a>
+					<RouterLink class="button-secondary" to="/classes"> View teaching options </RouterLink>
 				</div>
 			</article>
 
@@ -56,9 +47,7 @@ const profile = computed(() => store.userProfile);
 				<h2>Best suited for</h2>
 				<ul>
 					<li>Embedded systems and technical product work.</li>
-					<li>
-						Research tooling, analysis workflows, and prototyping.
-					</li>
+					<li>Research tooling, analysis workflows, and prototyping.</li>
 					<li>Private programming, STEM, or Spanish instruction.</li>
 				</ul>
 			</article>

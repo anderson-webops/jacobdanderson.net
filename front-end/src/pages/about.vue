@@ -14,21 +14,14 @@ const profile = computed(() => store.userProfile);
 			<div class="about-layout">
 				<div class="about-copy">
 					<header class="page-intro">
-						<h1>
-							Systems-minded engineering with a strong emphasis on
-							clarity.
-						</h1>
+						<h1>Systems-minded engineering with a strong emphasis on clarity.</h1>
 						<p>{{ profile.summary }}</p>
 					</header>
 
 					<div class="summary-card section-panel">
 						<div class="summary-top">
-							<span class="summary-label"
-								>Professional snapshot</span
-							>
-							<span class="summary-date"
-								>Updated {{ profile.lastUpdated }}</span
-							>
+							<span class="summary-label">Professional snapshot</span>
+							<span class="summary-date">Updated {{ profile.lastUpdated }}</span>
 						</div>
 
 						<dl class="details-grid">
@@ -39,28 +32,22 @@ const profile = computed(() => store.userProfile);
 							<div class="detail-item">
 								<dt>Email</dt>
 								<dd>
-									<a :href="`mailto:${profile.email}`">{{
-										profile.email
-									}}</a>
+									<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
 								</dd>
 							</div>
 							<div class="detail-item">
 								<dt>Phone</dt>
 								<dd>
-									<a :href="`tel:${profile.phone}`">{{
-										profile.phone
-									}}</a>
+									<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
 								</dd>
 							</div>
 						</dl>
 
 						<p class="summary-text">
-							I care about building dependable systems that
-							connect hardware, firmware, and intuitive
-							interfaces. Whether I am prototyping sensor networks
-							or teaching a student through a new programming
-							concept, I focus on measurable outcomes,
-							maintainability, and clear communication.
+							I care about building dependable systems that connect hardware, firmware, and intuitive
+							interfaces. Whether I am prototyping sensor networks or teaching a student through a new
+							programming concept, I focus on measurable outcomes, maintainability, and clear
+							communication.
 						</p>
 					</div>
 				</div>
@@ -95,11 +82,7 @@ const profile = computed(() => store.userProfile);
 				<span class="card-label">Core strengths</span>
 				<h2>Where I create the most value</h2>
 				<ul>
-					<li
-						v-for="(competency, index) in profile.skills
-							.competencies"
-						:key="index"
-					>
+					<li v-for="(competency, index) in profile.skills.competencies" :key="index">
 						{{ competency }}
 					</li>
 				</ul>
@@ -119,10 +102,7 @@ const profile = computed(() => store.userProfile);
 				<span class="card-label">Recognition</span>
 				<h2>Achievements</h2>
 				<ul>
-					<li
-						v-for="(achievement, index) in profile.achievements"
-						:key="index"
-					>
+					<li v-for="(achievement, index) in profile.achievements" :key="index">
 						{{ achievement }}
 					</li>
 				</ul>
@@ -132,10 +112,7 @@ const profile = computed(() => store.userProfile);
 				<span class="card-label">Beyond the lab</span>
 				<h2>Community and personal interests</h2>
 				<ul>
-					<li
-						v-for="(activity, index) in profile.activities"
-						:key="index"
-					>
+					<li v-for="(activity, index) in profile.activities" :key="index">
 						{{ activity }}
 					</li>
 				</ul>

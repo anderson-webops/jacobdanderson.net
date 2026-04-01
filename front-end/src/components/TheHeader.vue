@@ -46,9 +46,7 @@ watch(
 					<div class="brand-mark">JA</div>
 					<div class="brand-copy">
 						<span class="brand-name">Jacob Anderson</span>
-						<span class="brand-meta"
-							>Computer Engineer • Cofounder • Educator</span
-						>
+						<span class="brand-meta">Computer Engineer • Cofounder • Educator</span>
 					</div>
 				</RouterLink>
 
@@ -65,18 +63,10 @@ watch(
 					<span :class="{ open: isExpanded }" />
 				</button>
 
-				<div
-					id="primary-nav"
-					:class="{ expanded: isExpanded }"
-					class="nav-panel"
-				>
+				<div id="primary-nav" :class="{ expanded: isExpanded }" class="nav-panel">
 					<ul class="links">
 						<li v-for="link in links" :key="link.path">
-							<RouterLink
-								:class="{ active: isLinkActive(link.path) }"
-								:to="link.path"
-								@click="closeMenu"
-							>
+							<RouterLink :class="{ active: isLinkActive(link.path) }" :to="link.path" @click="closeMenu">
 								{{ link.name }}
 							</RouterLink>
 						</li>

@@ -9,8 +9,7 @@ export function useEditable(kind: EditableKind) {
 
 	async function save(entity: any) {
 		if (kind === "user") {
-			const emailChanged =
-				lastEmail.value !== null && entity.email !== lastEmail.value;
+			const emailChanged = lastEmail.value !== null && entity.email !== lastEmail.value;
 
 			if (emailChanged) {
 				await api.post(`/accounts/changeEmail/${entity._id}`, {

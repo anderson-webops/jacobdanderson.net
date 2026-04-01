@@ -12,17 +12,13 @@ const experiences = computed(() => store.userProfile.experience);
 			<p class="eyebrow">Experience</p>
 			<h1>Roles that connect engineering, research, and instruction.</h1>
 			<p>
-				A selection of work spanning embedded systems, research tooling,
-				product development, and technical education.
+				A selection of work spanning embedded systems, research tooling, product development, and technical
+				education.
 			</p>
 		</header>
 
 		<section class="timeline">
-			<article
-				v-for="(item, index) in experiences"
-				:key="index"
-				class="entry section-panel"
-			>
+			<article v-for="(item, index) in experiences" :key="index" class="entry section-panel">
 				<div class="entry-meta">
 					<span class="timeframe">{{ item.timeframe }}</span>
 					<span class="location">{{ item.location }}</span>
@@ -30,10 +26,7 @@ const experiences = computed(() => store.userProfile.experience);
 				<h2>{{ item.title }}</h2>
 				<p class="organization">{{ item.organization }}</p>
 				<ul>
-					<li
-						v-for="(highlight, highlightIndex) in item.highlights"
-						:key="highlightIndex"
-					>
+					<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
 						{{ highlight }}
 					</li>
 				</ul>

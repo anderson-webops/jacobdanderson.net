@@ -22,8 +22,7 @@ export const useMainStore = defineStore("main", {
 					]
 				},
 				{
-					program:
-						"B.S. Computer Engineering, Minor in Computer Science",
+					program: "B.S. Computer Engineering, Minor in Computer Science",
 					institution: "Brigham Young University, Provo, UT",
 					timeframe: "Aug 2020 – Apr 2025",
 					highlights: [
@@ -91,8 +90,7 @@ export const useMainStore = defineStore("main", {
 				{
 					name: "OSCRE Radiation-Effect Simulation Framework",
 					timeframe: "2024",
-					description:
-						"Open-source workflow for modeling single-event effects in analog circuits.",
+					description: "Open-source workflow for modeling single-event effects in analog circuits.",
 					highlights: [
 						"Directed architecture decisions and documentation for cross-institution collaboration.",
 						"Packaged installer scripts that reduce setup time for researchers and students."
@@ -101,8 +99,7 @@ export const useMainStore = defineStore("main", {
 				{
 					name: "Industrial Drill Monitoring Platform",
 					timeframe: "2024",
-					description:
-						"Capstone system delivering live industrial drill telemetry to Epiroc engineers.",
+					description: "Capstone system delivering live industrial drill telemetry to Epiroc engineers.",
 					highlights: [
 						"Created responsive operator dashboards and BLE data pipelines for environmental sensing."
 					]
@@ -110,8 +107,7 @@ export const useMainStore = defineStore("main", {
 				{
 					name: "Website Management Portfolio",
 					timeframe: "Ongoing",
-					description:
-						"Maintain personal and client websites using Vue, Vitesse, and modern tooling.",
+					description: "Maintain personal and client websites using Vue, Vitesse, and modern tooling.",
 					highlights: [
 						"Ship UX enhancements, ensure responsive layouts, and monitor performance regressions."
 					]
@@ -140,31 +136,16 @@ export const useMainStore = defineStore("main", {
 					"MATLAB",
 					"Swift"
 				],
-				frameworks: [
-					"Vue",
-					"Vitesse",
-					"React",
-					"SwiftUI",
-					"NumPy",
-					"Pandas",
-					"Matplotlib"
-				],
+				frameworks: ["Vue", "Vitesse", "React", "SwiftUI", "NumPy", "Pandas", "Matplotlib"],
 				competencies: [
 					"Embedded systems & microcontroller programming",
 					"Sensor integration (I2C, BLE, industrial telemetry)",
 					"Signal processing & data analysis",
 					"Technical instruction & curriculum design"
 				],
-				languagesSpoken: [
-					"English",
-					"Spanish (fluent)",
-					"Portuguese (conversational)"
-				]
+				languagesSpoken: ["English", "Spanish (fluent)", "Portuguese (conversational)"]
 			},
-			achievements: [
-				"Eagle Scout, Boy Scouts of America",
-				"Phi Eta Sigma Honor Society"
-			],
+			achievements: ["Eagle Scout, Boy Scouts of America", "Phi Eta Sigma Honor Society"],
 			activities: [
 				"Study Abroad at Georgia Tech Lorraine in Metz, France (2015 & 2016)",
 				"FIRST LEGO League robotics team member (2011 – 2014)",
