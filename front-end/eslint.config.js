@@ -32,7 +32,7 @@ export default base
 			languageOptions: {
 				parser: ts.parser,
 				parserOptions: {
-					project: "./tsconfig.json",
+					project: "./tsconfig.eslint.json",
 					tsconfigRootDir
 				},
 				globals: { ...globals.node, ...auto.globals }
