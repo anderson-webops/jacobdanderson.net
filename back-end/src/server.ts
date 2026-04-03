@@ -101,6 +101,46 @@ async function main() {
 		}
 	});
 
+	app.get("/api/healthz", (_req, res) => {
+		res.set("Cache-Control", "no-store");
+		res.json({ ok: true });
+	});
+
+	app.get("/api/readyz", async (_req, res) => {
+		const connection = mongoose.connection;
+		const state = connection.readyState;
+		if (state !== 1 || !connection.db) {
+			return res.status(503).set("Cache-Control", "no-store").json({
+				ready: false,
+				components: {
+					db: { ok: false, state }
+				}
+			});
+		}
+
+		try {
+			await connection.db.admin().ping();
+			return res.set("Cache-Control", "no-store").json({
+				ready: true,
+				components: {
+					db: { ok: true, state }
+				}
+			});
+		}
+		catch (error) {
+			return res.status(503).set("Cache-Control", "no-store").json({
+				ready: false,
+				components: {
+					db: {
+						ok: false,
+						state,
+						error: error instanceof Error ? error.message : "db-ping-failed"
+					}
+				}
+			});
+		}
+	});
+
 	// cache-control for auth endpoints
 	app.use((req, res, next) => {
 		if (req.path.startsWith("/accounts") || req.path.endsWith("/loggedin")) {
