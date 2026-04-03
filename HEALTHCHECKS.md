@@ -13,4 +13,10 @@ Use these endpoints for monitoring. They do not require auth and do not redirect
   - returns non-secret database metadata when allowed
   - returns `403 {"ok":false,"error":"forbidden"}` for public requests without internal access
 
-Use `/healthz` and `/readyz` for monitors. Do not use `/`, login pages, or `/_dbinfo`.
+## Public API Mirrors
+- `GET /api/healthz`
+  - same payload as `/healthz`
+- `GET /api/readyz`
+  - same payload as `/readyz`
+
+Prefer `/api/healthz` and `/api/readyz` for public monitors on this site. Do not use `/`, login pages, or `/_dbinfo`.
