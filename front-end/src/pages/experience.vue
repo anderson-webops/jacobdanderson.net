@@ -3,7 +3,12 @@ import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
 const store = useMainStore();
-const experiences = computed(() => store.userProfile.experience);
+const engineeringExperience = computed(() =>
+	store.userProfile.experience.filter(item => item.category === "engineering")
+);
+const instructionExperience = computed(() =>
+	store.userProfile.experience.filter(item => item.category === "instruction")
+);
 </script>
 
 <template>
@@ -12,25 +17,61 @@ const experiences = computed(() => store.userProfile.experience);
 			<p class="eyebrow">Experience</p>
 			<h1>Roles spanning engineering, research, and technical instruction.</h1>
 			<p>
-				A selection of work across embedded systems, research tooling, product development, and teaching, with
-				an emphasis on practical execution and dependable communication.
+				The engineering and teaching work are both real parts of my background, but they serve different
+				audiences. This page keeps them clearly separated so the technical work stays easy to evaluate.
 			</p>
 		</header>
 
-		<section class="timeline">
-			<article v-for="(item, index) in experiences" :key="index" class="entry section-panel">
-				<div class="entry-meta">
-					<span class="entry-organization">{{ item.organization }}</span>
-					<span class="entry-timeframe">{{ item.timeframe }}</span>
+		<section class="section-block">
+			<div class="section-top">
+				<div>
+					<p class="eyebrow">Engineering & Research</p>
+					<h2>Technical roles</h2>
 				</div>
-				<h2>{{ item.title }}</h2>
-				<p class="entry-location">{{ item.location }}</p>
-				<ul>
-					<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
-						{{ highlight }}
-					</li>
-				</ul>
-			</article>
+			</div>
+
+			<div class="timeline">
+				<article v-for="(item, index) in engineeringExperience" :key="index" class="entry section-panel">
+					<div class="entry-meta">
+						<span class="entry-organization">{{ item.organization }}</span>
+						<span class="entry-timeframe">{{ item.timeframe }}</span>
+					</div>
+					<h3>{{ item.title }}</h3>
+					<p class="entry-location">{{ item.location }}</p>
+					<p class="entry-summary">{{ item.summary }}</p>
+					<ul>
+						<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
+							{{ highlight }}
+						</li>
+					</ul>
+				</article>
+			</div>
+		</section>
+
+		<section class="section-block">
+			<div class="section-top">
+				<div>
+					<p class="eyebrow">Teaching & Instruction</p>
+					<h2>Instructional work</h2>
+				</div>
+			</div>
+
+			<div class="timeline instruction-timeline">
+				<article v-for="(item, index) in instructionExperience" :key="index" class="entry section-panel">
+					<div class="entry-meta">
+						<span class="entry-organization">{{ item.organization }}</span>
+						<span class="entry-timeframe">{{ item.timeframe }}</span>
+					</div>
+					<h3>{{ item.title }}</h3>
+					<p class="entry-location">{{ item.location }}</p>
+					<p class="entry-summary">{{ item.summary }}</p>
+					<ul>
+						<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
+							{{ highlight }}
+						</li>
+					</ul>
+				</article>
+			</div>
 		</section>
 	</div>
 </template>
@@ -42,10 +83,25 @@ const experiences = computed(() => store.userProfile.experience);
 	gap: 2rem;
 }
 
+.section-block {
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+}
+
+.section-top h2 {
+	font-size: clamp(1.9rem, 3.4vw, 2.3rem);
+	margin-top: 0.55rem;
+}
+
 .timeline {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 1.2rem;
+}
+
+.instruction-timeline {
+	grid-template-columns: 1fr;
 }
 
 .entry {
@@ -76,12 +132,13 @@ const experiences = computed(() => store.userProfile.experience);
 	font-weight: 700;
 }
 
-.entry h2 {
+.entry h3 {
 	font-size: 1.65rem;
 	line-height: 1.14;
 }
 
 .entry-location,
+.entry-summary,
 .entry ul {
 	color: var(--color-text-muted);
 	line-height: 1.72;

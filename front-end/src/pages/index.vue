@@ -8,13 +8,17 @@ defineOptions({
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
-const featuredExperience = computed(() => store.featuredExperience);
+const featuredExperience = computed(() => store.featuredEngineeringExperience);
+const instructionExperience = computed(() => store.instructionExperience[0]);
 const featuredProjects = computed(() => store.featuredProjects);
 const topEducation = computed(() => profile.value.education[0]);
 const featuredTools = computed(() => [
 	...profile.value.skills.languages.slice(0, 5),
 	...profile.value.skills.frameworks.slice(0, 5)
 ]);
+const githubProfile = computed(() => profile.value.profiles[0]);
+const resumeRequest = computed(() => profile.value.profiles[2]);
+const featuredPublication = computed(() => profile.value.publications[0]);
 </script>
 
 <template>
@@ -26,8 +30,10 @@ const featuredTools = computed(() => [
 				<p class="lede">{{ profile.summary }}</p>
 
 				<div class="button-row">
-					<RouterLink class="button-primary" to="/projects">View projects</RouterLink>
-					<RouterLink class="button-secondary" to="/experience">Review experience</RouterLink>
+					<RouterLink class="button-primary" to="/projects">View engineering work</RouterLink>
+					<a class="button-secondary" :href="githubProfile.href" rel="noopener" target="_blank"
+						>View GitHub</a
+					>
 				</div>
 
 				<dl class="hero-details">
@@ -48,6 +54,12 @@ const featuredTools = computed(() => [
 						</dd>
 					</div>
 				</dl>
+
+				<div class="verification-strip">
+					<a :href="resumeRequest.href">Request résumé</a>
+					<a :href="featuredPublication.href" rel="noopener" target="_blank">View OSCRE publication</a>
+					<RouterLink to="/contact">Start a conversation</RouterLink>
+				</div>
 			</div>
 
 			<aside class="hero-aside section-panel">
@@ -61,12 +73,9 @@ const featuredTools = computed(() => [
 				<div class="aside-divider" />
 
 				<div class="aside-block">
-					<span class="aside-label">Where I contribute most</span>
-					<ul class="aside-list">
-						<li v-for="(competency, index) in profile.skills.competencies" :key="index">
-							{{ competency }}
-						</li>
-					</ul>
+					<span class="aside-label">Verification</span>
+					<p>{{ featuredPublication.title }}</p>
+					<a :href="featuredPublication.href" rel="noopener" target="_blank">Open publication record</a>
 				</div>
 			</aside>
 		</section>
@@ -92,10 +101,10 @@ const featuredTools = computed(() => [
 
 			<article class="practice-card section-panel">
 				<span class="practice-label">Instruction</span>
-				<h2>Teaching that makes abstract material concrete and usable.</h2>
+				<h2>Teaching that stays structured, practical, and measurable.</h2>
 				<p>
-					I teach programming, STEM, and Spanish through structured, project-based lessons that meet students
-					where they are and move them forward.
+					I teach programming, STEM, and Spanish through project-based instruction that emphasizes
+					understanding, execution, and clear progress.
 				</p>
 			</article>
 		</section>
@@ -103,8 +112,8 @@ const featuredTools = computed(() => [
 		<section class="featured-section">
 			<div class="section-top">
 				<div>
-					<p class="eyebrow">Selected Experience</p>
-					<h2>Recent roles</h2>
+					<p class="eyebrow">Engineering & Research</p>
+					<h2>Selected technical work</h2>
 				</div>
 				<RouterLink class="section-link" to="/experience">View full experience</RouterLink>
 			</div>
@@ -116,9 +125,9 @@ const featuredTools = computed(() => [
 						<span class="feature-time">{{ item.timeframe }}</span>
 					</div>
 					<h3>{{ item.title }}</h3>
-					<p class="feature-location">{{ item.location }}</p>
+					<p class="feature-summary">{{ item.summary }}</p>
 					<ul class="feature-list">
-						<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
+						<li v-for="(highlight, highlightIndex) in item.highlights.slice(0, 2)" :key="highlightIndex">
 							{{ highlight }}
 						</li>
 					</ul>
@@ -130,7 +139,7 @@ const featuredTools = computed(() => [
 			<div class="section-top">
 				<div>
 					<p class="eyebrow">Selected Projects</p>
-					<h2>Current portfolio highlights</h2>
+					<h2>Flagship builds and proof points</h2>
 				</div>
 				<RouterLink class="section-link" to="/projects">Browse all projects</RouterLink>
 			</div>
@@ -143,12 +152,42 @@ const featuredTools = computed(() => [
 					</div>
 					<h3>{{ project.name }}</h3>
 					<p class="feature-description">{{ project.description }}</p>
+					<p class="feature-role"><strong>Role:</strong> {{ project.role }}</p>
 					<ul class="feature-list">
-						<li v-for="(highlight, highlightIndex) in project.highlights" :key="highlightIndex">
-							{{ highlight }}
+						<li v-for="(result, resultIndex) in project.results.slice(0, 2)" :key="resultIndex">
+							{{ result }}
 						</li>
 					</ul>
+					<div v-if="project.links.length" class="artifact-links">
+						<a
+							v-for="link in project.links"
+							:key="link.href"
+							:href="link.href"
+							rel="noopener"
+							target="_blank"
+						>
+							{{ link.label }}
+						</a>
+					</div>
 				</article>
+			</div>
+		</section>
+
+		<section class="instruction-section section-panel">
+			<div class="instruction-copy">
+				<p class="eyebrow">Instruction & Curriculum</p>
+				<h2>Teaching remains part of the work, but it sits on its own clearly defined track.</h2>
+				<p>
+					I teach private lessons and support instructor quality with the same structured, systems-minded
+					approach I bring to engineering work.
+				</p>
+			</div>
+
+			<div class="instruction-card">
+				<span class="instruction-label">{{ instructionExperience.organization }}</span>
+				<h3>{{ instructionExperience.title }}</h3>
+				<p>{{ instructionExperience.summary }}</p>
+				<RouterLink class="section-link" to="/classes">View teaching details</RouterLink>
 			</div>
 		</section>
 
@@ -173,9 +212,19 @@ const featuredTools = computed(() => [
 				</div>
 
 				<div class="capability-card">
-					<span class="capability-label">Languages spoken</span>
-					<p>{{ profile.skills.languagesSpoken.join(" · ") }}</p>
-					<RouterLink class="section-link" to="/classes">Learn about private lessons</RouterLink>
+					<span class="capability-label">Profiles</span>
+					<div class="profile-links">
+						<a
+							v-for="item in profile.profiles"
+							:key="item.href"
+							:href="item.href"
+							rel="noopener"
+							target="_blank"
+						>
+							<strong>{{ item.label }}</strong>
+							<span>{{ item.description }}</span>
+						</a>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -192,7 +241,7 @@ const featuredTools = computed(() => [
 
 .hero {
 	display: grid;
-	grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.85fr);
+	grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.8fr);
 	gap: 2rem;
 	align-items: start;
 }
@@ -253,6 +302,20 @@ const featuredTools = computed(() => [
 	text-decoration: none;
 }
 
+.verification-strip {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1rem;
+	padding-top: 0.25rem;
+}
+
+.verification-strip a {
+	color: var(--color-accent);
+	font-size: 0.92rem;
+	font-weight: 700;
+	text-decoration: none;
+}
+
 .hero-aside {
 	padding: 1.65rem;
 	display: flex;
@@ -269,6 +332,7 @@ const featuredTools = computed(() => [
 .aside-label,
 .practice-label,
 .feature-kicker,
+.instruction-label,
 .capability-label {
 	color: var(--color-highlight);
 	font-size: 0.76rem;
@@ -282,24 +346,20 @@ const featuredTools = computed(() => [
 	line-height: 1.08;
 }
 
-.aside-block p,
-.aside-list {
+.aside-block p {
 	color: var(--color-text-muted);
 	line-height: 1.72;
+}
+
+.aside-block a {
+	color: var(--color-accent);
+	font-weight: 700;
+	text-decoration: none;
 }
 
 .aside-meta {
 	color: var(--color-accent);
 	font-weight: 700;
-}
-
-.aside-list,
-.feature-list {
-	margin: 0;
-	padding-left: 1.1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.55rem;
 }
 
 .aside-divider {
@@ -323,15 +383,18 @@ const featuredTools = computed(() => [
 }
 
 .practice-card h2,
-.feature-card h3 {
+.feature-card h3,
+.instruction-card h3 {
 	font-size: 1.6rem;
 	line-height: 1.14;
 }
 
 .practice-card p,
 .feature-description,
-.feature-location,
-.feature-list {
+.feature-summary,
+.feature-list,
+.feature-role,
+.instruction-card p {
 	color: var(--color-text-muted);
 	line-height: 1.72;
 }
@@ -373,9 +436,68 @@ const featuredTools = computed(() => [
 	font-weight: 700;
 }
 
+.feature-list {
+	margin: 0;
+	padding-left: 1.1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.55rem;
+}
+
+.feature-role {
+	margin: 0;
+}
+
+.artifact-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.artifact-links a {
+	color: var(--color-accent);
+	font-size: 0.92rem;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.instruction-section {
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+	gap: 1.6rem;
+	padding: 1.9rem;
+}
+
+.instruction-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.instruction-copy h2 {
+	font-size: clamp(2rem, 4vw, 2.6rem);
+	line-height: 1.05;
+	max-width: 15ch;
+}
+
+.instruction-copy p {
+	color: var(--color-text-muted);
+	line-height: 1.75;
+}
+
+.instruction-card {
+	padding: 1.3rem;
+	border-radius: 20px;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+}
+
 .capabilities {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(300px, 0.9fr);
+	grid-template-columns: minmax(0, 1fr) minmax(320px, 0.95fr);
 	gap: 1.8rem;
 	padding: 2rem;
 }
@@ -413,17 +535,41 @@ const featuredTools = computed(() => [
 	gap: 0.9rem;
 }
 
+.profile-links {
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+}
+
+.profile-links a {
+	display: flex;
+	flex-direction: column;
+	gap: 0.18rem;
+	text-decoration: none;
+}
+
+.profile-links a strong {
+	color: var(--color-text);
+}
+
+.profile-links a span {
+	color: var(--color-text-muted);
+	line-height: 1.6;
+}
+
 @media (max-width: 960px) {
 	.hero,
 	.capabilities,
 	.project-grid,
 	.practice-grid,
-	.experience-grid {
+	.experience-grid,
+	.instruction-section {
 		grid-template-columns: 1fr;
 	}
 
 	.hero-copy h1,
-	.capabilities-copy h2 {
+	.capabilities-copy h2,
+	.instruction-copy h2 {
 		max-width: none;
 	}
 }
@@ -441,6 +587,7 @@ const featuredTools = computed(() => [
 	.hero-aside,
 	.practice-card,
 	.feature-card,
+	.instruction-section,
 	.capabilities {
 		padding: 1.45rem;
 	}

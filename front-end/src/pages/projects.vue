@@ -12,8 +12,8 @@ const projects = computed(() => store.userProfile.projects);
 			<p class="eyebrow">Projects</p>
 			<h1>Selected work across research, embedded systems, and product development.</h1>
 			<p>
-				These projects reflect how I approach technical work: strong system design, clear documentation, and a
-				focus on delivery rather than unnecessary complexity.
+				This page is organized more like a portfolio than a simple list: each project includes scope, outcome,
+				and any public artifacts that help verify the work.
 			</p>
 		</header>
 
@@ -25,11 +25,17 @@ const projects = computed(() => store.userProfile.projects);
 				</div>
 				<h2>{{ project.name }}</h2>
 				<p class="description">{{ project.description }}</p>
+				<p class="role"><strong>Role:</strong> {{ project.role }}</p>
 				<ul>
-					<li v-for="(highlight, highlightIndex) in project.highlights" :key="highlightIndex">
-						{{ highlight }}
+					<li v-for="(result, resultIndex) in project.results" :key="resultIndex">
+						{{ result }}
 					</li>
 				</ul>
+				<div v-if="project.links.length" class="artifact-links">
+					<a v-for="link in project.links" :key="link.href" :href="link.href" rel="noopener" target="_blank">
+						{{ link.label }}
+					</a>
+				</div>
 			</article>
 		</section>
 	</div>
@@ -82,9 +88,14 @@ const projects = computed(() => store.userProfile.projects);
 }
 
 .description,
+.role,
 .project-card ul {
 	color: var(--color-text-muted);
 	line-height: 1.72;
+}
+
+.role {
+	margin: 0;
 }
 
 .project-card ul {
@@ -93,6 +104,19 @@ const projects = computed(() => store.userProfile.projects);
 	display: flex;
 	flex-direction: column;
 	gap: 0.55rem;
+}
+
+.artifact-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+}
+
+.artifact-links a {
+	color: var(--color-accent);
+	font-size: 0.92rem;
+	font-weight: 700;
+	text-decoration: none;
 }
 
 @media (max-width: 900px) {
