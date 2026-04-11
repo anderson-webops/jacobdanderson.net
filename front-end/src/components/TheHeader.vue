@@ -33,7 +33,7 @@ function closeMenu() {
 watch(
 	() => route.path,
 	() => {
-		isExpanded.value = false;
+		closeMenu();
 	}
 );
 </script>
@@ -46,7 +46,7 @@ watch(
 					<div class="brand-mark">JA</div>
 					<div class="brand-copy">
 						<span class="brand-name">Jacob Anderson</span>
-						<span class="brand-meta">Computer Engineer • Cofounder • Educator</span>
+						<span class="brand-meta">Embedded Systems • Research Tooling • Instruction</span>
 					</div>
 				</RouterLink>
 
@@ -79,39 +79,38 @@ watch(
 
 <style scoped>
 .site-header {
-	padding: 1rem 0 0;
+	padding: 1.3rem 0 0;
 }
 
 .shell {
-	width: min(1120px, calc(100% - 3rem));
+	width: min(1140px, calc(100% - 3rem));
 	margin: 0 auto;
 }
 
 .nav {
-	display: flex;
+	display: grid;
+	grid-template-columns: auto 1fr;
 	align-items: center;
-	justify-content: space-between;
-	gap: 0.9rem;
-	padding: 0.9rem 1.1rem;
-	border: 1px solid rgba(17, 29, 43, 0.1);
-	background: rgba(255, 252, 247, 0.76);
-	border-radius: 999px;
-	backdrop-filter: blur(18px);
-	box-shadow: 0 12px 30px rgba(17, 29, 43, 0.08);
+	gap: 1rem 1.5rem;
+	padding: 1rem 1.2rem;
+	border: 1px solid var(--color-border);
+	background: rgba(255, 253, 250, 0.94);
+	border-radius: var(--radius-xl);
+	box-shadow: var(--shadow-card);
 }
 
 .brand {
 	display: flex;
 	align-items: center;
-	gap: 0.75rem;
-	text-decoration: none;
+	gap: 0.85rem;
 	min-width: 0;
+	text-decoration: none;
 }
 
 .brand-mark {
-	width: 2.85rem;
-	height: 2.85rem;
-	border-radius: 50%;
+	width: 2.9rem;
+	height: 2.9rem;
+	border-radius: 18px;
 	display: grid;
 	place-items: center;
 	font-family: var(--font-display);
@@ -119,91 +118,93 @@ watch(
 	font-weight: 700;
 	letter-spacing: 0.08em;
 	color: var(--color-surface-strong);
-	background: linear-gradient(135deg, #17364d, #345f7a);
-	box-shadow: 0 12px 24px rgba(23, 54, 77, 0.22);
+	background: linear-gradient(145deg, #17364d, #33546e);
+	box-shadow: 0 12px 24px rgba(22, 52, 75, 0.18);
 }
 
 .brand-copy {
 	display: flex;
 	flex-direction: column;
+	gap: 0.18rem;
 	min-width: 0;
-	flex-shrink: 1;
 }
 
 .brand-name {
+	color: var(--color-text);
 	font-size: 1rem;
 	font-weight: 800;
-	letter-spacing: 0.02em;
-	color: var(--color-text);
+	letter-spacing: 0.01em;
 }
 
 .brand-meta {
-	font-size: 0.74rem;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
 	color: var(--color-text-muted);
-	overflow: hidden;
-	text-overflow: ellipsis;
+	font-size: 0.72rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	white-space: nowrap;
 }
 
 .nav-panel {
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	flex: 1;
 	min-width: 0;
 }
 
 .links {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.4rem;
+	justify-content: flex-end;
+	gap: 0.3rem;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.links li a {
+.links a {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	font-weight: 600;
+	padding: 0.65rem 0.92rem;
+	border-radius: 14px;
 	color: var(--color-text-muted);
+	font-weight: 600;
 	text-decoration: none;
-	padding: 0.65rem 0.95rem;
-	border-radius: 999px;
 }
 
-.links li a:hover {
-	background: rgba(33, 74, 104, 0.08);
-	color: var(--color-accent);
+.links a:hover {
+	background: var(--color-accent-soft);
+	color: var(--color-accent-strong);
 }
 
-.links li a.active {
-	background: rgba(23, 54, 77, 0.92);
-	color: var(--color-surface-strong);
-	box-shadow: 0 10px 22px rgba(23, 54, 77, 0.18);
+.links a.active {
+	background: rgba(33, 70, 97, 0.1);
+	color: var(--color-accent-strong);
 }
 
 .hamburger {
 	display: none;
+	align-items: center;
+	justify-content: center;
 	flex-direction: column;
-	gap: 0.35rem;
-	background: rgba(255, 255, 255, 0.82);
-	border: 1px solid rgba(17, 29, 43, 0.1);
-	border-radius: 999px;
+	gap: 0.32rem;
+	width: 2.9rem;
+	height: 2.9rem;
+	border: 1px solid var(--color-border);
+	border-radius: 14px;
+	background: rgba(255, 255, 255, 0.88);
 	cursor: pointer;
-	padding: 0.75rem;
 }
 
 .hamburger span {
-	width: 20px;
+	width: 18px;
 	height: 2px;
-	background: var(--color-text);
 	border-radius: 999px;
+	background: var(--color-text);
 	transition:
-		transform 0.3s ease,
-		opacity 0.3s ease;
+		transform 0.28s ease,
+		opacity 0.28s ease;
 }
 
 .hamburger span.open:nth-child(1) {
@@ -218,43 +219,42 @@ watch(
 	transform: translateY(-6px) rotate(-45deg);
 }
 
+@media (max-width: 900px) {
+	.brand-meta {
+		display: none;
+	}
+}
+
 @media (max-width: 768px) {
 	.shell {
-		width: min(1120px, calc(100% - 1.5rem));
+		width: min(1140px, calc(100% - 1.5rem));
 	}
 
 	.nav {
-		border-radius: 24px;
-		padding: 0.95rem 1rem;
+		grid-template-columns: auto auto;
 		position: relative;
 	}
 
 	.hamburger {
-		display: flex;
-	}
-
-	.brand-meta {
-		display: none;
+		display: inline-flex;
+		justify-self: end;
 	}
 
 	.nav-panel {
+		display: none;
 		position: absolute;
 		top: calc(100% + 0.7rem);
 		left: 0;
 		right: 0;
-		flex-direction: column;
-		align-items: stretch;
-		background: rgba(255, 252, 247, 0.98);
-		border: 1px solid rgba(17, 29, 43, 0.1);
-		border-radius: 24px;
 		padding: 1rem;
-		gap: 1rem;
-		display: none;
-		box-shadow: 0 18px 40px rgba(17, 29, 43, 0.12);
+		border: 1px solid var(--color-border);
+		background: rgba(255, 253, 250, 0.98);
+		border-radius: 22px;
+		box-shadow: var(--shadow-soft);
 	}
 
 	.nav-panel.expanded {
-		display: flex;
+		display: block;
 	}
 
 	.links {
@@ -262,34 +262,8 @@ watch(
 		align-items: stretch;
 	}
 
-	.links li a {
-		width: 100%;
+	.links a {
 		justify-content: flex-start;
-	}
-}
-
-@media (max-width: 1040px) {
-	.brand-meta {
-		display: none;
-	}
-
-	.links li a {
-		padding: 0.6rem 0.75rem;
-	}
-}
-
-@media (max-width: 560px) {
-	.brand {
-		gap: 0.65rem;
-	}
-
-	.brand-mark {
-		width: 2.55rem;
-		height: 2.55rem;
-	}
-
-	.brand-name {
-		font-size: 0.94rem;
 	}
 }
 </style>

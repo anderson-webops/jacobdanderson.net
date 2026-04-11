@@ -10,21 +10,21 @@ const experiences = computed(() => store.userProfile.experience);
 	<div class="experience-page">
 		<header class="page-intro">
 			<p class="eyebrow">Experience</p>
-			<h1>Roles that connect engineering, research, and instruction.</h1>
+			<h1>Roles spanning engineering, research, and technical instruction.</h1>
 			<p>
-				A selection of work spanning embedded systems, research tooling, product development, and technical
-				education.
+				A selection of work across embedded systems, research tooling, product development, and teaching, with
+				an emphasis on practical execution and dependable communication.
 			</p>
 		</header>
 
 		<section class="timeline">
 			<article v-for="(item, index) in experiences" :key="index" class="entry section-panel">
 				<div class="entry-meta">
-					<span class="timeframe">{{ item.timeframe }}</span>
-					<span class="location">{{ item.location }}</span>
+					<span class="entry-organization">{{ item.organization }}</span>
+					<span class="entry-timeframe">{{ item.timeframe }}</span>
 				</div>
 				<h2>{{ item.title }}</h2>
-				<p class="organization">{{ item.organization }}</p>
+				<p class="entry-location">{{ item.location }}</p>
 				<ul>
 					<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
 						{{ highlight }}
@@ -44,47 +44,75 @@ const experiences = computed(() => store.userProfile.experience);
 
 .timeline {
 	display: grid;
-	gap: 1rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1.2rem;
 }
 
 .entry {
 	padding: 1.6rem;
-	border-left: 4px solid rgba(33, 74, 104, 0.24);
+	display: flex;
+	flex-direction: column;
+	gap: 0.9rem;
 }
 
 .entry-meta {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 1rem;
-	font-size: 0.9rem;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.9rem;
+}
+
+.entry-organization {
+	color: var(--color-highlight);
+	font-size: 0.76rem;
 	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.entry-timeframe {
 	color: var(--color-accent);
-	margin-bottom: 0.75rem;
+	font-size: 0.92rem;
+	font-weight: 700;
 }
 
 .entry h2 {
-	font-size: 1.7rem;
-	line-height: 1.12;
+	font-size: 1.65rem;
+	line-height: 1.14;
 }
 
-.organization {
-	margin-top: 0.45rem;
+.entry-location,
+.entry ul {
 	color: var(--color-text-muted);
+	line-height: 1.72;
+}
+
+.entry-location {
 	font-weight: 600;
 }
 
 .entry ul {
-	margin: 1rem 0 0;
+	margin: 0;
 	padding-left: 1.1rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0.55rem;
-	color: var(--color-text-muted);
+}
+
+@media (max-width: 900px) {
+	.timeline {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 640px) {
 	.entry {
-		padding: 1.35rem;
+		padding: 1.4rem;
+	}
+
+	.entry-meta {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 }
 </style>

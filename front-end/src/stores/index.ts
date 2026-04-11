@@ -8,9 +8,9 @@ export const useMainStore = defineStore("main", {
 			location: "Alpharetta, GA",
 			email: "jacobdanderson@gmail.com",
 			phone: "404-626-0025",
-			lastUpdated: "March 2026",
+			lastUpdated: "April 2026",
 			summary:
-				"I am CTO and cofounder of Stride with experience spanning embedded systems, research tooling, and technical instruction. I am currently pursuing an M.S. in Computer Engineering at Georgia Tech after earning a B.S. in Computer Engineering with a minor in Computer Science from BYU.",
+				"I build dependable systems across embedded engineering, research tooling, and technical instruction. I serve as CTO and cofounder of Stride and am currently pursuing an M.S. in Computer Engineering at Georgia Tech after earning a B.S. in Computer Engineering with a minor in Computer Science from BYU.",
 			education: [
 				{
 					program: "M.S. Computer Engineering",
@@ -90,7 +90,8 @@ export const useMainStore = defineStore("main", {
 				{
 					name: "OSCRE Radiation-Effect Simulation Framework",
 					timeframe: "2024",
-					description: "Open-source workflow for modeling single-event effects in analog circuits.",
+					description:
+						"Open-source workflow for modeling single-event effects in analog circuits for academic and engineering use.",
 					highlights: [
 						"Directed architecture decisions and documentation for cross-institution collaboration.",
 						"Packaged installer scripts that reduce setup time for researchers and students."
@@ -99,7 +100,8 @@ export const useMainStore = defineStore("main", {
 				{
 					name: "Industrial Drill Monitoring Platform",
 					timeframe: "2024",
-					description: "Capstone system delivering live industrial drill telemetry to Epiroc engineers.",
+					description:
+						"Capstone platform delivering live industrial drill telemetry to Epiroc engineers through an operator-facing interface.",
 					highlights: [
 						"Created responsive operator dashboards and BLE data pipelines for environmental sensing."
 					]
@@ -107,7 +109,8 @@ export const useMainStore = defineStore("main", {
 				{
 					name: "Website Management Portfolio",
 					timeframe: "Ongoing",
-					description: "Maintain personal and client websites using Vue, Vitesse, and modern tooling.",
+					description:
+						"Maintain personal and client websites using Vue, Vitesse, and modern front-end tooling.",
 					highlights: [
 						"Ship UX enhancements, ensure responsive layouts, and monitor performance regressions."
 					]
@@ -116,7 +119,7 @@ export const useMainStore = defineStore("main", {
 					name: "Zilch Game & Swift Productivity App",
 					timeframe: "Ongoing",
 					description:
-						"Exploratory side projects refining gameplay systems in Java and productivity features in Swift.",
+						"Exploratory side projects refining gameplay systems in Java and productivity workflows in Swift.",
 					highlights: [
 						"Practice object-oriented architecture, iterate on UI polish, and incorporate user feedback."
 					]

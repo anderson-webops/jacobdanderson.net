@@ -12,8 +12,8 @@ const projects = computed(() => store.userProfile.projects);
 			<p class="eyebrow">Projects</p>
 			<h1>Selected work across research, embedded systems, and product development.</h1>
 			<p>
-				These projects reflect the way I approach technical work: practical systems thinking, clear
-				documentation, and thoughtful execution.
+				These projects reflect how I approach technical work: strong system design, clear documentation, and a
+				focus on delivery rather than unnecessary complexity.
 			</p>
 		</header>
 
@@ -52,7 +52,7 @@ const projects = computed(() => store.userProfile.projects);
 	padding: 1.6rem;
 	display: flex;
 	flex-direction: column;
-	gap: 0.9rem;
+	gap: 0.95rem;
 }
 
 .card-top {
@@ -63,27 +63,28 @@ const projects = computed(() => store.userProfile.projects);
 }
 
 .card-label {
+	color: var(--color-highlight);
 	font-size: 0.76rem;
 	font-weight: 700;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: var(--color-highlight);
 }
 
 .timeframe {
+	color: var(--color-accent);
 	font-size: 0.92rem;
 	font-weight: 700;
-	color: var(--color-accent);
 }
 
 .project-card h2 {
-	font-size: 1.6rem;
-	line-height: 1.12;
+	font-size: 1.62rem;
+	line-height: 1.14;
 }
 
-.description {
+.description,
+.project-card ul {
 	color: var(--color-text-muted);
-	line-height: 1.75;
+	line-height: 1.72;
 }
 
 .project-card ul {
@@ -92,7 +93,6 @@ const projects = computed(() => store.userProfile.projects);
 	display: flex;
 	flex-direction: column;
 	gap: 0.55rem;
-	color: var(--color-text-muted);
 }
 
 @media (max-width: 900px) {
@@ -103,7 +103,7 @@ const projects = computed(() => store.userProfile.projects);
 
 @media (max-width: 640px) {
 	.project-card {
-		padding: 1.35rem;
+		padding: 1.4rem;
 	}
 }
 </style>

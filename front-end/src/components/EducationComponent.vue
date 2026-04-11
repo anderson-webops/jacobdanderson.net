@@ -2,8 +2,8 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
-const educationStore = useMainStore();
-const education = computed(() => educationStore.userProfile.education);
+const store = useMainStore();
+const education = computed(() => store.userProfile.education);
 </script>
 
 <template>
@@ -37,12 +37,12 @@ const education = computed(() => educationStore.userProfile.education);
 .education {
 	display: flex;
 	flex-direction: column;
-	gap: 1.3rem;
+	gap: 1.35rem;
 }
 
 .section-head h2 {
-	font-size: 2rem;
-	margin-top: 0.65rem;
+	font-size: clamp(1.9rem, 3.5vw, 2.35rem);
+	margin-top: 0.55rem;
 }
 
 .education-grid {
@@ -52,10 +52,10 @@ const education = computed(() => educationStore.userProfile.education);
 }
 
 .education-card {
-	padding: 1.6rem;
+	padding: 1.55rem;
 	display: flex;
 	flex-direction: column;
-	gap: 0.9rem;
+	gap: 0.95rem;
 }
 
 .card-top {
@@ -66,33 +66,37 @@ const education = computed(() => educationStore.userProfile.education);
 }
 
 .card-label {
+	color: var(--color-highlight);
 	font-size: 0.76rem;
 	font-weight: 700;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: var(--color-highlight);
 }
 
 .timeframe {
+	color: var(--color-accent);
 	font-size: 0.92rem;
 	font-weight: 700;
-	color: var(--color-accent);
 }
 
 .education-card h3 {
-	font-size: 1.45rem;
+	font-size: 1.5rem;
 	line-height: 1.15;
 }
 
-.institution {
+.institution,
+.education-card ul {
 	color: var(--color-text-muted);
+	line-height: 1.72;
+}
+
+.institution {
 	font-weight: 600;
 }
 
-ul {
+.education-card ul {
 	margin: 0;
 	padding-left: 1.1rem;
-	color: var(--color-text-muted);
 	display: flex;
 	flex-direction: column;
 	gap: 0.55rem;

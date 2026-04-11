@@ -10,10 +10,10 @@ const profile = computed(() => store.userProfile);
 	<div class="contact-page">
 		<header class="page-intro">
 			<p class="eyebrow">Contact</p>
-			<h1>Open to thoughtful conversations and well-scoped work.</h1>
+			<h1>Open to well-scoped work, thoughtful collaborations, and instruction inquiries.</h1>
 			<p>
-				If you would like to discuss a project, research collaboration, or private instruction, reach out
-				directly. I generally respond within two business days.
+				If you would like to discuss a project, research collaboration, or private lessons, reach out directly.
+				I generally respond within two business days.
 			</p>
 		</header>
 
@@ -21,7 +21,8 @@ const profile = computed(() => store.userProfile);
 			<article class="contact-card section-panel">
 				<span class="card-label">Direct contact</span>
 				<h2>Start the conversation</h2>
-				<div class="detail-list">
+
+				<div class="detail-grid">
 					<div>
 						<span class="detail-label">Email</span>
 						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
@@ -37,18 +38,18 @@ const profile = computed(() => store.userProfile);
 				</div>
 
 				<div class="button-row">
-					<a class="button-primary" :href="`mailto:${profile.email}`"> Email Jacob </a>
-					<RouterLink class="button-secondary" to="/classes"> View teaching options </RouterLink>
+					<a class="button-primary" :href="`mailto:${profile.email}`">Email Jacob</a>
+					<RouterLink class="button-secondary" to="/classes">View teaching details</RouterLink>
 				</div>
 			</article>
 
 			<article class="contact-card section-panel">
-				<span class="card-label">Good fit</span>
-				<h2>Best suited for</h2>
+				<span class="card-label">Best suited for</span>
+				<h2>Typical engagements</h2>
 				<ul>
-					<li>Embedded systems and technical product work.</li>
-					<li>Research tooling, analysis workflows, and prototyping.</li>
-					<li>Private programming, STEM, or Spanish instruction.</li>
+					<li>Embedded systems, prototyping, and technical product work.</li>
+					<li>Research tooling, analysis pipelines, and engineering support.</li>
+					<li>Private programming, STEM, and Spanish instruction.</li>
 				</ul>
 			</article>
 		</section>
@@ -64,56 +65,65 @@ const profile = computed(() => store.userProfile);
 
 .contact-grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+	grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
 	gap: 1.2rem;
 }
 
 .contact-card {
-	padding: 1.7rem;
+	padding: 1.65rem;
 	display: flex;
 	flex-direction: column;
-	gap: 1.15rem;
+	gap: 1rem;
 }
 
 .card-label,
 .detail-label {
+	color: var(--color-highlight);
 	font-size: 0.76rem;
 	font-weight: 700;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: var(--color-highlight);
 }
 
 .contact-card h2 {
-	font-size: 1.8rem;
-	line-height: 1.12;
+	font-size: 1.7rem;
+	line-height: 1.14;
 }
 
-.detail-list {
+.detail-grid {
 	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 	gap: 1rem;
 }
 
-.detail-list div {
+.detail-grid div {
 	display: flex;
 	flex-direction: column;
-	gap: 0.35rem;
+	gap: 0.3rem;
+	min-width: 0;
 }
 
-.detail-list a,
-.detail-list span:last-child {
+.detail-grid a,
+.detail-grid span:last-child,
+.contact-card ul {
 	color: var(--color-text-muted);
+	line-height: 1.72;
 	text-decoration: none;
-	font-weight: 600;
 }
 
-ul {
+.detail-grid a,
+.detail-grid span:last-child {
+	display: block;
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+.contact-card ul {
 	margin: 0;
 	padding-left: 1.1rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0.6rem;
-	color: var(--color-text-muted);
 }
 
 @media (max-width: 900px) {
@@ -124,7 +134,11 @@ ul {
 
 @media (max-width: 640px) {
 	.contact-card {
-		padding: 1.4rem;
+		padding: 1.45rem;
+	}
+
+	.detail-grid {
+		grid-template-columns: 1fr;
 	}
 }
 </style>
