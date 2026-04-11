@@ -8,45 +8,40 @@ const profile = computed(() => store.userProfile);
 
 <template>
 	<div class="classes-page">
-		<section class="hero section-panel">
+		<section class="hero">
 			<div class="hero-copy">
 				<p class="eyebrow">Private Instruction</p>
-				<h1>Programming, STEM, and Spanish lessons built around each student.</h1>
+				<h1>Programming, STEM, and Spanish lessons tailored to each student.</h1>
 				<p>
-					I offer one-on-one instruction for students ages 7 to 18, with lessons tailored to the learner’s
+					I offer one-on-one instruction for students ages 7 to 18, with lessons shaped around the student’s
 					goals, experience level, and preferred pace.
 				</p>
-
-				<div class="price">
-					<span class="amount">$40</span>
-					<span class="details">per 60-minute lesson</span>
-				</div>
 
 				<div class="button-row">
 					<a class="button-primary" href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
 						Visit teaching site
 					</a>
-					<a class="button-secondary" :href="`mailto:${profile.email}`"> Ask a question </a>
+					<a class="button-secondary" :href="`mailto:${profile.email}`">Ask a question</a>
 				</div>
 			</div>
 
-			<div class="hero-side">
-				<span class="card-label">Best for</span>
-				<ul>
-					<li>Students who learn best through hands-on projects.</li>
-					<li>Families looking for structured technical coaching.</li>
-					<li>Beginners and intermediate learners who need clear guidance.</li>
-				</ul>
+			<div class="rate-card section-panel">
+				<span class="card-label">Lesson rate</span>
+				<div class="price">
+					<span class="amount">$40</span>
+					<span class="details">per 60-minute lesson</span>
+				</div>
+				<p>Free consultation before the first session to discuss goals, schedule, and fit.</p>
 			</div>
 		</section>
 
 		<section class="grid">
 			<article class="info-card section-panel">
 				<span class="card-label">What students gain</span>
-				<h2>Progress you can actually see</h2>
+				<h2>Progress you can actually track</h2>
 				<ul>
-					<li>Project-based lessons that build real portfolio pieces.</li>
-					<li>Clear progress tracking and feedback after every session.</li>
+					<li>Project-based lessons that create concrete work products.</li>
+					<li>Clear feedback after sessions and practical next steps.</li>
 					<li>Instruction from an educator who also trains other instructors.</li>
 				</ul>
 			</article>
@@ -66,12 +61,12 @@ const profile = computed(() => store.userProfile);
 				<h2>Simple onboarding</h2>
 				<ul>
 					<li>
-						Email me at
+						Reach out at
 						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a
 						>.
 					</li>
-					<li>Share your student’s goals and preferred schedule.</li>
-					<li>We will set up a free consultation before the first session.</li>
+					<li>Share the student’s goals and preferred schedule.</li>
+					<li>We will set up a short consultation before the first lesson.</li>
 				</ul>
 			</article>
 		</section>
@@ -87,9 +82,9 @@ const profile = computed(() => store.userProfile);
 
 .hero {
 	display: grid;
-	grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-	gap: 1.5rem;
-	padding: 2.4rem;
+	grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+	gap: 1.4rem;
+	align-items: start;
 }
 
 .hero-copy {
@@ -99,21 +94,38 @@ const profile = computed(() => store.userProfile);
 }
 
 .hero-copy h1 {
-	font-size: clamp(2.5rem, 6vw, 4.2rem);
-	line-height: 0.98;
+	font-size: clamp(2.7rem, 6vw, 4.4rem);
+	line-height: 0.96;
 	max-width: 12ch;
 }
 
-.hero-copy p {
+.hero-copy p,
+.rate-card p,
+.info-card ul {
 	color: var(--color-text-muted);
-	line-height: 1.75;
-	max-width: 42rem;
+	line-height: 1.76;
+}
+
+.rate-card,
+.info-card {
+	padding: 1.55rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.card-label {
+	color: var(--color-highlight);
+	font-size: 0.76rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
 }
 
 .price {
 	display: flex;
 	align-items: baseline;
-	gap: 0.75rem;
+	gap: 0.7rem;
 }
 
 .amount {
@@ -124,38 +136,9 @@ const profile = computed(() => store.userProfile);
 }
 
 .details {
+	color: var(--color-text-muted);
 	font-size: 1rem;
 	font-weight: 700;
-	color: var(--color-text-muted);
-}
-
-.hero-side,
-.info-card {
-	padding: 1.5rem;
-	border-radius: 20px;
-	background: rgba(255, 255, 255, 0.68);
-	border: 1px solid rgba(17, 29, 43, 0.08);
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
-.hero-side ul,
-.info-card ul {
-	margin: 0;
-	padding-left: 1.1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.6rem;
-	color: var(--color-text-muted);
-}
-
-.card-label {
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: var(--color-highlight);
 }
 
 .grid {
@@ -165,8 +148,16 @@ const profile = computed(() => store.userProfile);
 }
 
 .info-card h2 {
-	font-size: 1.6rem;
-	line-height: 1.12;
+	font-size: 1.58rem;
+	line-height: 1.14;
+}
+
+.info-card ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
 }
 
 .info-card a {
@@ -186,8 +177,9 @@ const profile = computed(() => store.userProfile);
 }
 
 @media (max-width: 720px) {
-	.hero {
-		padding: 1.8rem 1.5rem;
+	.rate-card,
+	.info-card {
+		padding: 1.45rem;
 	}
 }
 </style>

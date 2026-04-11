@@ -12,22 +12,22 @@ const featuredExperience = computed(() => store.featuredExperience);
 const featuredProjects = computed(() => store.featuredProjects);
 const topEducation = computed(() => profile.value.education[0]);
 const featuredTools = computed(() => [
-	...profile.value.skills.languages.slice(0, 6),
-	...profile.value.skills.frameworks.slice(0, 4)
+	...profile.value.skills.languages.slice(0, 5),
+	...profile.value.skills.frameworks.slice(0, 5)
 ]);
 </script>
 
 <template>
 	<div class="landing">
-		<section class="hero section-panel">
+		<section class="hero">
 			<div class="hero-copy">
 				<p class="eyebrow">Professional Portfolio</p>
 				<h1>{{ profile.headline }}</h1>
 				<p class="lede">{{ profile.summary }}</p>
 
 				<div class="button-row">
-					<RouterLink class="button-primary" to="/projects"> View projects </RouterLink>
-					<RouterLink class="button-secondary" to="/contact"> Contact Jacob </RouterLink>
+					<RouterLink class="button-primary" to="/projects">View projects</RouterLink>
+					<RouterLink class="button-secondary" to="/experience">Review experience</RouterLink>
 				</div>
 
 				<dl class="hero-details">
@@ -50,50 +50,52 @@ const featuredTools = computed(() => [
 				</dl>
 			</div>
 
-			<div class="hero-panel">
-				<div class="panel-block">
-					<span class="panel-label">Current focus</span>
+			<aside class="hero-aside section-panel">
+				<div class="aside-block">
+					<span class="aside-label">Current focus</span>
 					<h2>{{ topEducation.program }}</h2>
 					<p>{{ topEducation.institution }}</p>
-					<span class="panel-meta">{{ topEducation.timeframe }}</span>
+					<span class="aside-meta">{{ topEducation.timeframe }}</span>
 				</div>
 
-				<div class="panel-block">
-					<span class="panel-label">Primary strengths</span>
-					<ul class="panel-list">
+				<div class="aside-divider" />
+
+				<div class="aside-block">
+					<span class="aside-label">Where I contribute most</span>
+					<ul class="aside-list">
 						<li v-for="(competency, index) in profile.skills.competencies" :key="index">
 							{{ competency }}
 						</li>
 					</ul>
 				</div>
-			</div>
+			</aside>
 		</section>
 
-		<section class="focus-grid">
-			<article class="focus-card section-panel">
-				<span class="focus-label">Engineering</span>
-				<h2>Embedded and software systems that behave reliably in the real world.</h2>
+		<section class="practice-grid">
+			<article class="practice-card section-panel">
+				<span class="practice-label">Engineering</span>
+				<h2>Embedded and software systems that stay dependable outside the lab.</h2>
 				<p>
-					I build across hardware, firmware, data pipelines, and web interfaces with an emphasis on
-					maintainability and clarity.
+					I work across firmware, telemetry, analysis workflows, and user-facing interfaces with an emphasis
+					on maintainability and disciplined execution.
 				</p>
 			</article>
 
-			<article class="focus-card section-panel">
-				<span class="focus-label">Research</span>
-				<h2>Tooling and workflows that make technical work easier to repeat.</h2>
+			<article class="practice-card section-panel">
+				<span class="practice-label">Research</span>
+				<h2>Tooling and technical workflows that make complex work easier to repeat.</h2>
 				<p>
-					My research work focuses on signal processing, analysis pipelines, and simulation tooling that
-					support dependable results.
+					From signal processing pipelines to simulation environments, I focus on building systems that are
+					clear, testable, and practical for teams to use.
 				</p>
 			</article>
 
-			<article class="focus-card section-panel">
-				<span class="focus-label">Teaching</span>
-				<h2>Instruction that makes complex subjects practical and approachable.</h2>
+			<article class="practice-card section-panel">
+				<span class="practice-label">Instruction</span>
+				<h2>Teaching that makes abstract material concrete and usable.</h2>
 				<p>
-					I teach programming, STEM, and Spanish with a structured, project-based approach tailored to each
-					learner.
+					I teach programming, STEM, and Spanish through structured, project-based lessons that meet students
+					where they are and move them forward.
 				</p>
 			</article>
 		</section>
@@ -104,18 +106,18 @@ const featuredTools = computed(() => [
 					<p class="eyebrow">Selected Experience</p>
 					<h2>Recent roles</h2>
 				</div>
-				<RouterLink class="section-link" to="/experience"> Explore full timeline </RouterLink>
+				<RouterLink class="section-link" to="/experience">View full experience</RouterLink>
 			</div>
 
-			<div class="card-grid">
-				<article v-for="(item, index) in featuredExperience" :key="index" class="card section-panel">
-					<div class="card-top">
-						<span class="card-kicker">{{ item.organization }}</span>
-						<span class="card-time">{{ item.timeframe }}</span>
+			<div class="experience-grid">
+				<article v-for="(item, index) in featuredExperience" :key="index" class="feature-card section-panel">
+					<div class="feature-top">
+						<span class="feature-kicker">{{ item.organization }}</span>
+						<span class="feature-time">{{ item.timeframe }}</span>
 					</div>
 					<h3>{{ item.title }}</h3>
-					<p class="card-location">{{ item.location }}</p>
-					<ul>
+					<p class="feature-location">{{ item.location }}</p>
+					<ul class="feature-list">
 						<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
 							{{ highlight }}
 						</li>
@@ -128,20 +130,20 @@ const featuredTools = computed(() => [
 			<div class="section-top">
 				<div>
 					<p class="eyebrow">Selected Projects</p>
-					<h2>Recent work</h2>
+					<h2>Current portfolio highlights</h2>
 				</div>
-				<RouterLink class="section-link" to="/projects"> See more work </RouterLink>
+				<RouterLink class="section-link" to="/projects">Browse all projects</RouterLink>
 			</div>
 
-			<div class="card-grid project-grid">
-				<article v-for="(project, index) in featuredProjects" :key="index" class="card section-panel">
-					<div class="card-top">
-						<span class="card-kicker">Project</span>
-						<span class="card-time">{{ project.timeframe }}</span>
+			<div class="project-grid">
+				<article v-for="(project, index) in featuredProjects" :key="index" class="feature-card section-panel">
+					<div class="feature-top">
+						<span class="feature-kicker">Project</span>
+						<span class="feature-time">{{ project.timeframe }}</span>
 					</div>
 					<h3>{{ project.name }}</h3>
-					<p class="card-description">{{ project.description }}</p>
-					<ul>
+					<p class="feature-description">{{ project.description }}</p>
+					<ul class="feature-list">
 						<li v-for="(highlight, highlightIndex) in project.highlights" :key="highlightIndex">
 							{{ highlight }}
 						</li>
@@ -153,16 +155,16 @@ const featuredTools = computed(() => [
 		<section class="capabilities section-panel">
 			<div class="capabilities-copy">
 				<p class="eyebrow">Technical Foundation</p>
-				<h2>Broad engineering coverage with a bias toward practical execution.</h2>
+				<h2>Broad coverage, practical scope, and communication that stays clear as projects grow.</h2>
 				<p>
-					I work comfortably across embedded systems, web applications, data analysis, and instruction, which
-					makes it easier to move projects from concept to delivery without losing context.
+					I work comfortably across embedded systems, modern web stacks, data analysis, and instruction, which
+					helps reduce handoff friction and keeps technical decisions aligned with delivery.
 				</p>
 			</div>
 
-			<div class="capabilities-grid">
+			<div class="capability-grid">
 				<div class="capability-card">
-					<span class="capability-label">Languages and frameworks</span>
+					<span class="capability-label">Core tools</span>
 					<div class="tag-list">
 						<span v-for="(tool, index) in featuredTools" :key="index" class="tag">
 							{{ tool }}
@@ -173,7 +175,7 @@ const featuredTools = computed(() => [
 				<div class="capability-card">
 					<span class="capability-label">Languages spoken</span>
 					<p>{{ profile.skills.languagesSpoken.join(" · ") }}</p>
-					<RouterLink class="section-link" to="/classes"> Learn about private lessons </RouterLink>
+					<RouterLink class="section-link" to="/classes">Learn about private lessons</RouterLink>
 				</div>
 			</div>
 		</section>
@@ -184,178 +186,160 @@ const featuredTools = computed(() => [
 .landing {
 	display: flex;
 	flex-direction: column;
-	gap: 2.5rem;
+	gap: 2.8rem;
 	padding-bottom: 1rem;
 }
 
 .hero {
 	display: grid;
-	grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.9fr);
+	grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.85fr);
 	gap: 2rem;
-	padding: 3rem;
-	position: relative;
-	overflow: hidden;
-}
-
-.hero::after {
-	content: "";
-	position: absolute;
-	inset: auto -8% -10% auto;
-	width: 18rem;
-	height: 18rem;
-	border-radius: 50%;
-	background: radial-gradient(circle, rgba(167, 125, 71, 0.18), transparent 70%);
-	pointer-events: none;
-}
-
-.hero-copy,
-.hero-panel {
-	position: relative;
-	z-index: 1;
+	align-items: start;
 }
 
 .hero-copy {
 	display: flex;
 	flex-direction: column;
-	gap: 1.4rem;
+	gap: 1.45rem;
+	padding-top: 0.4rem;
 }
 
 .hero-copy h1 {
-	font-size: clamp(3rem, 7vw, 5rem);
-	line-height: 0.95;
+	font-size: clamp(3rem, 7vw, 5.4rem);
+	line-height: 0.92;
 	max-width: 10ch;
 }
 
 .lede {
-	max-width: 42rem;
+	max-width: 44rem;
 	color: var(--color-text-muted);
 	font-size: 1.08rem;
-	line-height: 1.8;
+	line-height: 1.82;
 }
 
 .hero-details {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 	gap: 1rem;
+	margin: 0;
 }
 
 .hero-details div {
 	min-width: 0;
 	padding-top: 1rem;
-	border-top: 1px solid rgba(17, 29, 43, 0.12);
+	border-top: 1px solid var(--color-border);
+}
+
+.hero-details dt,
+.hero-details dd {
+	margin: 0;
 }
 
 .hero-details dt {
-	font-size: 0.75rem;
+	color: var(--color-text-muted);
+	font-size: 0.76rem;
 	font-weight: 700;
 	letter-spacing: 0.12em;
+	margin-bottom: 0.42rem;
 	text-transform: uppercase;
-	color: var(--color-text-muted);
-	margin-bottom: 0.45rem;
 }
 
 .hero-details dd,
 .hero-details a {
-	display: block;
 	color: var(--color-text);
+	display: block;
 	font-weight: 600;
-	text-decoration: none;
 	overflow-wrap: anywhere;
+	text-decoration: none;
 }
 
-.hero-panel {
+.hero-aside {
+	padding: 1.65rem;
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 1.4rem;
 }
 
-.panel-block {
-	background: rgba(23, 54, 77, 0.94);
-	border-radius: 22px;
-	padding: 1.5rem;
-	color: rgba(255, 251, 245, 0.92);
-	box-shadow: 0 20px 36px rgba(23, 54, 77, 0.16);
+.aside-block {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
 }
 
-.panel-block:last-child {
-	background: linear-gradient(180deg, rgba(255, 250, 243, 0.88), rgba(241, 231, 216, 0.82));
-	color: var(--color-text);
-	border: 1px solid rgba(17, 29, 43, 0.08);
-	box-shadow: none;
-}
-
-.panel-label,
-.focus-label,
-.card-kicker,
+.aside-label,
+.practice-label,
+.feature-kicker,
 .capability-label {
+	color: var(--color-highlight);
 	font-size: 0.76rem;
 	font-weight: 700;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: var(--color-highlight);
 }
 
-.panel-block:first-child .panel-label {
-	color: rgba(215, 230, 242, 0.8);
+.aside-block h2 {
+	font-size: 1.95rem;
+	line-height: 1.08;
 }
 
-.panel-block h2 {
-	font-size: 1.9rem;
-	line-height: 1.1;
-	margin-top: 0.8rem;
-	color: inherit;
+.aside-block p,
+.aside-list {
+	color: var(--color-text-muted);
+	line-height: 1.72;
 }
 
-.panel-block p {
-	margin-top: 0.8rem;
-	line-height: 1.7;
-	color: inherit;
-	opacity: 0.9;
+.aside-meta {
+	color: var(--color-accent);
+	font-weight: 700;
 }
 
-.panel-meta {
-	display: inline-flex;
-	margin-top: 1rem;
-	color: rgba(215, 230, 242, 0.88);
-	font-weight: 600;
-}
-
-.panel-list {
-	margin: 1rem 0 0;
+.aside-list,
+.feature-list {
+	margin: 0;
 	padding-left: 1.1rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0.55rem;
-	color: var(--color-text-muted);
 }
 
-.focus-grid {
+.aside-divider {
+	height: 1px;
+	background: var(--color-border);
+}
+
+.practice-grid,
+.experience-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 1.2rem;
 }
 
-.focus-card {
-	padding: 1.6rem;
+.practice-card,
+.feature-card {
+	padding: 1.55rem;
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 0.95rem;
 }
 
-.focus-card h2 {
-	font-size: 1.55rem;
-	line-height: 1.18;
+.practice-card h2,
+.feature-card h3 {
+	font-size: 1.6rem;
+	line-height: 1.14;
 }
 
-.focus-card p {
+.practice-card p,
+.feature-description,
+.feature-location,
+.feature-list {
 	color: var(--color-text-muted);
-	line-height: 1.75;
+	line-height: 1.72;
 }
 
 .featured-section {
 	display: flex;
 	flex-direction: column;
-	gap: 1.35rem;
+	gap: 1.3rem;
 }
 
 .section-top {
@@ -366,64 +350,34 @@ const featuredTools = computed(() => [
 }
 
 .section-top h2 {
-	font-size: 2rem;
-	margin-top: 0.65rem;
-}
-
-.card-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1.2rem;
+	font-size: clamp(1.9rem, 3.6vw, 2.4rem);
+	margin-top: 0.55rem;
 }
 
 .project-grid {
+	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1.2rem;
 }
 
-.card {
-	padding: 1.5rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.95rem;
-}
-
-.card-top {
+.feature-top {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	gap: 0.8rem;
 }
 
-.card-time {
+.feature-time {
+	color: var(--color-accent);
 	font-size: 0.92rem;
 	font-weight: 700;
-	color: var(--color-accent);
-}
-
-.card h3 {
-	font-size: 1.45rem;
-	line-height: 1.15;
-}
-
-.card-location,
-.card-description {
-	color: var(--color-text-muted);
-}
-
-.card ul {
-	margin: 0;
-	padding-left: 1.1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.55rem;
-	color: var(--color-text-muted);
 }
 
 .capabilities {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-	gap: 2rem;
-	padding: 2.3rem;
+	grid-template-columns: minmax(0, 1fr) minmax(300px, 0.9fr);
+	gap: 1.8rem;
+	padding: 2rem;
 }
 
 .capabilities-copy {
@@ -433,8 +387,9 @@ const featuredTools = computed(() => [
 }
 
 .capabilities-copy h2 {
-	font-size: 2.1rem;
-	line-height: 1.08;
+	font-size: clamp(2rem, 4.5vw, 2.7rem);
+	line-height: 1.05;
+	max-width: 16ch;
 }
 
 .capabilities-copy p,
@@ -443,43 +398,37 @@ const featuredTools = computed(() => [
 	line-height: 1.75;
 }
 
-.capabilities-grid {
+.capability-grid {
 	display: grid;
 	gap: 1rem;
 }
 
 .capability-card {
-	padding: 1.4rem;
+	padding: 1.35rem;
 	border-radius: 20px;
-	background: rgba(255, 255, 255, 0.68);
-	border: 1px solid rgba(17, 29, 43, 0.08);
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 0.9rem;
 }
 
 @media (max-width: 960px) {
 	.hero,
-	.capabilities {
+	.capabilities,
+	.project-grid,
+	.practice-grid,
+	.experience-grid {
 		grid-template-columns: 1fr;
 	}
 
-	.focus-grid,
-	.card-grid,
-	.project-grid {
-		grid-template-columns: 1fr;
-	}
-
-	.hero-copy h1 {
+	.hero-copy h1,
+	.capabilities-copy h2 {
 		max-width: none;
 	}
 }
 
 @media (max-width: 720px) {
-	.hero {
-		padding: 2rem 1.5rem;
-	}
-
 	.hero-details {
 		grid-template-columns: 1fr;
 	}
@@ -489,8 +438,11 @@ const featuredTools = computed(() => [
 		align-items: flex-start;
 	}
 
+	.hero-aside,
+	.practice-card,
+	.feature-card,
 	.capabilities {
-		padding: 1.8rem 1.5rem;
+		padding: 1.45rem;
 	}
 }
 </style>

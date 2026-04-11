@@ -8,7 +8,7 @@ useHead({
 		{
 			name: "description",
 			content:
-				"Jacob Anderson is a computer engineer, cofounder, and educator focused on embedded systems, research tooling, and technical instruction."
+				"Jacob Anderson is a computer engineer, cofounder, and educator focused on reliable systems, research tooling, and technical instruction."
 		},
 		{
 			property: "og:title",
@@ -17,7 +17,7 @@ useHead({
 		{
 			property: "og:description",
 			content:
-				"Professional portfolio for Jacob Anderson covering engineering work, research projects, and private instruction."
+				"Professional portfolio for Jacob Anderson covering engineering work, research, and private instruction."
 		},
 		{
 			property: "og:type",
