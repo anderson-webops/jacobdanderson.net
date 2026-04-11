@@ -88,22 +88,28 @@ const profile = computed(() => store.userProfile);
 			</article>
 
 			<article class="support-card section-panel">
-				<span class="card-label">Languages</span>
-				<h2>Communication beyond code</h2>
-				<p>{{ profile.skills.languagesSpoken.join(" · ") }}</p>
+				<span class="card-label">Profiles</span>
+				<h2>Verification and contact paths</h2>
+				<div class="profile-list">
+					<a
+						v-for="item in profile.profiles"
+						:key="item.href"
+						:href="item.href"
+						rel="noopener"
+						target="_blank"
+					>
+						<strong>{{ item.label }}</strong>
+						<span>{{ item.description }}</span>
+					</a>
+				</div>
 			</article>
 
 			<article class="support-card section-panel">
-				<span class="card-label">Recognition</span>
-				<h2>Achievements and community</h2>
-				<ul>
-					<li v-for="(achievement, index) in profile.achievements" :key="index">
-						{{ achievement }}
-					</li>
-					<li v-for="(activity, index) in profile.activities" :key="`activity-${index}`">
-						{{ activity }}
-					</li>
-				</ul>
+				<span class="card-label">Publication</span>
+				<h2>{{ profile.publications[0].venue }}</h2>
+				<p>{{ profile.publications[0].title }}</p>
+				<p>{{ profile.publications[0].summary }}</p>
+				<a :href="profile.publications[0].href" rel="noopener" target="_blank">Open publication record</a>
 			</article>
 		</section>
 
@@ -201,7 +207,8 @@ const profile = computed(() => store.userProfile);
 .details-grid a,
 .snapshot-copy,
 .support-card p,
-.support-card ul {
+.support-card ul,
+.profile-list a span {
 	color: var(--color-text-muted);
 	line-height: 1.75;
 	text-decoration: none;
@@ -238,6 +245,29 @@ const profile = computed(() => store.userProfile);
 	display: flex;
 	flex-direction: column;
 	gap: 0.55rem;
+}
+
+.profile-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+}
+
+.profile-list a {
+	display: flex;
+	flex-direction: column;
+	gap: 0.18rem;
+	text-decoration: none;
+}
+
+.profile-list a strong {
+	color: var(--color-text);
+}
+
+.support-card > a {
+	color: var(--color-accent);
+	font-weight: 700;
+	text-decoration: none;
 }
 
 @media (max-width: 960px) {

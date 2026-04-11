@@ -35,6 +35,19 @@ const internalLinks = [
 				</div>
 
 				<div class="footer-column">
+					<span class="footer-label">Profiles</span>
+					<a
+						v-for="item in profile.profiles"
+						:key="item.href"
+						:href="item.href"
+						rel="noopener"
+						target="_blank"
+					>
+						{{ item.label }}
+					</a>
+				</div>
+
+				<div class="footer-column">
 					<span class="footer-label">Contact</span>
 					<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
 					<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
@@ -63,7 +76,7 @@ const internalLinks = [
 
 .footer-grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1.8fr) repeat(2, minmax(0, 0.9fr));
+	grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 0.82fr));
 	gap: 2rem;
 }
 
@@ -122,6 +135,12 @@ const internalLinks = [
 .footer-bottom p {
 	color: var(--color-text-muted);
 	font-size: 0.92rem;
+}
+
+@media (max-width: 960px) {
+	.footer-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 
 @media (max-width: 768px) {

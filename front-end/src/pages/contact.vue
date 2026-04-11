@@ -4,6 +4,7 @@ import { useMainStore } from "~/stores";
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
+const resumeRequest = computed(() => profile.value.profiles[2]);
 </script>
 
 <template>
@@ -39,17 +40,30 @@ const profile = computed(() => store.userProfile);
 
 				<div class="button-row">
 					<a class="button-primary" :href="`mailto:${profile.email}`">Email Jacob</a>
-					<RouterLink class="button-secondary" to="/classes">View teaching details</RouterLink>
+					<a class="button-secondary" :href="resumeRequest.href">Request résumé</a>
 				</div>
 			</article>
 
 			<article class="contact-card section-panel">
-				<span class="card-label">Best suited for</span>
-				<h2>Typical engagements</h2>
+				<span class="card-label">Work collaboration</span>
+				<h2>What to include</h2>
 				<ul>
-					<li>Embedded systems, prototyping, and technical product work.</li>
-					<li>Research tooling, analysis pipelines, and engineering support.</li>
-					<li>Private programming, STEM, and Spanish instruction.</li>
+					<li>The problem, product, or research context you are working in.</li>
+					<li>The technical scope you expect help with.</li>
+					<li>Timing, stakeholders, and any constraints that matter early.</li>
+				</ul>
+			</article>
+
+			<article class="contact-card section-panel">
+				<span class="card-label">Private instruction</span>
+				<h2>Best way to reach out</h2>
+				<ul>
+					<li>Share the student’s goals, subject area, and rough experience level.</li>
+					<li>Include preferred schedule windows and whether you want ongoing or short-term support.</li>
+					<li>
+						For scheduling and lesson logistics, you can also use the
+						<a href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">teaching site</a>.
+					</li>
 				</ul>
 			</article>
 		</section>
@@ -65,7 +79,7 @@ const profile = computed(() => store.userProfile);
 
 .contact-grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 1.2rem;
 }
 
@@ -92,7 +106,7 @@ const profile = computed(() => store.userProfile);
 
 .detail-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	grid-template-columns: 1fr;
 	gap: 1rem;
 }
 
@@ -126,7 +140,12 @@ const profile = computed(() => store.userProfile);
 	gap: 0.6rem;
 }
 
-@media (max-width: 900px) {
+.contact-card ul a {
+	color: var(--color-accent);
+	text-decoration: none;
+}
+
+@media (max-width: 960px) {
 	.contact-grid {
 		grid-template-columns: 1fr;
 	}
@@ -135,10 +154,6 @@ const profile = computed(() => store.userProfile);
 @media (max-width: 640px) {
 	.contact-card {
 		padding: 1.45rem;
-	}
-
-	.detail-grid {
-		grid-template-columns: 1fr;
 	}
 }
 </style>

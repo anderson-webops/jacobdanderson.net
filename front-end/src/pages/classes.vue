@@ -11,10 +11,10 @@ const profile = computed(() => store.userProfile);
 		<section class="hero">
 			<div class="hero-copy">
 				<p class="eyebrow">Private Instruction</p>
-				<h1>Programming, STEM, and Spanish lessons tailored to each student.</h1>
+				<h1>Programming, STEM, and Spanish lessons tailored to the student and the goal.</h1>
 				<p>
-					I offer one-on-one instruction for students ages 7 to 18, with lessons shaped around the student’s
-					goals, experience level, and preferred pace.
+					I offer one-on-one instruction for students from grade school through adulthood, with lessons shaped
+					around the learner’s goals, experience level, and preferred pace.
 				</p>
 
 				<div class="button-row">
@@ -29,9 +29,10 @@ const profile = computed(() => store.userProfile);
 				<span class="card-label">Lesson rate</span>
 				<div class="price">
 					<span class="amount">$40</span>
-					<span class="details">per 60-minute lesson</span>
+					<span class="details">standard session rate</span>
 				</div>
-				<p>Free consultation before the first session to discuss goals, schedule, and fit.</p>
+				<p>Free consultation before the first session to discuss goals, scheduling, and fit.</p>
+				<p>The teaching site handles scheduling, student accounts, and curriculum details.</p>
 			</div>
 		</section>
 
@@ -65,7 +66,7 @@ const profile = computed(() => store.userProfile);
 						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a
 						>.
 					</li>
-					<li>Share the student’s goals and preferred schedule.</li>
+					<li>Share the student’s goals, experience level, and schedule preferences.</li>
 					<li>We will set up a short consultation before the first lesson.</li>
 				</ul>
 			</article>
