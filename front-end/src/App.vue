@@ -3,13 +3,14 @@
 // you can use this to manipulate the document head in any components,
 // they will be rendered correctly in the html results with vite-ssg
 const siteUrl = "https://jacobdanderson.net";
+const apiRoutePattern = /^\/api(?:\/|$)/;
 const route = useRoute();
 const summaryDescription =
 	"Jacob Anderson is a computer engineer, cofounder, and educator focused on embedded systems, research tooling, and dependable technical execution.";
 const pageDescription =
 	"Professional portfolio for Jacob Anderson covering engineering work, research tooling, publications, and private instruction.";
 const robotsContent = computed(() =>
-	/^\/api(?:\/|$)/.test(route.path)
+	apiRoutePattern.test(route.path)
 		? "noindex,nofollow"
 		: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
 );
@@ -18,17 +19,17 @@ const structuredData = computed(() => [
 	{
 		"@context": "https://schema.org",
 		"@type": "Person",
-		"description": summaryDescription,
-		"jobTitle": "Computer Engineer",
-		"name": "Jacob Anderson",
-		"url": siteUrl
+		description: summaryDescription,
+		jobTitle: "Computer Engineer",
+		name: "Jacob Anderson",
+		url: siteUrl
 	},
 	{
 		"@context": "https://schema.org",
 		"@type": "WebSite",
-		"description": pageDescription,
-		"name": "Jacob Anderson",
-		"url": siteUrl
+		description: pageDescription,
+		name: "Jacob Anderson",
+		url: siteUrl
 	}
 ]);
 
