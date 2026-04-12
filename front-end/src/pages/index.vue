@@ -254,9 +254,11 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 }
 
 .hero-copy h1 {
-	font-size: clamp(3rem, 7vw, 5.4rem);
-	line-height: 0.92;
-	max-width: 10ch;
+	font-size: clamp(2.85rem, 6.2vw, 4.85rem);
+	line-height: 0.98;
+	letter-spacing: -0.03em;
+	max-width: 8.6ch;
+	text-wrap: balance;
 }
 
 .lede {
@@ -570,11 +572,25 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 	.hero-copy h1,
 	.capabilities-copy h2,
 	.instruction-copy h2 {
-		max-width: none;
+		max-width: 9ch;
+	}
+
+	.hero-copy h1 {
+		font-size: clamp(2.7rem, 8.3vw, 4.15rem);
 	}
 }
 
 @media (max-width: 720px) {
+	.hero-copy {
+		gap: 1.2rem;
+	}
+
+	.hero-copy h1 {
+		font-size: clamp(2.3rem, 12.5vw, 3.45rem);
+		line-height: 1.02;
+		max-width: 7.4ch;
+	}
+
 	.hero-details {
 		grid-template-columns: 1fr;
 	}
