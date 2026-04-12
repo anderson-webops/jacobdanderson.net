@@ -16,6 +16,7 @@ const featuredTools = computed(() => [
 	...profile.value.skills.languages.slice(0, 5),
 	...profile.value.skills.frameworks.slice(0, 5)
 ]);
+const heroHeadlineLines = ["Computer", "Engineer,", "Cofounder,", "and Educator"];
 const githubProfile = computed(() => profile.value.profiles[0]);
 const resumeRequest = computed(() => profile.value.profiles[2]);
 const featuredPublication = computed(() => profile.value.publications[0]);
@@ -26,7 +27,9 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 		<section class="hero">
 			<div class="hero-copy">
 				<p class="eyebrow">Professional Portfolio</p>
-				<h1>{{ profile.headline }}</h1>
+				<h1>
+					<span v-for="line in heroHeadlineLines" :key="line">{{ line }}</span>
+				</h1>
 				<p class="lede">{{ profile.summary }}</p>
 
 				<div class="button-row">
@@ -254,11 +257,19 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 }
 
 .hero-copy h1 {
-	font-size: clamp(2.85rem, 6.2vw, 4.85rem);
-	line-height: 0.98;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.06em;
+	font-size: clamp(2.7rem, 5.8vw, 4.6rem);
+	line-height: 0.94;
 	letter-spacing: -0.03em;
-	max-width: 8.6ch;
-	text-wrap: balance;
+	max-width: none;
+}
+
+.hero-copy h1 span {
+	display: block;
+	white-space: nowrap;
 }
 
 .lede {
@@ -576,7 +587,9 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 	}
 
 	.hero-copy h1 {
-		font-size: clamp(2.7rem, 8.3vw, 4.15rem);
+		gap: 0.07em;
+		font-size: clamp(2.45rem, 8vw, 3.9rem);
+		max-width: none;
 	}
 }
 
@@ -586,9 +599,9 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 	}
 
 	.hero-copy h1 {
-		font-size: clamp(2.3rem, 12.5vw, 3.45rem);
-		line-height: 1.02;
-		max-width: 7.4ch;
+		gap: 0.08em;
+		font-size: clamp(2rem, 10.8vw, 3rem);
+		line-height: 0.96;
 	}
 
 	.hero-details {
