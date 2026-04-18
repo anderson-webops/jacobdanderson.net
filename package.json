@@ -41,7 +41,7 @@
 		"prettier": "^3.8.2",
 		"simple-git-hooks": "^2.13.1",
 		"taze": "^19.11.0",
-		"typescript": "^5.9.3"
+		"typescript": "^6.0.3"
 	},
 	"simple-git-hooks": {
 		"pre-commit": "test -x ./node_modules/.bin/lint-staged || { echo 'lint-staged is not installed. Run npm install.'; exit 1; }; ./node_modules/.bin/lint-staged"
