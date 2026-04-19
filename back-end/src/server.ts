@@ -8,6 +8,16 @@ import mongoose from "mongoose";
 import { readMongoSecret } from "./vaultClient.js";
 import "dotenv/config";
 
+function stringifyError(error: unknown): string {
+	return error instanceof Error ? error.message : String(error);
+}
+
+function summarizeMongoTarget(uri: string): string {
+	const withoutScheme = uri.replace(/^mongodb(?:\+srv)?:\/\//, "");
+	const withoutAuth = withoutScheme.includes("@") ? withoutScheme.split("@").at(-1) ?? withoutScheme : withoutScheme;
+	return withoutAuth.split(/[/?]/)[0] || "unknown-target";
+}
+
 async function main() {
 	const app = express();
 	const internalDiagnosticsKey = env.INTERNAL_DIAGNOSTICS_KEY;
@@ -151,27 +161,44 @@ async function main() {
 
 	// --- Get Mongo URI from Vault (preferred), else env fallback ---
 	let mongoUri: string | undefined;
+	let mongoSource: "vault" | "env" | undefined;
+	let vaultFallbackReason: string | undefined;
 	try {
 		const { uri } = await readMongoSecret(); // your Vault client should read from KV v2
 		mongoUri = uri;
+		mongoSource = "vault";
 	}
-	catch (e) {
-		// Fail silently if Vault is not available, then probably local test (Had to do this to avoid weird requirements
-		// console.log("Vault unavailable, falling back to MONGODB_URI:", e);
-		const m: string = e?.toString() || "";
-		if (!m.includes("Failed to fetch") && !m.includes("connect ECONNREFUSED")) {
-			console.log("");
-		}
-
+	catch (error) {
+		vaultFallbackReason = stringifyError(error);
 		mongoUri = env.MONGODB_URI;
+		mongoSource = mongoUri ? "env" : undefined;
+		if (mongoUri) {
+			console.warn(
+				`Mongo startup: Vault unavailable at ${env.VAULT_ADDR || "http://127.0.0.1:8200"}, falling back to MONGODB_URI (${summarizeMongoTarget(mongoUri)}). Reason: ${vaultFallbackReason}`
+			);
+		}
 	}
 
 	if (!mongoUri) {
-		throw new Error("No MongoDB URI available (Vault and MONGODB_URI missing)");
+		const fallbackDetails = vaultFallbackReason ? ` Vault error: ${vaultFallbackReason}` : "";
+		throw new Error(`No MongoDB URI available (Vault and MONGODB_URI missing).${fallbackDetails}`);
 	}
 
-	await mongoose.connect(mongoUri);
-	console.log("Connected to MongoDB");
+	const mongoTarget = summarizeMongoTarget(mongoUri);
+	console.log(`Mongo startup: source=${mongoSource ?? "unknown"} target=${mongoTarget}`);
+	try {
+		await mongoose.connect(mongoUri);
+	}
+	catch (error) {
+		console.error(
+			`Mongo connection failed: source=${mongoSource ?? "unknown"} target=${mongoTarget} error=${stringifyError(error)}`
+		);
+		if (vaultFallbackReason && mongoSource === "env") {
+			console.error(`Mongo fallback reason: ${vaultFallbackReason}`);
+		}
+		throw error;
+	}
+	console.log(`Connected to MongoDB via ${mongoSource ?? "unknown"} (${mongoTarget})`);
 	const c = mongoose.connection;
 	console.log(`Mongo connected: db=${c.db?.databaseName} host=${c.host} name=${c.name}`);
 	app.get("/_dbinfo", (req, res) => {
@@ -195,7 +222,7 @@ async function main() {
 			host: c.host || null,
 			name: c.name || null,
 			readyState: c.readyState,
-			usingVault: !!env.VAULT_ROLE_ID && !!env.VAULT_SECRET_ID
+			usingVault: mongoSource === "vault"
 		});
 	});
 
