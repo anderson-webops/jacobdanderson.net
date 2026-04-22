@@ -63,26 +63,26 @@ const internalLinks = [
 
 <style scoped>
 .footer {
-	padding: 0 0 2rem;
+	padding: 0 0 1.7rem;
 }
 
 .footer-shell {
-	width: min(1140px, calc(100% - 3rem));
+	width: min(var(--content-width), calc(100% - 3rem));
 	margin: 0 auto;
-	padding: 2.25rem;
+	padding: 1.9rem;
 }
 
 .footer-grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 0.82fr));
-	gap: 2rem;
+	grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 0.78fr));
+	gap: 1.6rem;
 }
 
 .footer-brand {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
-	max-width: 34rem;
+	gap: 0.85rem;
+	max-width: 30rem;
 }
 
 .footer-eyebrow {
@@ -90,8 +90,8 @@ const internalLinks = [
 }
 
 .footer-brand h2 {
-	font-size: clamp(1.9rem, 4vw, 2.8rem);
-	line-height: 1.06;
+	font-size: clamp(1.55rem, 3.1vw, 2.2rem);
+	line-height: 1.08;
 }
 
 .footer-brand p,
@@ -110,7 +110,7 @@ const internalLinks = [
 	color: var(--color-highlight);
 	font-size: 0.75rem;
 	font-weight: 700;
-	letter-spacing: 0.12em;
+	letter-spacing: 0.11em;
 	text-transform: uppercase;
 }
 
@@ -125,8 +125,8 @@ const internalLinks = [
 	justify-content: space-between;
 	align-items: center;
 	gap: 1rem;
-	margin-top: 2rem;
-	padding-top: 1.25rem;
+	margin-top: 1.5rem;
+	padding-top: 1rem;
 	border-top: 1px solid var(--color-border);
 }
 
@@ -143,8 +143,8 @@ const internalLinks = [
 
 @media (max-width: 768px) {
 	.footer-shell {
-		width: min(1140px, calc(100% - 1.5rem));
-		padding: 1.8rem 1.35rem;
+		width: min(var(--content-width), calc(100% - 1.5rem));
+		padding: 1.6rem 1.35rem;
 	}
 
 	.footer-grid {

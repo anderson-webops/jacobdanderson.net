@@ -105,7 +105,7 @@ const profile = computed(() => store.userProfile);
 .about-page {
 	display: flex;
 	flex-direction: column;
-	gap: 2.6rem;
+	gap: 2.35rem;
 }
 
 .about-intro {
@@ -117,14 +117,14 @@ const profile = computed(() => store.userProfile);
 .about-layout {
 	display: grid;
 	grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.82fr);
-	gap: 2rem;
+	gap: 1.7rem;
 	align-items: center;
 }
 
 .about-copy {
 	display: flex;
 	flex-direction: column;
-	gap: 1.5rem;
+	gap: 1.35rem;
 	min-width: 0;
 }
 
@@ -134,7 +134,7 @@ const profile = computed(() => store.userProfile);
 
 .snapshot-card,
 .support-card {
-	padding: 1.65rem;
+	padding: var(--panel-padding-roomy);
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -183,15 +183,15 @@ const profile = computed(() => store.userProfile);
 .portrait-image {
 	width: 100%;
 	height: auto;
-	border-radius: 30px;
+	border-radius: 24px;
 	border: 1px solid rgba(255, 255, 255, 0.72);
-	box-shadow: var(--shadow-soft);
+	box-shadow: var(--shadow-card);
 }
 
 .support-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .support-card h2 {
@@ -249,7 +249,7 @@ const profile = computed(() => store.userProfile);
 
 	.snapshot-card,
 	.support-card {
-		padding: 1.45rem;
+		padding: var(--panel-padding);
 	}
 }
 </style>

@@ -76,13 +76,13 @@ const instructionExperience = computed(() =>
 .experience-page {
 	display: flex;
 	flex-direction: column;
-	gap: 2rem;
+	gap: 1.85rem;
 }
 
 .section-block {
 	display: flex;
 	flex-direction: column;
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .section-top h2 {
@@ -93,7 +93,7 @@ const instructionExperience = computed(() =>
 .timeline {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .instruction-timeline {
@@ -101,7 +101,7 @@ const instructionExperience = computed(() =>
 }
 
 .entry {
-	padding: 1.6rem;
+	padding: var(--panel-padding);
 	display: flex;
 	flex-direction: column;
 	gap: 0.9rem;
@@ -160,7 +160,7 @@ const instructionExperience = computed(() =>
 
 @media (max-width: 640px) {
 	.entry {
-		padding: 1.4rem;
+		padding: var(--panel-padding);
 	}
 
 	.entry-meta {

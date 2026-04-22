@@ -37,7 +37,7 @@ const education = computed(() => store.userProfile.education);
 .education {
 	display: flex;
 	flex-direction: column;
-	gap: 1.35rem;
+	gap: 1.2rem;
 }
 
 .section-head h2 {
@@ -48,11 +48,11 @@ const education = computed(() => store.userProfile.education);
 .education-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .education-card {
-	padding: 1.55rem;
+	padding: var(--panel-padding);
 	display: flex;
 	flex-direction: column;
 	gap: 0.95rem;
@@ -110,7 +110,7 @@ const education = computed(() => store.userProfile.education);
 
 @media (max-width: 640px) {
 	.education-card {
-		padding: 1.4rem;
+		padding: var(--panel-padding);
 	}
 
 	.card-top {

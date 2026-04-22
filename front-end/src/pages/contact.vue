@@ -71,17 +71,17 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 .contact-page {
 	display: flex;
 	flex-direction: column;
-	gap: 2rem;
+	gap: 1.8rem;
 }
 
 .contact-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .contact-card {
-	padding: 1.65rem;
+	padding: var(--panel-padding-roomy);
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -150,7 +150,7 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 
 @media (max-width: 640px) {
 	.contact-card {
-		padding: 1.45rem;
+		padding: var(--panel-padding);
 	}
 }
 </style>
