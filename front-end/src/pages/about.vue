@@ -47,27 +47,31 @@ const profile = computed(() => store.userProfile);
 					class="portrait-image"
 					src="https://jacobdanderson.s3.amazonaws.com/images/Jacob_Anderson.jpg"
 					alt="Portrait of Jacob Anderson"
+					fetchpriority="high"
+					height="3088"
+					width="2316"
 				/>
 			</div>
 		</section>
 
 		<section class="support-grid">
 			<article class="support-card section-panel">
-				<span class="card-label">Engineering work</span>
-				<h2>What that work usually involves</h2>
+				<span class="card-label">Recent engineering proof</span>
+				<h2>Recent outcomes and artifacts</h2>
 				<ul>
-					<li>Embedded systems, telemetry, and sensor integration.</li>
-					<li>Research tooling, simulation workflows, and analysis pipelines.</li>
-					<li>Technical product work that connects hardware, software, and review workflows.</li>
+					<li>Co-authored the ISCAS 2025 paper on the OSCRE radiation-effects simulation framework.</li>
+					<li>Delivered a working industrial drill monitoring demo for Epiroc sponsor review.</li>
+					<li>Built hardware and analysis tooling for non-invasive glucose-monitoring experiments.</li>
 				</ul>
 			</article>
 
 			<article class="support-card section-panel">
-				<span class="card-label">Teaching work</span>
-				<h2>What the teaching practice includes</h2>
+				<span class="card-label">Teaching in practice</span>
+				<h2>What students and families can expect</h2>
 				<ul>
 					<li>Private lessons in programming, STEM, and Spanish.</li>
-					<li>Project-based instruction with clear follow-up and next steps.</li>
+					<li>50-minute sessions with a consultation before the first lesson.</li>
+					<li>Follow-up, project review, and next steps after sessions when useful.</li>
 					<li>Instructor training and curriculum support through Juni Learning.</li>
 				</ul>
 			</article>
@@ -76,24 +80,24 @@ const profile = computed(() => store.userProfile);
 				<span class="card-label">Public references</span>
 				<h2>Where to verify and reach out</h2>
 				<div class="profile-list">
-					<a
-						v-for="item in profile.profiles"
-						:key="item.href"
-						:href="item.href"
-						rel="noopener"
-						target="_blank"
-					>
-						<strong>{{ item.label }}</strong>
-						<span>{{ item.description }}</span>
-					</a>
+					<template v-for="item in profile.profiles" :key="item.href">
+						<RouterLink v-if="item.href.startsWith('/')" :to="item.href">
+							<strong>{{ item.label }}</strong>
+							<span>{{ item.description }}</span>
+						</RouterLink>
+						<a v-else :href="item.href" rel="noopener" target="_blank">
+							<strong>{{ item.label }}</strong>
+							<span>{{ item.description }}</span>
+						</a>
+					</template>
 				</div>
 			</article>
 
 			<article class="support-card section-panel">
-				<span class="card-label">Publication</span>
-				<h2>ISCAS 2025</h2>
-				<p>{{ profile.publications[0].title }}</p>
-				<a :href="profile.publications[0].href" rel="noopener" target="_blank">Open publication record</a>
+				<span class="card-label">Résumé</span>
+				<h2>Printable background</h2>
+				<p>Use the résumé page for a direct view of experience, education, and contact details.</p>
+				<RouterLink class="section-link" to="/resume">Open résumé</RouterLink>
 			</article>
 		</section>
 
@@ -257,4 +261,6 @@ const profile = computed(() => store.userProfile);
 <route lang="yaml">
 meta:
     layout: default
+    title: About | Jacob Anderson
+    description: Background on Jacob Anderson's engineering work, teaching practice, publications, and current focus.
 </route>

@@ -7,48 +7,73 @@ const apiRoutePattern = /^\/api(?:\/|$)/;
 const route = useRoute();
 const summaryDescription =
 	"Jacob Anderson is a computer engineer, cofounder, and educator working across embedded systems, research tooling, and private instruction.";
-const pageDescription =
+const defaultTitle = "Jacob Anderson";
+const defaultPageDescription =
 	"Professional portfolio for Jacob Anderson covering engineering work, research tooling, publications, and private instruction.";
+const routeTitle = computed(() =>
+	typeof route.meta.title === "string" && route.meta.title.length ? route.meta.title : defaultTitle
+);
+const routeDescription = computed(() =>
+	typeof route.meta.description === "string" && route.meta.description.length
+		? route.meta.description
+		: defaultPageDescription
+);
 const robotsContent = computed(() =>
 	apiRoutePattern.test(route.path)
 		? "noindex,nofollow"
 		: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
 );
 const canonicalUrl = computed(() => new URL(route.path || "/", `${siteUrl}/`).toString());
-const structuredData = computed(() => [
-	{
+const structuredData = computed(() => {
+	const person = {
 		"@context": "https://schema.org",
 		"@type": "Person",
 		description: summaryDescription,
 		jobTitle: "Computer Engineer, Cofounder, and Educator",
 		name: "Jacob Anderson",
 		url: siteUrl
-	},
-	{
+	};
+	const page = {
 		"@context": "https://schema.org",
-		"@type": "WebSite",
-		description: pageDescription,
-		name: "Jacob Anderson",
-		url: siteUrl
+		"@type": "WebPage",
+		description: routeDescription.value,
+		name: routeTitle.value,
+		url: canonicalUrl.value
+	};
+
+	if (route.path === "/") {
+		return [
+			person,
+			{
+				"@context": "https://schema.org",
+				"@type": "WebSite",
+				description: defaultPageDescription,
+				name: "Jacob Anderson",
+				url: siteUrl
+			},
+			page
+		];
 	}
-]);
+
+	return [person, page];
+});
 
 useHead(
 	() =>
 		({
-			title: "Jacob Anderson",
+			title: routeTitle.value,
 			meta: [
 				{
 					name: "description",
-					content: summaryDescription
+					content: routeDescription.value
 				},
 				{
 					property: "og:title",
-					content: "Jacob Anderson"
+					content: routeTitle.value
 				},
 				{
 					property: "og:description",
-					content: pageDescription
+					content: routeDescription.value
 				},
 				{
 					property: "og:type",
@@ -64,11 +89,11 @@ useHead(
 				},
 				{
 					name: "twitter:title",
-					content: "Jacob Anderson"
+					content: routeTitle.value
 				},
 				{
 					name: "twitter:description",
-					content: pageDescription
+					content: routeDescription.value
 				},
 				{
 					name: "robots",

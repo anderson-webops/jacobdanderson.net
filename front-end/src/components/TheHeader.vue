@@ -66,7 +66,12 @@ watch(
 				<div id="primary-nav" :class="{ expanded: isExpanded }" class="nav-panel">
 					<ul class="links">
 						<li v-for="link in links" :key="link.path">
-							<RouterLink :class="{ active: isLinkActive(link.path) }" :to="link.path" @click="closeMenu">
+							<RouterLink
+								:aria-current="isLinkActive(link.path) ? 'page' : undefined"
+								:class="{ active: isLinkActive(link.path) }"
+								:to="link.path"
+								@click="closeMenu"
+							>
 								{{ link.name }}
 							</RouterLink>
 						</li>

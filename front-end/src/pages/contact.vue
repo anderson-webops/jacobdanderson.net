@@ -37,7 +37,7 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 
 				<div class="button-row">
 					<a class="button-primary" :href="`mailto:${profile.email}`">Email Jacob</a>
-					<a class="button-secondary" :href="resumeRequest.href">Request résumé</a>
+					<RouterLink class="button-secondary" :to="resumeRequest.href">View résumé</RouterLink>
 				</div>
 			</article>
 
@@ -158,4 +158,6 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 <route lang="yaml">
 meta:
     layout: default
+    title: Contact | Jacob Anderson
+    description: Contact Jacob Anderson for engineering engagements, research collaborations, and private instruction.
 </route>
