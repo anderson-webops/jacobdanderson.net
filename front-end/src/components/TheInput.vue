@@ -8,7 +8,6 @@ const modelValue = defineModel<string>();
 		v-model="modelValue"
 		bg="transparent"
 		border="~ rounded gray-200 dark:gray-700"
-		outline="none active:none"
 		p="x-4 y-2"
 		text="center"
 		type="text"

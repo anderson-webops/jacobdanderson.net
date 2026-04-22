@@ -173,4 +173,6 @@ const instructionExperience = computed(() =>
 <route lang="yaml">
 meta:
     layout: default
+    title: Experience | Jacob Anderson
+    description: Engineering, research, and instructional experience for Jacob Anderson across embedded systems, tooling, and private instruction.
 </route>

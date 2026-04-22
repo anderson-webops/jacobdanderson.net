@@ -131,4 +131,6 @@ const projects = computed(() => store.userProfile.projects);
 <route lang="yaml">
 meta:
     layout: default
+    title: Projects | Jacob Anderson
+    description: Selected engineering and research projects from Jacob Anderson, including tooling, telemetry, and hardware integration work.
 </route>

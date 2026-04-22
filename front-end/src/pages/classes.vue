@@ -189,4 +189,6 @@ const profile = computed(() => store.userProfile);
 <route lang="yaml">
 meta:
     layout: default
+    title: Teaching | Jacob Anderson
+    description: Private lessons in programming, STEM, and Spanish, plus instructor training and onboarding details for Jacob Anderson's teaching practice.
 </route>

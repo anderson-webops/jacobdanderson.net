@@ -10,7 +10,7 @@ export const useMainStore = defineStore("main", {
 			phone: "404-626-0025",
 			lastUpdated: "April 2026",
 			summary:
-				"I build embedded systems and research tooling, and I teach programming, STEM, and Spanish through private instruction and instructor training. I serve as CTO and cofounder of Stride. I am pursuing an M.S. in Computer Engineering at Georgia Tech after earning a B.S. in Computer Engineering with a minor in Computer Science from BYU.",
+				"I build embedded systems and research tooling, and I teach programming, STEM, and Spanish through private instruction and instructor training. I serve as CTO and cofounder of Stride and am pursuing an M.S. in Computer Engineering at Georgia Tech after completing a B.S. in Computer Engineering with a minor in Computer Science at BYU.",
 			profiles: [
 				{
 					label: "GitHub",
@@ -23,9 +23,9 @@ export const useMainStore = defineStore("main", {
 					description: "Scheduling, tuition, and lesson details."
 				},
 				{
-					label: "Request résumé",
-					href: "mailto:jacobdanderson@gmail.com?subject=Resume%20request",
-					description: "Résumé available by email."
+					label: "View résumé",
+					href: "/resume",
+					description: "Printable résumé with experience, education, and contact details."
 				}
 			],
 			publications: [
@@ -73,9 +73,9 @@ export const useMainStore = defineStore("main", {
 					location: "Remote",
 					summary: "Private lessons and instructor training across programming, STEM, and Spanish.",
 					highlights: [
-						"Teach one-on-one lessons for students ranging from grade school through adulthood.",
-						"Coach instructors on lesson delivery, student communication, and curriculum use.",
-						"Develop curriculum materials and feedback practices used across the teaching program."
+						"Run one-on-one lessons for students from grade school through adulthood in programming, STEM, and Spanish.",
+						"Coach instructors on lesson delivery, student communication, and curriculum execution.",
+						"Develop training materials and feedback practices used in instructor support and lesson review."
 					]
 				},
 				{
@@ -87,9 +87,9 @@ export const useMainStore = defineStore("main", {
 					summary:
 						"Built sensing-hardware and analysis tooling for non-invasive glucose-monitoring research.",
 					highlights: [
-						"Integrated sensing hardware into a non-invasive glucose-monitoring prototype used in a multidisciplinary lab setting.",
+						"Integrated sensing hardware into a non-invasive glucose-monitoring prototype used in multidisciplinary lab testing.",
 						"Built MATLAB and Python pipelines for signal processing, calibration, and data analysis.",
-						"Turned experiment data into analysis outputs that supported iterative device refinement."
+						"Produced analysis outputs the lab used to compare runs and refine the prototype between experiments."
 					]
 				},
 				{
@@ -101,7 +101,7 @@ export const useMainStore = defineStore("main", {
 					summary: "Built simulation tooling for radiation-effects analysis in analog circuits.",
 					highlights: [
 						"Led development of the Open-Source Circuit Radiation Effects (OSCRE) simulation framework.",
-						"Created installer scripts and setup workflows for Xschem and Ngspice to reduce SEE analysis setup time.",
+						"Created installer scripts and setup workflows that made Xschem and Ngspice analysis reproducible on new lab machines.",
 						"Co-authored the ISCAS 2025 paper describing OSCRE and its applications."
 					]
 				},
@@ -113,9 +113,9 @@ export const useMainStore = defineStore("main", {
 					location: "Provo, UT",
 					summary: "Built an operator-facing telemetry workflow for an industrial drill monitoring capstone.",
 					highlights: [
-						"Integrated BLE updates between drill sensors and a supervisory server.",
+						"Integrated BLE updates between drill sensors and the supervisory server.",
 						"Implemented I2C sensor communication for temperature and pressure telemetry.",
-						"Delivered a working monitoring demo for sponsor review."
+						"Delivered a working operator-facing monitoring demo for sponsor review."
 					]
 				}
 			],
@@ -127,8 +127,8 @@ export const useMainStore = defineStore("main", {
 						"Open-source simulation workflow for modeling single-event effects in analog circuits.",
 					role: "Architecture, tooling workflow design, documentation, and publication support.",
 					results: [
-						"Built a repeatable Xschem and Ngspice workflow that collaborators could share across institutions.",
-						"Reduced setup friction for single-event-effects studies by documenting installer and analysis steps.",
+						"Built a repeatable Xschem and Ngspice workflow collaborators could install and reuse across institutions.",
+						"Documented installer and analysis steps so single-event-effects studies could start from a shared baseline.",
 						"Supported the ISCAS 2025 publication describing the framework and its applications."
 					],
 					links: [
@@ -150,7 +150,7 @@ export const useMainStore = defineStore("main", {
 					role: "BLE telemetry integration, sensor communication, and monitoring interface implementation.",
 					results: [
 						"Integrated temperature and pressure telemetry from drill hardware into the monitoring stack.",
-						"Delivered BLE updates to a supervisory interface used for operator and engineering review."
+						"Delivered BLE-fed supervisory views for operator and engineering review during the sponsor demo."
 					],
 					links: []
 				},
@@ -160,9 +160,9 @@ export const useMainStore = defineStore("main", {
 					description: "Prototype sensing and analysis tooling for non-invasive glucose-monitoring research.",
 					role: "Sensor integration, signal processing pipelines, and calibration/data analysis.",
 					results: [
-						"Integrated sensing hardware in a multidisciplinary lab workflow spanning electrical, computer, and biomedical collaborators.",
+						"Integrated sensing hardware into a multidisciplinary lab workflow for non-invasive glucose-monitoring experiments.",
 						"Built MATLAB and Python pipelines for calibration, signal processing, and experiment analysis.",
-						"Produced repeatable analysis outputs that supported prototype refinement."
+						"Produced repeatable analysis outputs used to compare runs and refine the prototype."
 					],
 					links: []
 				}

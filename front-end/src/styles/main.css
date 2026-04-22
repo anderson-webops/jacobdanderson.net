@@ -87,6 +87,23 @@ a:hover {
 	text-decoration-color: currentcolor;
 }
 
+a,
+button,
+input,
+select,
+textarea {
+	touch-action: manipulation;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+	outline: 3px solid rgba(33, 70, 97, 0.38);
+	outline-offset: 3px;
+}
+
 img {
 	display: block;
 	max-width: 100%;
@@ -108,6 +125,8 @@ h4 {
 	font-weight: 700;
 	letter-spacing: -0.025em;
 	margin: 0;
+	scroll-margin-top: 1.25rem;
+	text-wrap: balance;
 }
 
 p {
@@ -243,7 +262,7 @@ p {
 	box-sizing: border-box;
 }
 
-main.site-shell {
+.site-shell {
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
@@ -274,7 +293,21 @@ main.site-shell {
 	}
 
 	.site-main {
-		width: min(1140px, calc(100% - 1.5rem));
+		width: min(var(--content-width), calc(100% - 1.5rem));
 		padding: 0.75rem 0 3.75rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
 	}
 }

@@ -14,7 +14,6 @@ const featuredProjects = computed(() => store.featuredProjects);
 const heroHeadlineLines = ["Computer", "Engineer,", "Cofounder,", "and Educator"];
 const githubProfile = computed(() => profile.value.profiles[0]);
 const teachingProfile = computed(() => profile.value.profiles[1]);
-const resumeRequest = computed(() => profile.value.profiles[2]);
 const featuredPublication = computed(() => profile.value.publications[0]);
 const engineeringPractice = computed(() => profile.value.practices.engineering);
 const teachingPractice = computed(() => profile.value.practices.teaching);
@@ -37,30 +36,9 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 					</a>
 				</div>
 
-				<dl class="hero-details">
-					<div>
-						<dt>Location</dt>
-						<dd>{{ profile.location }}</dd>
-					</div>
-					<div>
-						<dt>Email</dt>
-						<dd>
-							<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
-						</dd>
-					</div>
-					<div>
-						<dt>Phone</dt>
-						<dd>
-							<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
-						</dd>
-					</div>
-				</dl>
-
 				<div class="proof-strip">
 					<a :href="githubProfile.href" rel="noopener" target="_blank">View GitHub</a>
 					<a :href="featuredPublication.href" rel="noopener" target="_blank">View OSCRE publication</a>
-					<a :href="teachingProfile.href" rel="noopener" target="_blank">View teaching site</a>
-					<a :href="resumeRequest.href">Request résumé</a>
 				</div>
 			</div>
 
@@ -214,47 +192,10 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 	line-height: 1.82;
 }
 
-.hero-details {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-	gap: 0.85rem;
-	margin: 0;
-}
-
-.hero-details div {
-	min-width: 0;
-	padding-top: 1rem;
-	border-top: 1px solid var(--color-border);
-}
-
-.hero-details dt,
-.hero-details dd {
-	margin: 0;
-}
-
-.hero-details dt {
-	color: var(--color-text-muted);
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.12em;
-	margin-bottom: 0.42rem;
-	text-transform: uppercase;
-}
-
-.hero-details dd,
-.hero-details a {
-	color: var(--color-text);
-	display: block;
-	font-weight: 600;
-	overflow-wrap: anywhere;
-	text-decoration: none;
-}
-
 .proof-strip {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.75rem 1rem;
-	padding-top: 0.25rem;
+	gap: 0.75rem 1.2rem;
 }
 
 .proof-strip a {
@@ -469,10 +410,6 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 		line-height: 0.96;
 	}
 
-	.hero-details {
-		grid-template-columns: 1fr;
-	}
-
 	.section-top {
 		flex-direction: column;
 		align-items: flex-start;
@@ -493,4 +430,6 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 <route lang="yaml">
 meta:
     layout: default
+    title: Jacob Anderson
+    description: Engineering portfolio and teaching practice for Jacob Anderson covering embedded systems, research tooling, publications, and private instruction.
 </route>
