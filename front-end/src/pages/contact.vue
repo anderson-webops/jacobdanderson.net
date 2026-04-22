@@ -74,6 +74,15 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 	gap: 1.8rem;
 }
 
+.contact-page .page-intro {
+	max-width: 56rem;
+}
+
+.contact-page .page-intro h1 {
+	font-size: clamp(2.45rem, 5vw, 4rem);
+	max-width: 11ch;
+}
+
 .contact-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -145,6 +154,10 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 @media (max-width: 960px) {
 	.contact-grid {
 		grid-template-columns: 1fr;
+	}
+
+	.contact-page .page-intro h1 {
+		max-width: none;
 	}
 }
 

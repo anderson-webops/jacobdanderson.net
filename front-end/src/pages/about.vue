@@ -45,7 +45,7 @@ const profile = computed(() => store.userProfile);
 
 				<img
 					class="portrait-image"
-					src="https://jacobdanderson.s3.amazonaws.com/images/Jacob_Anderson.jpg"
+					src="/images/jacob-anderson.jpg"
 					alt="Portrait of Jacob Anderson"
 					fetchpriority="high"
 					height="3088"

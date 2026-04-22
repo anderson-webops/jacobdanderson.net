@@ -119,6 +119,18 @@ const internalLinks = [
 		padding: 1.35rem 1.2rem;
 	}
 
+	.footer-nav,
+	.footer-links {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, max-content));
+		gap: 0.65rem 1rem;
+		justify-content: flex-start;
+	}
+
+	.footer-note {
+		font-size: 0.98rem;
+	}
+
 	.footer-bottom {
 		flex-direction: column;
 		align-items: flex-start;
