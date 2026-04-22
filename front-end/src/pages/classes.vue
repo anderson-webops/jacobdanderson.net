@@ -79,20 +79,20 @@ const profile = computed(() => store.userProfile);
 .classes-page {
 	display: flex;
 	flex-direction: column;
-	gap: 2rem;
+	gap: 1.8rem;
 }
 
 .hero {
 	display: grid;
 	grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-	gap: 1.4rem;
+	gap: 1.2rem;
 	align-items: start;
 }
 
 .hero-copy {
 	display: flex;
 	flex-direction: column;
-	gap: 1.2rem;
+	gap: 1.05rem;
 }
 
 .hero-copy h1 {
@@ -110,7 +110,7 @@ const profile = computed(() => store.userProfile);
 
 .rate-card,
 .info-card {
-	padding: 1.55rem;
+	padding: var(--panel-padding);
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
@@ -146,7 +146,7 @@ const profile = computed(() => store.userProfile);
 .grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .info-card h2 {
@@ -181,7 +181,7 @@ const profile = computed(() => store.userProfile);
 @media (max-width: 720px) {
 	.rate-card,
 	.info-card {
-		padding: 1.45rem;
+		padding: var(--panel-padding);
 	}
 }
 </style>

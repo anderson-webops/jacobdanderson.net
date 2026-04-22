@@ -173,22 +173,22 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 .landing {
 	display: flex;
 	flex-direction: column;
-	gap: 2.8rem;
-	padding-bottom: 1rem;
+	gap: 2.45rem;
+	padding-bottom: 0.75rem;
 }
 
 .hero {
 	display: grid;
 	grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.8fr);
-	gap: 2rem;
+	gap: 1.7rem;
 	align-items: start;
 }
 
 .hero-copy {
 	display: flex;
 	flex-direction: column;
-	gap: 1.45rem;
-	padding-top: 0.4rem;
+	gap: 1.3rem;
+	padding-top: 0.2rem;
 }
 
 .hero-copy h1 {
@@ -208,7 +208,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 }
 
 .lede {
-	max-width: 44rem;
+	max-width: var(--text-measure);
 	color: var(--color-text-muted);
 	font-size: 1.08rem;
 	line-height: 1.82;
@@ -217,7 +217,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 .hero-details {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-	gap: 1rem;
+	gap: 0.85rem;
 	margin: 0;
 }
 
@@ -265,10 +265,10 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 }
 
 .hero-aside {
-	padding: 1.65rem;
+	padding: var(--panel-padding-roomy);
 	display: flex;
 	flex-direction: column;
-	gap: 1.4rem;
+	gap: 1.25rem;
 }
 
 .aside-block {
@@ -317,11 +317,11 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 .experience-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .feature-card {
-	padding: 1.55rem;
+	padding: var(--panel-padding);
 	display: flex;
 	flex-direction: column;
 	gap: 0.95rem;
@@ -345,7 +345,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 .featured-section {
 	display: flex;
 	flex-direction: column;
-	gap: 1.3rem;
+	gap: 1.2rem;
 }
 
 .section-top {
@@ -363,7 +363,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 .project-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .feature-top {
@@ -407,8 +407,8 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 .instruction-section {
 	display: grid;
 	grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
-	gap: 1.6rem;
-	padding: 1.9rem;
+	gap: 1.4rem;
+	padding: var(--panel-padding-roomy);
 }
 
 .instruction-copy {
@@ -429,8 +429,8 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 }
 
 .instruction-card {
-	padding: 1.3rem;
-	border-radius: 20px;
+	padding: var(--panel-padding-compact);
+	border-radius: var(--radius-md);
 	background: var(--color-surface);
 	border: 1px solid var(--color-border);
 	display: flex;
@@ -480,9 +480,12 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 
 	.hero-aside,
 	.feature-card,
-	.instruction-section,
-	.foundation-card {
-		padding: 1.45rem;
+	.instruction-section {
+		padding: var(--panel-padding);
+	}
+
+	.instruction-card {
+		padding: var(--panel-padding-compact);
 	}
 }
 </style>

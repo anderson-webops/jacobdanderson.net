@@ -79,11 +79,11 @@ watch(
 
 <style scoped>
 .site-header {
-	padding: 1.3rem 0 0;
+	padding: 1rem 0 0;
 }
 
 .shell {
-	width: min(1140px, calc(100% - 3rem));
+	width: min(var(--content-width), calc(100% - 3rem));
 	margin: 0 auto;
 }
 
@@ -91,10 +91,10 @@ watch(
 	display: grid;
 	grid-template-columns: auto 1fr;
 	align-items: center;
-	gap: 1rem 1.5rem;
-	padding: 1rem 1.2rem;
+	gap: 0.85rem 1.2rem;
+	padding: 0.85rem 1rem;
 	border: 1px solid var(--color-border);
-	background: rgba(255, 253, 250, 0.94);
+	background: rgba(255, 253, 250, 0.92);
 	border-radius: var(--radius-xl);
 	box-shadow: var(--shadow-card);
 }
@@ -102,44 +102,44 @@ watch(
 .brand {
 	display: flex;
 	align-items: center;
-	gap: 0.85rem;
+	gap: 0.72rem;
 	min-width: 0;
 	text-decoration: none;
 }
 
 .brand-mark {
-	width: 2.9rem;
-	height: 2.9rem;
-	border-radius: 18px;
+	width: 2.65rem;
+	height: 2.65rem;
+	border-radius: 15px;
 	display: grid;
 	place-items: center;
 	font-family: var(--font-display);
-	font-size: 1.05rem;
+	font-size: 0.98rem;
 	font-weight: 700;
 	letter-spacing: 0.08em;
 	color: var(--color-surface-strong);
 	background: linear-gradient(145deg, #17364d, #33546e);
-	box-shadow: 0 12px 24px rgba(22, 52, 75, 0.18);
+	box-shadow: 0 8px 18px rgba(22, 52, 75, 0.14);
 }
 
 .brand-copy {
 	display: flex;
 	flex-direction: column;
-	gap: 0.18rem;
+	gap: 0.14rem;
 	min-width: 0;
 }
 
 .brand-name {
 	color: var(--color-text);
-	font-size: 1rem;
+	font-size: 0.98rem;
 	font-weight: 800;
 	letter-spacing: 0.01em;
 }
 
 .brand-meta {
 	color: var(--color-text-muted);
-	font-size: 0.72rem;
-	letter-spacing: 0.14em;
+	font-size: 0.68rem;
+	letter-spacing: 0.12em;
 	text-transform: uppercase;
 	white-space: nowrap;
 }
@@ -156,7 +156,7 @@ watch(
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: flex-end;
-	gap: 0.3rem;
+	gap: 0.2rem;
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -166,8 +166,8 @@ watch(
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0.65rem 0.92rem;
-	border-radius: 14px;
+	padding: 0.56rem 0.82rem;
+	border-radius: 12px;
 	color: var(--color-text-muted);
 	font-weight: 600;
 	text-decoration: none;
@@ -189,10 +189,10 @@ watch(
 	justify-content: center;
 	flex-direction: column;
 	gap: 0.32rem;
-	width: 2.9rem;
-	height: 2.9rem;
+	width: 2.7rem;
+	height: 2.7rem;
 	border: 1px solid var(--color-border);
-	border-radius: 14px;
+	border-radius: 12px;
 	background: rgba(255, 255, 255, 0.88);
 	cursor: pointer;
 }
@@ -227,7 +227,7 @@ watch(
 
 @media (max-width: 768px) {
 	.shell {
-		width: min(1140px, calc(100% - 1.5rem));
+		width: min(var(--content-width), calc(100% - 1.5rem));
 	}
 
 	.nav {
@@ -243,13 +243,13 @@ watch(
 	.nav-panel {
 		display: none;
 		position: absolute;
-		top: calc(100% + 0.7rem);
+		top: calc(100% + 0.55rem);
 		left: 0;
 		right: 0;
-		padding: 1rem;
+		padding: 0.85rem;
 		border: 1px solid var(--color-border);
 		background: rgba(255, 253, 250, 0.98);
-		border-radius: 22px;
+		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-soft);
 	}
 

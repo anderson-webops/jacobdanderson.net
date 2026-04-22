@@ -17,11 +17,16 @@
 	--color-accent-strong: #16344b;
 	--color-accent-soft: rgba(33, 70, 97, 0.08);
 	--color-highlight: #8f6b3a;
-	--shadow-soft: 0 26px 60px rgba(21, 34, 51, 0.08);
-	--shadow-card: 0 18px 40px rgba(21, 34, 51, 0.06);
-	--radius-xl: 32px;
-	--radius-lg: 24px;
-	--radius-md: 18px;
+	--shadow-soft: 0 18px 38px rgba(21, 34, 51, 0.06);
+	--shadow-card: 0 10px 24px rgba(21, 34, 51, 0.05);
+	--radius-xl: 26px;
+	--radius-lg: 18px;
+	--radius-md: 14px;
+	--content-width: 1080px;
+	--text-measure: 66ch;
+	--panel-padding-roomy: 1.65rem;
+	--panel-padding: 1.45rem;
+	--panel-padding-compact: 1.2rem;
 	--font-body: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
 	--font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
 }
@@ -116,7 +121,7 @@ p {
 	color: var(--color-accent);
 	font-size: 0.76rem;
 	font-weight: 700;
-	letter-spacing: 0.16em;
+	letter-spacing: 0.14em;
 	text-transform: uppercase;
 }
 
@@ -131,7 +136,7 @@ p {
 	display: flex;
 	flex-direction: column;
 	gap: 0.95rem;
-	max-width: 760px;
+	max-width: min(720px, 100%);
 }
 
 .page-intro h1 {
@@ -143,6 +148,7 @@ p {
 	color: var(--color-text-muted);
 	font-size: 1.04rem;
 	line-height: 1.78;
+	max-width: var(--text-measure);
 }
 
 .section-panel {
@@ -186,14 +192,14 @@ p {
 
 .button-primary {
 	background: var(--color-accent-strong);
-	box-shadow: 0 14px 28px rgba(22, 52, 75, 0.16);
+	box-shadow: 0 10px 22px rgba(22, 52, 75, 0.14);
 	color: var(--color-surface-strong);
 }
 
 .button-primary:hover {
 	color: var(--color-surface-strong);
 	transform: translateY(-1px);
-	box-shadow: 0 16px 32px rgba(22, 52, 75, 0.2);
+	box-shadow: 0 12px 24px rgba(22, 52, 75, 0.17);
 }
 
 .button-secondary {
@@ -241,15 +247,15 @@ main.site-shell {
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
-	gap: 1.75rem;
+	gap: 1.5rem;
 	background: var(--color-background-alt);
 }
 
 .site-main {
 	flex: 1;
-	width: min(1140px, calc(100% - 3rem));
+	width: min(var(--content-width), calc(100% - 3rem));
 	margin: 0 auto;
-	padding: 1.25rem 0 4.75rem;
+	padding: 1rem 0 4rem;
 	box-sizing: border-box;
 }
 

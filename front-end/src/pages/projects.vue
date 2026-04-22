@@ -41,17 +41,17 @@ const projects = computed(() => store.userProfile.projects);
 .projects-page {
 	display: flex;
 	flex-direction: column;
-	gap: 2rem;
+	gap: 1.85rem;
 }
 
 .grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1.2rem;
+	gap: 1.1rem;
 }
 
 .project-card {
-	padding: 1.6rem;
+	padding: var(--panel-padding);
 	display: flex;
 	flex-direction: column;
 	gap: 0.95rem;
@@ -123,7 +123,7 @@ const projects = computed(() => store.userProfile.projects);
 
 @media (max-width: 640px) {
 	.project-card {
-		padding: 1.4rem;
+		padding: var(--panel-padding);
 	}
 }
 </style>
