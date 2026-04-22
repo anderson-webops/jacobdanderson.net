@@ -10,30 +10,29 @@ export const useMainStore = defineStore("main", {
 			phone: "404-626-0025",
 			lastUpdated: "April 2026",
 			summary:
-				"I build dependable systems across embedded engineering, research tooling, and technical instruction. I serve as CTO and cofounder of Stride and am currently pursuing an M.S. in Computer Engineering at Georgia Tech after earning a B.S. in Computer Engineering with a minor in Computer Science from BYU.",
+				"I build embedded systems, research tooling, and technical software. I serve as CTO and cofounder of Stride and am currently pursuing an M.S. in Computer Engineering at Georgia Tech after earning a B.S. in Computer Engineering with a minor in Computer Science from BYU.",
 			profiles: [
 				{
 					label: "GitHub",
 					href: "https://github.com/Jacoba1100254352",
-					description: "Public repositories, release history, and project code."
+					description: "Repositories, code, and release history."
 				},
 				{
 					label: "Teaching site",
 					href: "https://classes.jacobdanderson.net",
-					description: "Scheduling, curriculum details, and lesson logistics."
+					description: "Scheduling, tuition, and lesson logistics."
 				},
 				{
 					label: "Request résumé",
 					href: "mailto:jacobdanderson@gmail.com?subject=Resume%20request",
-					description: "Résumé available directly by email."
+					description: "Résumé available by email request."
 				}
 			],
 			publications: [
 				{
 					title: "Open-Source Circuit Radiation Effects (OSCRE) Simulation Framework: Design and Applications",
 					venue: "ISCAS 2025",
-					summary:
-						"Conference paper describing the OSCRE simulation framework and its use in radiation-effects analysis.",
+					summary: "ISCAS 2025 paper on OSCRE and radiation-effects simulation workflows.",
 					href: "https://dblp.org/rec/conf/iscas/LambertANAPGWC25"
 				}
 			],
@@ -64,12 +63,11 @@ export const useMainStore = defineStore("main", {
 					organization: "Juni Learning",
 					timeframe: "May 2021 – Present",
 					location: "Remote",
-					summary:
-						"One-on-one instruction and instructor quality support across programming, STEM, and Spanish.",
+					summary: "Private instruction and instructor training across programming, STEM, and Spanish.",
 					highlights: [
-						"Teach individualized lessons for students and adapt pacing, assignments, and projects to learner goals.",
-						"Coach instructors on curriculum delivery, lesson quality, and student communication.",
-						"Develop and refine curriculum materials used across broader instructional workflows."
+						"Teach individualized lessons for students ranging from grade school through adulthood.",
+						"Coach instructors on lesson delivery, student communication, and curriculum use.",
+						"Develop curriculum materials and feedback practices used across the teaching program."
 					]
 				},
 				{
@@ -136,9 +134,9 @@ export const useMainStore = defineStore("main", {
 						"Open-source simulation workflow for modeling single-event effects in analog circuits.",
 					role: "Architecture, tooling workflow design, documentation, and publication support.",
 					results: [
-						"Structured the framework for cross-institution collaboration and reproducible research use.",
-						"Reduced setup friction for Xschem and Ngspice-based radiation-effects analysis.",
-						"Supported an ISCAS 2025 conference publication."
+						"Built a repeatable Xschem and Ngspice workflow that collaborators could share across institutions.",
+						"Documented installer and analysis steps for single-event-effects studies in analog circuits.",
+						"Supported the ISCAS 2025 publication describing the framework and its applications."
 					],
 					links: [
 						{
@@ -158,40 +156,20 @@ export const useMainStore = defineStore("main", {
 						"Capstone platform delivering live industrial drill telemetry to Epiroc engineers through an operator-facing interface.",
 					role: "BLE telemetry integration, sensor communication, and monitoring interface implementation.",
 					results: [
-						"Delivered temperature and pressure telemetry to a supervisory workflow.",
-						"Connected live sensor data to a readable engineering interface for field monitoring."
+						"Integrated temperature and pressure telemetry from drill hardware into the monitoring stack.",
+						"Delivered BLE updates to a supervisory interface for operator and engineering review."
 					],
 					links: []
 				},
 				{
-					name: "Website Management Portfolio",
-					timeframe: "Ongoing",
-					description:
-						"Maintenance and iteration work across personal and client websites using Vue, Vitesse, and modern front-end tooling.",
-					role: "Front-end implementation, deployment hygiene, and ongoing UX refinement.",
+					name: "Non-Invasive Glucose Monitoring Research Tooling",
+					timeframe: "2022 – 2024",
+					description: "Prototype sensing and analysis tooling for non-invasive glucose-monitoring research.",
+					role: "Sensor integration, signal processing pipelines, and calibration/data analysis.",
 					results: [
-						"Ship iterative UX improvements and release-tagged updates across the portfolio.",
-						"Maintain responsive layouts and consistent deployment practices for public-facing sites."
-					],
-					links: [
-						{
-							label: "Source code",
-							href: "https://github.com/anderson-webops/jacobdanderson.net"
-						},
-						{
-							label: "Live site",
-							href: "https://jacobdanderson.net"
-						}
-					]
-				},
-				{
-					name: "Zilch Game & Swift Productivity App",
-					timeframe: "Ongoing",
-					description:
-						"Exploratory side projects refining gameplay systems in Java and productivity workflows in Swift.",
-					role: "Architecture practice, UI iteration, and object-oriented design exploration.",
-					results: [
-						"Use smaller side projects to test interaction design, architecture choices, and feedback loops."
+						"Integrated sensing hardware in a multidisciplinary lab workflow spanning electrical, computer, and biomedical collaborators.",
+						"Built MATLAB and Python pipelines for calibration, signal processing, and experiment analysis.",
+						"Supported iterative prototype refinement with repeatable analysis outputs."
 					],
 					links: []
 				}
@@ -214,8 +192,8 @@ export const useMainStore = defineStore("main", {
 				competencies: [
 					"Embedded systems & microcontroller programming",
 					"Sensor integration (I2C, BLE, industrial telemetry)",
-					"Signal processing & data analysis",
-					"Technical instruction & curriculum design"
+					"Research tooling, simulation workflows, and data analysis",
+					"Technical communication, teaching, and curriculum design"
 				],
 				languagesSpoken: ["English", "Spanish (fluent)", "Portuguese (conversational)"]
 			}

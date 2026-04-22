@@ -159,5 +159,6 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 </style>
 
 <route lang="yaml">
-  meta:
-    layout: default</route>
+meta:
+    layout: default
+</route>

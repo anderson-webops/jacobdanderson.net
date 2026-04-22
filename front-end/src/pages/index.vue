@@ -18,8 +18,31 @@ const featuredTools = computed(() => [
 ]);
 const heroHeadlineLines = ["Computer", "Engineer,", "Cofounder,", "and Educator"];
 const githubProfile = computed(() => profile.value.profiles[0]);
+const teachingProfile = computed(() => profile.value.profiles[1]);
 const resumeRequest = computed(() => profile.value.profiles[2]);
 const featuredPublication = computed(() => profile.value.publications[0]);
+const publicReferences = computed(() => [
+	{
+		label: githubProfile.value.label,
+		href: githubProfile.value.href,
+		description: githubProfile.value.description
+	},
+	{
+		label: "OSCRE publication",
+		href: featuredPublication.value.href,
+		description: featuredPublication.value.summary
+	},
+	{
+		label: resumeRequest.value.label,
+		href: resumeRequest.value.href,
+		description: resumeRequest.value.description
+	},
+	{
+		label: teachingProfile.value.label,
+		href: teachingProfile.value.href,
+		description: teachingProfile.value.description
+	}
+]);
 </script>
 
 <template>
@@ -34,9 +57,7 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 
 				<div class="button-row">
 					<RouterLink class="button-primary" to="/projects">View engineering work</RouterLink>
-					<a class="button-secondary" :href="githubProfile.href" rel="noopener" target="_blank"
-						>View GitHub</a
-					>
+					<RouterLink class="button-secondary" to="/contact">Contact Jacob</RouterLink>
 				</div>
 
 				<dl class="hero-details">
@@ -58,10 +79,10 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 					</div>
 				</dl>
 
-				<div class="verification-strip">
-					<a :href="resumeRequest.href">Request résumé</a>
+				<div class="proof-strip">
+					<a :href="githubProfile.href" rel="noopener" target="_blank">View GitHub</a>
 					<a :href="featuredPublication.href" rel="noopener" target="_blank">View OSCRE publication</a>
-					<RouterLink to="/contact">Start a conversation</RouterLink>
+					<a :href="resumeRequest.href">Request résumé</a>
 				</div>
 			</div>
 
@@ -76,40 +97,11 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 				<div class="aside-divider" />
 
 				<div class="aside-block">
-					<span class="aside-label">Verification</span>
+					<span class="aside-label">Published work</span>
 					<p>{{ featuredPublication.title }}</p>
 					<a :href="featuredPublication.href" rel="noopener" target="_blank">Open publication record</a>
 				</div>
 			</aside>
-		</section>
-
-		<section class="practice-grid">
-			<article class="practice-card section-panel">
-				<span class="practice-label">Engineering</span>
-				<h2>Embedded and software systems that stay dependable outside the lab.</h2>
-				<p>
-					I work across firmware, telemetry, analysis workflows, and user-facing interfaces with an emphasis
-					on maintainability and disciplined execution.
-				</p>
-			</article>
-
-			<article class="practice-card section-panel">
-				<span class="practice-label">Research</span>
-				<h2>Tooling and technical workflows that make complex work easier to repeat.</h2>
-				<p>
-					From signal processing pipelines to simulation environments, I focus on building systems that are
-					clear, testable, and practical for teams to use.
-				</p>
-			</article>
-
-			<article class="practice-card section-panel">
-				<span class="practice-label">Instruction</span>
-				<h2>Teaching that stays structured, practical, and measurable.</h2>
-				<p>
-					I teach programming, STEM, and Spanish through project-based instruction that emphasizes
-					understanding, execution, and clear progress.
-				</p>
-			</article>
 		</section>
 
 		<section class="featured-section">
@@ -178,34 +170,32 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 
 		<section class="instruction-section section-panel">
 			<div class="instruction-copy">
-				<p class="eyebrow">Instruction & Curriculum</p>
-				<h2>Teaching remains part of the work, but it sits on its own clearly defined track.</h2>
+				<p class="eyebrow">Instruction</p>
+				<h2>Private lessons in programming, STEM, and Spanish.</h2>
 				<p>
-					I teach private lessons and support instructor quality with the same structured, systems-minded
-					approach I bring to engineering work.
+					I teach one-on-one, build project-based lessons, and coach instructors on lesson quality and
+					curriculum delivery.
 				</p>
 			</div>
 
 			<div class="instruction-card">
 				<span class="instruction-label">{{ instructionExperience.organization }}</span>
 				<h3>{{ instructionExperience.title }}</h3>
-				<p>{{ instructionExperience.summary }}</p>
+				<p>Standard lessons run 50 minutes and scheduling lives on the dedicated teaching site.</p>
 				<RouterLink class="section-link" to="/classes">View teaching details</RouterLink>
 			</div>
 		</section>
 
-		<section class="capabilities section-panel">
-			<div class="capabilities-copy">
-				<p class="eyebrow">Technical Foundation</p>
-				<h2>Broad coverage, practical scope, and communication that stays clear as projects grow.</h2>
-				<p>
-					I work comfortably across embedded systems, modern web stacks, data analysis, and instruction, which
-					helps reduce handoff friction and keeps technical decisions aligned with delivery.
-				</p>
+		<section class="featured-section">
+			<div class="section-top">
+				<div>
+					<p class="eyebrow">Technical Foundation</p>
+					<h2>Core tools and public references</h2>
+				</div>
 			</div>
 
-			<div class="capability-grid">
-				<div class="capability-card">
+			<div class="foundation-grid">
+				<div class="foundation-card section-panel">
 					<span class="capability-label">Core tools</span>
 					<div class="tag-list">
 						<span v-for="(tool, index) in featuredTools" :key="index" class="tag">
@@ -214,11 +204,11 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 					</div>
 				</div>
 
-				<div class="capability-card">
-					<span class="capability-label">Profiles</span>
+				<div class="foundation-card section-panel">
+					<span class="capability-label">Public links</span>
 					<div class="profile-links">
 						<a
-							v-for="item in profile.profiles"
+							v-for="item in publicReferences"
 							:key="item.href"
 							:href="item.href"
 							rel="noopener"
@@ -315,14 +305,14 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 	text-decoration: none;
 }
 
-.verification-strip {
+.proof-strip {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.75rem 1rem;
 	padding-top: 0.25rem;
 }
 
-.verification-strip a {
+.proof-strip a {
 	color: var(--color-accent);
 	font-size: 0.92rem;
 	font-weight: 700;
@@ -343,7 +333,6 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 }
 
 .aside-label,
-.practice-label,
 .feature-kicker,
 .instruction-label,
 .capability-label {
@@ -380,14 +369,12 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 	background: var(--color-border);
 }
 
-.practice-grid,
 .experience-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 1.2rem;
 }
 
-.practice-card,
 .feature-card {
 	padding: 1.55rem;
 	display: flex;
@@ -395,14 +382,12 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 	gap: 0.95rem;
 }
 
-.practice-card h2,
 .feature-card h3,
 .instruction-card h3 {
 	font-size: 1.6rem;
 	line-height: 1.14;
 }
 
-.practice-card p,
 .feature-description,
 .feature-summary,
 .feature-list,
@@ -508,41 +493,14 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 	gap: 0.85rem;
 }
 
-.capabilities {
+.foundation-grid {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(320px, 0.95fr);
-	gap: 1.8rem;
-	padding: 2rem;
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	gap: 1.2rem;
 }
 
-.capabilities-copy {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
-.capabilities-copy h2 {
-	font-size: clamp(2rem, 4.5vw, 2.7rem);
-	line-height: 1.05;
-	max-width: 16ch;
-}
-
-.capabilities-copy p,
-.capability-card p {
-	color: var(--color-text-muted);
-	line-height: 1.75;
-}
-
-.capability-grid {
-	display: grid;
-	gap: 1rem;
-}
-
-.capability-card {
-	padding: 1.35rem;
-	border-radius: 20px;
-	background: var(--color-surface);
-	border: 1px solid var(--color-border);
+.foundation-card {
+	padding: 1.55rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0.9rem;
@@ -572,16 +530,14 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 
 @media (max-width: 960px) {
 	.hero,
-	.capabilities,
+	.foundation-grid,
 	.project-grid,
-	.practice-grid,
 	.experience-grid,
 	.instruction-section {
 		grid-template-columns: 1fr;
 	}
 
 	.hero-copy h1,
-	.capabilities-copy h2,
 	.instruction-copy h2 {
 		max-width: 9ch;
 	}
@@ -614,15 +570,15 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 	}
 
 	.hero-aside,
-	.practice-card,
 	.feature-card,
 	.instruction-section,
-	.capabilities {
+	.foundation-card {
 		padding: 1.45rem;
 	}
 }
 </style>
 
 <route lang="yaml">
-  meta:
-    layout: default</route>
+meta:
+    layout: default
+</route>

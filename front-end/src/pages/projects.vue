@@ -10,10 +10,10 @@ const projects = computed(() => store.userProfile.projects);
 	<div class="projects-page">
 		<header class="page-intro">
 			<p class="eyebrow">Projects</p>
-			<h1>Selected work across research, embedded systems, and product development.</h1>
+			<h1>Selected engineering and research projects.</h1>
 			<p>
-				This page is organized more like a portfolio than a simple list: each project includes scope, outcome,
-				and any public artifacts that help verify the work.
+				Projects included here have defined technical scope and either public artifacts or concrete delivery
+				outcomes.
 			</p>
 		</header>
 
@@ -133,5 +133,6 @@ const projects = computed(() => store.userProfile.projects);
 </style>
 
 <route lang="yaml">
-  meta:
-    layout: default</route>
+meta:
+    layout: default
+</route>

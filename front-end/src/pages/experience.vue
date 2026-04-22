@@ -15,10 +15,10 @@ const instructionExperience = computed(() =>
 	<div class="experience-page">
 		<header class="page-intro">
 			<p class="eyebrow">Experience</p>
-			<h1>Roles spanning engineering, research, and technical instruction.</h1>
+			<h1>Engineering, research, and instructional roles.</h1>
 			<p>
-				The engineering and teaching work are both real parts of my background, but they serve different
-				audiences. This page keeps them clearly separated so the technical work stays easy to evaluate.
+				Engineering roles have centered on sensing hardware, simulation tooling, and industrial telemetry.
+				Instructional work covers programming, STEM, and Spanish.
 			</p>
 		</header>
 
@@ -175,5 +175,6 @@ const instructionExperience = computed(() =>
 </style>
 
 <route lang="yaml">
-  meta:
-    layout: default</route>
+meta:
+    layout: default
+</route>

@@ -6,9 +6,9 @@ const siteUrl = "https://jacobdanderson.net";
 const apiRoutePattern = /^\/api(?:\/|$)/;
 const route = useRoute();
 const summaryDescription =
-	"Jacob Anderson is a computer engineer, cofounder, and educator focused on embedded systems, research tooling, and dependable technical execution.";
+	"Jacob Anderson is a computer engineer and cofounder focused on embedded systems, research tooling, and technical execution.";
 const pageDescription =
-	"Professional portfolio for Jacob Anderson covering engineering work, research tooling, publications, and private instruction.";
+	"Professional portfolio for Jacob Anderson covering embedded systems work, research tooling, publications, and private instruction.";
 const robotsContent = computed(() =>
 	apiRoutePattern.test(route.path)
 		? "noindex,nofollow"
@@ -20,7 +20,7 @@ const structuredData = computed(() => [
 		"@context": "https://schema.org",
 		"@type": "Person",
 		description: summaryDescription,
-		jobTitle: "Computer Engineer",
+		jobTitle: "Computer Engineer and Cofounder",
 		name: "Jacob Anderson",
 		url: siteUrl
 	},

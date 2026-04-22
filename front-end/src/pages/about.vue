@@ -14,8 +14,13 @@ const profile = computed(() => store.userProfile);
 			<div class="about-layout">
 				<div class="about-copy">
 					<header class="page-intro">
-						<h1>Systems-minded engineering with a strong emphasis on clarity.</h1>
-						<p>{{ profile.summary }}</p>
+						<h1>Engineer focused on embedded systems, research tooling, and dependable delivery.</h1>
+						<p>
+							My recent work has included radiation-effects simulation tooling, sensing hardware for
+							glucose-monitoring research, and industrial telemetry interfaces for sponsor review. I
+							currently serve as CTO and cofounder of Stride while completing an M.S. in Computer
+							Engineering at Georgia Tech.
+						</p>
 					</header>
 
 					<div class="snapshot-card section-panel">
@@ -44,9 +49,8 @@ const profile = computed(() => store.userProfile);
 						</dl>
 
 						<p class="snapshot-copy">
-							I care about building systems that stay understandable from concept through delivery.
-							Whether the work involves hardware, analysis pipelines, or instruction, I prioritize
-							reliability, maintainability, and communication.
+							Outside product and research work, I teach programming, STEM, and Spanish one-on-one and
+							help other instructors improve lesson quality and curriculum delivery.
 						</p>
 					</div>
 				</div>
@@ -79,7 +83,7 @@ const profile = computed(() => store.userProfile);
 
 			<article class="support-card section-panel">
 				<span class="card-label">Core strengths</span>
-				<h2>Where I create the most value</h2>
+				<h2>Typical problem space</h2>
 				<ul>
 					<li v-for="(competency, index) in profile.skills.competencies" :key="index">
 						{{ competency }}
@@ -89,7 +93,7 @@ const profile = computed(() => store.userProfile);
 
 			<article class="support-card section-panel">
 				<span class="card-label">Profiles</span>
-				<h2>Verification and contact paths</h2>
+				<h2>Public links</h2>
 				<div class="profile-list">
 					<a
 						v-for="item in profile.profiles"
@@ -106,7 +110,7 @@ const profile = computed(() => store.userProfile);
 
 			<article class="support-card section-panel">
 				<span class="card-label">Publication</span>
-				<h2>{{ profile.publications[0].venue }}</h2>
+				<h2>ISCAS 2025</h2>
 				<p>{{ profile.publications[0].title }}</p>
 				<p>{{ profile.publications[0].summary }}</p>
 				<a :href="profile.publications[0].href" rel="noopener" target="_blank">Open publication record</a>
@@ -295,5 +299,6 @@ const profile = computed(() => store.userProfile);
 </style>
 
 <route lang="yaml">
-  meta:
-    layout: default</route>
+meta:
+    layout: default
+</route>

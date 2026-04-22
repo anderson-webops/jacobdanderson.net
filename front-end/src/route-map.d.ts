@@ -83,13 +83,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/README': RouteRecordInfo<
-      '/README',
-      '/README',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
   }
 
   /**
@@ -148,12 +141,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/projects.vue': {
       routes:
         | '/projects'
-      views:
-        | never
-    }
-    'src/pages/README.vue': {
-      routes:
-        | '/README'
       views:
         | never
     }
