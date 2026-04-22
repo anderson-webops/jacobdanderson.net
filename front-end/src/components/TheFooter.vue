@@ -20,10 +20,10 @@ const internalLinks = [
 			<div class="footer-grid">
 				<div class="footer-brand">
 					<p class="eyebrow footer-eyebrow">Jacob Anderson</p>
-					<h2>Clean engineering work, clear documentation, and dependable follow-through.</h2>
+					<h2>Embedded systems, research tooling, and technical instruction.</h2>
 					<p>
 						Based in {{ profile.location }} and available for technical product work, research
-						collaboration, and private instruction.
+						collaboration, and private lessons.
 					</p>
 				</div>
 

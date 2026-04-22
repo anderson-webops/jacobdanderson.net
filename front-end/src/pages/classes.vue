@@ -26,24 +26,24 @@ const profile = computed(() => store.userProfile);
 			</div>
 
 			<div class="rate-card section-panel">
-				<span class="card-label">Lesson rate</span>
+				<span class="card-label">Standard lesson</span>
 				<div class="price">
 					<span class="amount">$40</span>
-					<span class="details">standard session rate</span>
+					<span class="details">per 50-minute lesson</span>
 				</div>
-				<p>Free consultation before the first session to discuss goals, scheduling, and fit.</p>
-				<p>The teaching site handles scheduling, student accounts, and curriculum details.</p>
+				<p>Free consultation before the first lesson to discuss goals, schedule, and fit.</p>
+				<p>Pay only for completed classes. Missed or canceled sessions are not billed.</p>
 			</div>
 		</section>
 
 		<section class="grid">
 			<article class="info-card section-panel">
 				<span class="card-label">What students gain</span>
-				<h2>Progress you can actually track</h2>
+				<h2>Concrete progress from week to week</h2>
 				<ul>
-					<li>Project-based lessons that create concrete work products.</li>
-					<li>Clear feedback after sessions and practical next steps.</li>
-					<li>Instruction from an educator who also trains other instructors.</li>
+					<li>Project-based lessons that produce code, notes, or other work students can revisit.</li>
+					<li>Session feedback with specific next steps for practice between meetings.</li>
+					<li>Adjustments to pacing and assignments as the student gains confidence.</li>
 				</ul>
 			</article>
 
@@ -59,7 +59,7 @@ const profile = computed(() => store.userProfile);
 
 			<article class="info-card section-panel">
 				<span class="card-label">Getting started</span>
-				<h2>Simple onboarding</h2>
+				<h2>How onboarding works</h2>
 				<ul>
 					<li>
 						Reach out at
@@ -186,5 +186,6 @@ const profile = computed(() => store.userProfile);
 </style>
 
 <route lang="yaml">
-  meta:
-    layout: default</route>
+meta:
+    layout: default
+</route>

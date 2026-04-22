@@ -9,5 +9,6 @@ const { t } = useI18n();
 </template>
 
 <route lang="yaml">
-  meta:
-    layout: 404</route>
+meta:
+    layout: 404
+</route>
