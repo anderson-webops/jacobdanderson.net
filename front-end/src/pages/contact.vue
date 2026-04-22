@@ -11,17 +11,14 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 	<div class="contact-page">
 		<header class="page-intro">
 			<p class="eyebrow">Contact</p>
-			<h1>Open to well-scoped work, thoughtful collaborations, and instruction inquiries.</h1>
-			<p>
-				If you would like to discuss a project, research collaboration, or private lessons, reach out directly.
-				I generally respond within two business days.
-			</p>
+			<h1>Engineering engagements, research collaborations, and private lessons.</h1>
+			<p>Email is the fastest way to reach me. I usually respond within two business days.</p>
 		</header>
 
 		<section class="contact-grid">
 			<article class="contact-card section-panel">
 				<span class="card-label">Direct contact</span>
-				<h2>Start the conversation</h2>
+				<h2>Email and location</h2>
 
 				<div class="detail-grid">
 					<div>
@@ -45,18 +42,18 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 			</article>
 
 			<article class="contact-card section-panel">
-				<span class="card-label">Work collaboration</span>
-				<h2>What to include</h2>
+				<span class="card-label">Engineering work</span>
+				<h2>What to include in an inquiry</h2>
 				<ul>
-					<li>The problem, product, or research context you are working in.</li>
-					<li>The technical scope you expect help with.</li>
+					<li>The product, system, or research context you are working in.</li>
+					<li>The technical scope: embedded work, telemetry, tooling, or related software.</li>
 					<li>Timing, stakeholders, and any constraints that matter early.</li>
 				</ul>
 			</article>
 
 			<article class="contact-card section-panel">
-				<span class="card-label">Private instruction</span>
-				<h2>Best way to reach out</h2>
+				<span class="card-label">Teaching</span>
+				<h2>What helps on the teaching side</h2>
 				<ul>
 					<li>Share the student’s goals, subject area, and rough experience level.</li>
 					<li>Include preferred schedule windows and whether you want ongoing or short-term support.</li>

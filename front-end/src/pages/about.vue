@@ -14,44 +14,32 @@ const profile = computed(() => store.userProfile);
 			<div class="about-layout">
 				<div class="about-copy">
 					<header class="page-intro">
-						<h1>Engineer focused on embedded systems, research tooling, and dependable delivery.</h1>
+						<h1>Engineering work and teaching practice built around the same standards.</h1>
 						<p>
-							My recent work has included radiation-effects simulation tooling, sensing hardware for
-							glucose-monitoring research, and industrial telemetry interfaces for sponsor review. I
-							currently serve as CTO and cofounder of Stride while completing an M.S. in Computer
-							Engineering at Georgia Tech.
+							My engineering work has included radiation-effects simulation tooling, sensing hardware for
+							glucose-monitoring research, industrial telemetry interfaces, and product development at
+							Stride. In parallel, I teach programming, STEM, and Spanish one-on-one and support
+							instructor training and curriculum quality.
 						</p>
 					</header>
 
 					<div class="snapshot-card section-panel">
 						<div class="snapshot-top">
-							<span class="card-label">Professional snapshot</span>
+							<span class="card-label">Current work</span>
 							<span class="snapshot-date">Updated {{ profile.lastUpdated }}</span>
 						</div>
 
-						<dl class="details-grid">
-							<div>
-								<dt>Location</dt>
-								<dd>{{ profile.location }}</dd>
-							</div>
-							<div>
-								<dt>Email</dt>
-								<dd>
-									<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
-								</dd>
-							</div>
-							<div>
-								<dt>Phone</dt>
-								<dd>
-									<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
-								</dd>
-							</div>
-						</dl>
+						<div class="snapshot-practice">
+							<span class="card-label">Engineering</span>
+							<h2>{{ profile.practices.engineering.title }}</h2>
+							<p class="snapshot-copy">{{ profile.practices.engineering.summary }}</p>
+						</div>
 
-						<p class="snapshot-copy">
-							Outside product and research work, I teach programming, STEM, and Spanish one-on-one and
-							help other instructors improve lesson quality and curriculum delivery.
-						</p>
+						<div class="snapshot-practice">
+							<span class="card-label">Teaching</span>
+							<h2>{{ profile.practices.teaching.title }}</h2>
+							<p class="snapshot-copy">{{ profile.practices.teaching.summary }}</p>
+						</div>
 					</div>
 				</div>
 
@@ -65,35 +53,28 @@ const profile = computed(() => store.userProfile);
 
 		<section class="support-grid">
 			<article class="support-card section-panel">
-				<span class="card-label">Technical toolkit</span>
-				<h2>Languages and frameworks</h2>
-				<div class="tag-list">
-					<span
-						v-for="(tool, index) in [
-							...profile.skills.languages.slice(0, 7),
-							...profile.skills.frameworks.slice(0, 5)
-						]"
-						:key="index"
-						class="tag"
-					>
-						{{ tool }}
-					</span>
-				</div>
-			</article>
-
-			<article class="support-card section-panel">
-				<span class="card-label">Core strengths</span>
-				<h2>Typical problem space</h2>
+				<span class="card-label">Engineering work</span>
+				<h2>What that work usually involves</h2>
 				<ul>
-					<li v-for="(competency, index) in profile.skills.competencies" :key="index">
-						{{ competency }}
-					</li>
+					<li>Embedded systems, telemetry, and sensor integration.</li>
+					<li>Research tooling, simulation workflows, and analysis pipelines.</li>
+					<li>Technical product work that connects hardware, software, and review workflows.</li>
 				</ul>
 			</article>
 
 			<article class="support-card section-panel">
-				<span class="card-label">Profiles</span>
-				<h2>Public links</h2>
+				<span class="card-label">Teaching work</span>
+				<h2>What the teaching practice includes</h2>
+				<ul>
+					<li>Private lessons in programming, STEM, and Spanish.</li>
+					<li>Project-based instruction with clear follow-up and next steps.</li>
+					<li>Instructor training and curriculum support through Juni Learning.</li>
+				</ul>
+			</article>
+
+			<article class="support-card section-panel">
+				<span class="card-label">Public references</span>
+				<h2>Where to verify and reach out</h2>
 				<div class="profile-list">
 					<a
 						v-for="item in profile.profiles"
@@ -112,7 +93,6 @@ const profile = computed(() => store.userProfile);
 				<span class="card-label">Publication</span>
 				<h2>ISCAS 2025</h2>
 				<p>{{ profile.publications[0].title }}</p>
-				<p>{{ profile.publications[0].summary }}</p>
 				<a :href="profile.publications[0].href" rel="noopener" target="_blank">Open publication record</a>
 			</article>
 		</section>
@@ -180,35 +160,17 @@ const profile = computed(() => store.userProfile);
 	font-size: 0.92rem;
 }
 
-.details-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-	column-gap: 1.25rem;
-	row-gap: 1rem;
-	margin: 0;
+.snapshot-practice {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
 }
 
-.details-grid div,
-.details-grid dd {
-	min-width: 0;
+.snapshot-practice h2 {
+	font-size: 1.55rem;
+	line-height: 1.16;
 }
 
-.details-grid dt,
-.details-grid dd {
-	margin: 0;
-}
-
-.details-grid dt {
-	color: var(--color-text-muted);
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.12em;
-	margin-bottom: 0.42rem;
-	text-transform: uppercase;
-}
-
-.details-grid dd,
-.details-grid a,
 .snapshot-copy,
 .support-card p,
 .support-card ul,
@@ -216,12 +178,6 @@ const profile = computed(() => store.userProfile);
 	color: var(--color-text-muted);
 	line-height: 1.75;
 	text-decoration: none;
-}
-
-.details-grid dd,
-.details-grid a {
-	display: block;
-	overflow-wrap: anywhere;
 }
 
 .portrait-image {

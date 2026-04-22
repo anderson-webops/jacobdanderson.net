@@ -15,11 +15,7 @@ const instructionExperience = computed(() =>
 	<div class="experience-page">
 		<header class="page-intro">
 			<p class="eyebrow">Experience</p>
-			<h1>Engineering, research, and instructional roles.</h1>
-			<p>
-				Engineering roles have centered on sensing hardware, simulation tooling, and industrial telemetry.
-				Instructional work covers programming, STEM, and Spanish.
-			</p>
+			<h1>Engineering and instructional experience.</h1>
 		</header>
 
 		<section class="section-block">

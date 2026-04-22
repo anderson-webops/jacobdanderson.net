@@ -10,50 +10,58 @@ export const useMainStore = defineStore("main", {
 			phone: "404-626-0025",
 			lastUpdated: "April 2026",
 			summary:
-				"I build embedded systems, research tooling, and technical software. I serve as CTO and cofounder of Stride and am currently pursuing an M.S. in Computer Engineering at Georgia Tech after earning a B.S. in Computer Engineering with a minor in Computer Science from BYU.",
+				"I build embedded systems and research tooling, and I teach programming, STEM, and Spanish through private instruction and instructor training. I serve as CTO and cofounder of Stride. I am pursuing an M.S. in Computer Engineering at Georgia Tech after earning a B.S. in Computer Engineering with a minor in Computer Science from BYU.",
 			profiles: [
 				{
 					label: "GitHub",
 					href: "https://github.com/Jacoba1100254352",
-					description: "Repositories, code, and release history."
+					description: "Engineering code and public repositories."
 				},
 				{
 					label: "Teaching site",
 					href: "https://classes.jacobdanderson.net",
-					description: "Scheduling, tuition, and lesson logistics."
+					description: "Scheduling, tuition, and lesson details."
 				},
 				{
 					label: "Request résumé",
 					href: "mailto:jacobdanderson@gmail.com?subject=Resume%20request",
-					description: "Résumé available by email request."
+					description: "Résumé available by email."
 				}
 			],
 			publications: [
 				{
 					title: "Open-Source Circuit Radiation Effects (OSCRE) Simulation Framework: Design and Applications",
 					venue: "ISCAS 2025",
-					summary: "ISCAS 2025 paper on OSCRE and radiation-effects simulation workflows.",
+					summary: "ISCAS 2025 paper on the OSCRE radiation-effects simulation framework.",
 					href: "https://dblp.org/rec/conf/iscas/LambertANAPGWC25"
 				}
 			],
+			practices: {
+				engineering: {
+					label: "Engineering work",
+					title: "CTO & Cofounder, Stride",
+					summary: "Embedded systems, research tooling, telemetry, and technical product work.",
+					details: "Open to engineering engagements and research collaborations."
+				},
+				teaching: {
+					label: "Teaching work",
+					title: "Private instruction & instructor training",
+					summary: "Programming, STEM, and Spanish through one-on-one lessons and instructor support.",
+					details: "$40 per 50-minute lesson through the teaching site."
+				}
+			},
 			education: [
 				{
 					program: "M.S. Computer Engineering",
 					institution: "Georgia Institute of Technology, Atlanta, GA",
 					timeframe: "Aug 2025 – Present",
-					highlights: [
-						"GPA 4.0",
-						"Graduate focus on broad, systems-level computer engineering across hardware, software, and analysis."
-					]
+					highlights: ["GPA 4.0", "Graduate study across hardware, software, and analysis."]
 				},
 				{
 					program: "B.S. Computer Engineering, Minor in Computer Science",
 					institution: "Brigham Young University, Provo, UT",
 					timeframe: "Aug 2020 – Apr 2025",
-					highlights: [
-						"GPA 3.79",
-						"Coursework in embedded systems, digital systems, BLE networking, software design, and web programming."
-					]
+					highlights: ["GPA 3.79", "Coursework in embedded systems, BLE networking, and software design."]
 				}
 			],
 			experience: [
@@ -63,9 +71,9 @@ export const useMainStore = defineStore("main", {
 					organization: "Juni Learning",
 					timeframe: "May 2021 – Present",
 					location: "Remote",
-					summary: "Private instruction and instructor training across programming, STEM, and Spanish.",
+					summary: "Private lessons and instructor training across programming, STEM, and Spanish.",
 					highlights: [
-						"Teach individualized lessons for students ranging from grade school through adulthood.",
+						"Teach one-on-one lessons for students ranging from grade school through adulthood.",
 						"Coach instructors on lesson delivery, student communication, and curriculum use.",
 						"Develop curriculum materials and feedback practices used across the teaching program."
 					]
@@ -77,11 +85,11 @@ export const useMainStore = defineStore("main", {
 					timeframe: "Sep 2022 – Oct 2024",
 					location: "Provo, UT",
 					summary:
-						"Research support for non-invasive glucose monitoring, with emphasis on sensing hardware and analysis tooling.",
+						"Built sensing-hardware and analysis tooling for non-invasive glucose-monitoring research.",
 					highlights: [
-						"Integrated sensing hardware for a non-invasive glucose monitoring prototype in a multidisciplinary lab setting.",
+						"Integrated sensing hardware into a non-invasive glucose-monitoring prototype used in a multidisciplinary lab setting.",
 						"Built MATLAB and Python pipelines for signal processing, calibration, and data analysis.",
-						"Supported iterative device refinement across electrical, computer, and biomedical collaborators."
+						"Turned experiment data into analysis outputs that supported iterative device refinement."
 					]
 				},
 				{
@@ -90,11 +98,10 @@ export const useMainStore = defineStore("main", {
 					organization: "Purdue SCALE x Brigham Young University",
 					timeframe: "Summer 2024",
 					location: "Provo, UT",
-					summary:
-						"Research tooling and simulation workflow development for radiation effects in analog circuits.",
+					summary: "Built simulation tooling for radiation-effects analysis in analog circuits.",
 					highlights: [
 						"Led development of the Open-Source Circuit Radiation Effects (OSCRE) simulation framework.",
-						"Created installer scripts and tooling workflows for Xschem and Ngspice to streamline SEE analysis.",
+						"Created installer scripts and setup workflows for Xschem and Ngspice to reduce SEE analysis setup time.",
 						"Co-authored the ISCAS 2025 paper describing OSCRE and its applications."
 					]
 				},
@@ -104,25 +111,11 @@ export const useMainStore = defineStore("main", {
 					organization: "Epiroc Senior Project",
 					timeframe: "Jan 2024 – Apr 2024",
 					location: "Provo, UT",
-					summary:
-						"Industrial telemetry capstone focused on operator visibility, BLE transport, and sensor integration.",
+					summary: "Built an operator-facing telemetry workflow for an industrial drill monitoring capstone.",
 					highlights: [
-						"Designed an operator-facing drill monitoring interface with BLE updates to a supervisory server.",
+						"Integrated BLE updates between drill sensors and a supervisory server.",
 						"Implemented I2C sensor communication for temperature and pressure telemetry.",
-						"Delivered a working monitoring flow that connected field telemetry to engineering review."
-					]
-				},
-				{
-					category: "engineering",
-					title: "Programmer & Assistant",
-					organization: "AudioT",
-					timeframe: "May 2020 – Aug 2020",
-					location: "Atlanta, GA",
-					summary:
-						"Prototype support work spanning Raspberry Pi automation, experimentation, and data collection.",
-					highlights: [
-						"Developed Python and Bash automation for Raspberry Pi prototypes.",
-						"Supported product experimentation and data collection for an early-stage startup environment."
+						"Delivered a working monitoring demo for sponsor review."
 					]
 				}
 			],
@@ -135,7 +128,7 @@ export const useMainStore = defineStore("main", {
 					role: "Architecture, tooling workflow design, documentation, and publication support.",
 					results: [
 						"Built a repeatable Xschem and Ngspice workflow that collaborators could share across institutions.",
-						"Documented installer and analysis steps for single-event-effects studies in analog circuits.",
+						"Reduced setup friction for single-event-effects studies by documenting installer and analysis steps.",
 						"Supported the ISCAS 2025 publication describing the framework and its applications."
 					],
 					links: [
@@ -157,7 +150,7 @@ export const useMainStore = defineStore("main", {
 					role: "BLE telemetry integration, sensor communication, and monitoring interface implementation.",
 					results: [
 						"Integrated temperature and pressure telemetry from drill hardware into the monitoring stack.",
-						"Delivered BLE updates to a supervisory interface for operator and engineering review."
+						"Delivered BLE updates to a supervisory interface used for operator and engineering review."
 					],
 					links: []
 				},
@@ -169,7 +162,7 @@ export const useMainStore = defineStore("main", {
 					results: [
 						"Integrated sensing hardware in a multidisciplinary lab workflow spanning electrical, computer, and biomedical collaborators.",
 						"Built MATLAB and Python pipelines for calibration, signal processing, and experiment analysis.",
-						"Supported iterative prototype refinement with repeatable analysis outputs."
+						"Produced repeatable analysis outputs that supported prototype refinement."
 					],
 					links: []
 				}
@@ -193,7 +186,7 @@ export const useMainStore = defineStore("main", {
 					"Embedded systems & microcontroller programming",
 					"Sensor integration (I2C, BLE, industrial telemetry)",
 					"Research tooling, simulation workflows, and data analysis",
-					"Technical communication, teaching, and curriculum design"
+					"Private instruction, instructor training, and curriculum design"
 				],
 				languagesSpoken: ["English", "Spanish (fluent)", "Portuguese (conversational)"]
 			}
