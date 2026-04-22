@@ -623,10 +623,6 @@ const featuredPublication = computed(() => profile.value.publications[0]);
 }
 </style>
 
-<route lang="json">
-{
-	"meta": {
-		"layout": "default"
-	}
-}
-</route>
+<route lang="yaml">
+  meta:
+    layout: default</route>

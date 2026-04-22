@@ -57,7 +57,6 @@ const internalLinks = [
 
 			<div class="footer-bottom">
 				<p>© {{ new Date().getFullYear() }} Jacob Anderson. All rights reserved.</p>
-				<p>Built as a statically generated Vue portfolio.</p>
 			</div>
 		</div>
 	</footer>

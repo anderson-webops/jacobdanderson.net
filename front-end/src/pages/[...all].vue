@@ -8,10 +8,6 @@ const { t } = useI18n();
 	</div>
 </template>
 
-<route lang="json">
-{
-	"meta": {
-		"layout": "404"
-	}
-}
-</route>
+<route lang="yaml">
+  meta:
+    layout: 404</route>
