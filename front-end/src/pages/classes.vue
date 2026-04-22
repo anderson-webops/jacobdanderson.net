@@ -11,10 +11,11 @@ const profile = computed(() => store.userProfile);
 		<section class="hero">
 			<div class="hero-copy">
 				<p class="eyebrow">Private Instruction</p>
-				<h1>Programming, STEM, and Spanish lessons tailored to the student and the goal.</h1>
+				<h1>Private lessons in programming, STEM, and Spanish.</h1>
 				<p>
-					I offer one-on-one instruction for students from grade school through adulthood, with lessons shaped
-					around the learner’s goals, experience level, and preferred pace.
+					I teach one-on-one lessons for students from grade school through adulthood. Sessions are built
+					around concrete goals such as foundations, school support, project work, and deeper technical
+					practice.
 				</p>
 
 				<div class="button-row">
@@ -38,12 +39,12 @@ const profile = computed(() => store.userProfile);
 
 		<section class="grid">
 			<article class="info-card section-panel">
-				<span class="card-label">What students gain</span>
-				<h2>Concrete progress from week to week</h2>
+				<span class="card-label">Lesson format</span>
+				<h2>What ongoing lessons include</h2>
 				<ul>
-					<li>Project-based lessons that produce code, notes, or other work students can revisit.</li>
-					<li>Session feedback with specific next steps for practice between meetings.</li>
-					<li>Adjustments to pacing and assignments as the student gains confidence.</li>
+					<li>Weekly 50-minute sessions built around the student’s current goals.</li>
+					<li>Projects, exercises, or review work between meetings when it is useful.</li>
+					<li>Specific feedback and next steps after sessions.</li>
 				</ul>
 			</article>
 

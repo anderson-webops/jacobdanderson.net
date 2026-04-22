@@ -11,10 +11,6 @@ const projects = computed(() => store.userProfile.projects);
 		<header class="page-intro">
 			<p class="eyebrow">Projects</p>
 			<h1>Selected engineering and research projects.</h1>
-			<p>
-				Projects included here have defined technical scope and either public artifacts or concrete delivery
-				outcomes.
-			</p>
 		</header>
 
 		<section class="grid">

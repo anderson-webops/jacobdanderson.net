@@ -11,38 +11,13 @@ const profile = computed(() => store.userProfile);
 const featuredExperience = computed(() => store.featuredEngineeringExperience);
 const instructionExperience = computed(() => store.instructionExperience[0]);
 const featuredProjects = computed(() => store.featuredProjects);
-const topEducation = computed(() => profile.value.education[0]);
-const featuredTools = computed(() => [
-	...profile.value.skills.languages.slice(0, 5),
-	...profile.value.skills.frameworks.slice(0, 5)
-]);
 const heroHeadlineLines = ["Computer", "Engineer,", "Cofounder,", "and Educator"];
 const githubProfile = computed(() => profile.value.profiles[0]);
 const teachingProfile = computed(() => profile.value.profiles[1]);
 const resumeRequest = computed(() => profile.value.profiles[2]);
 const featuredPublication = computed(() => profile.value.publications[0]);
-const publicReferences = computed(() => [
-	{
-		label: githubProfile.value.label,
-		href: githubProfile.value.href,
-		description: githubProfile.value.description
-	},
-	{
-		label: "OSCRE publication",
-		href: featuredPublication.value.href,
-		description: featuredPublication.value.summary
-	},
-	{
-		label: resumeRequest.value.label,
-		href: resumeRequest.value.href,
-		description: resumeRequest.value.description
-	},
-	{
-		label: teachingProfile.value.label,
-		href: teachingProfile.value.href,
-		description: teachingProfile.value.description
-	}
-]);
+const engineeringPractice = computed(() => profile.value.practices.engineering);
+const teachingPractice = computed(() => profile.value.practices.teaching);
 </script>
 
 <template>
@@ -57,7 +32,9 @@ const publicReferences = computed(() => [
 
 				<div class="button-row">
 					<RouterLink class="button-primary" to="/projects">View engineering work</RouterLink>
-					<RouterLink class="button-secondary" to="/contact">Contact Jacob</RouterLink>
+					<a class="button-secondary" :href="teachingProfile.href" rel="noopener" target="_blank">
+						Visit teaching site
+					</a>
 				</div>
 
 				<dl class="hero-details">
@@ -82,24 +59,26 @@ const publicReferences = computed(() => [
 				<div class="proof-strip">
 					<a :href="githubProfile.href" rel="noopener" target="_blank">View GitHub</a>
 					<a :href="featuredPublication.href" rel="noopener" target="_blank">View OSCRE publication</a>
+					<a :href="teachingProfile.href" rel="noopener" target="_blank">View teaching site</a>
 					<a :href="resumeRequest.href">Request résumé</a>
 				</div>
 			</div>
 
 			<aside class="hero-aside section-panel">
 				<div class="aside-block">
-					<span class="aside-label">Current focus</span>
-					<h2>{{ topEducation.program }}</h2>
-					<p>{{ topEducation.institution }}</p>
-					<span class="aside-meta">{{ topEducation.timeframe }}</span>
+					<span class="aside-label">{{ engineeringPractice.label }}</span>
+					<h2>{{ engineeringPractice.title }}</h2>
+					<p>{{ engineeringPractice.summary }}</p>
+					<span class="aside-meta">{{ engineeringPractice.details }}</span>
 				</div>
 
 				<div class="aside-divider" />
 
 				<div class="aside-block">
-					<span class="aside-label">Published work</span>
-					<p>{{ featuredPublication.title }}</p>
-					<a :href="featuredPublication.href" rel="noopener" target="_blank">Open publication record</a>
+					<span class="aside-label">{{ teachingPractice.label }}</span>
+					<h2>{{ teachingPractice.title }}</h2>
+					<p>{{ teachingPractice.summary }}</p>
+					<span class="aside-meta">{{ teachingPractice.details }}</span>
 				</div>
 			</aside>
 		</section>
@@ -170,55 +149,21 @@ const publicReferences = computed(() => [
 
 		<section class="instruction-section section-panel">
 			<div class="instruction-copy">
-				<p class="eyebrow">Instruction</p>
-				<h2>Private lessons in programming, STEM, and Spanish.</h2>
+				<p class="eyebrow">Teaching</p>
+				<h2>Private instruction and instructor training.</h2>
 				<p>
-					I teach one-on-one, build project-based lessons, and coach instructors on lesson quality and
-					curriculum delivery.
+					I teach one-on-one lessons in programming, STEM, and Spanish, and I support instructor quality and
+					curriculum delivery through training work.
 				</p>
 			</div>
 
 			<div class="instruction-card">
 				<span class="instruction-label">{{ instructionExperience.organization }}</span>
 				<h3>{{ instructionExperience.title }}</h3>
-				<p>Standard lessons run 50 minutes and scheduling lives on the dedicated teaching site.</p>
-				<RouterLink class="section-link" to="/classes">View teaching details</RouterLink>
-			</div>
-		</section>
-
-		<section class="featured-section">
-			<div class="section-top">
-				<div>
-					<p class="eyebrow">Technical Foundation</p>
-					<h2>Core tools and public references</h2>
-				</div>
-			</div>
-
-			<div class="foundation-grid">
-				<div class="foundation-card section-panel">
-					<span class="capability-label">Core tools</span>
-					<div class="tag-list">
-						<span v-for="(tool, index) in featuredTools" :key="index" class="tag">
-							{{ tool }}
-						</span>
-					</div>
-				</div>
-
-				<div class="foundation-card section-panel">
-					<span class="capability-label">Public links</span>
-					<div class="profile-links">
-						<a
-							v-for="item in publicReferences"
-							:key="item.href"
-							:href="item.href"
-							rel="noopener"
-							target="_blank"
-						>
-							<strong>{{ item.label }}</strong>
-							<span>{{ item.description }}</span>
-						</a>
-					</div>
-				</div>
+				<p>Standard lessons run 50 minutes, and scheduling and tuition live on the dedicated teaching site.</p>
+				<a class="section-link" :href="teachingProfile.href" rel="noopener" target="_blank"
+					>Visit teaching site</a
+				>
 			</div>
 		</section>
 	</div>
@@ -493,44 +438,8 @@ const publicReferences = computed(() => [
 	gap: 0.85rem;
 }
 
-.foundation-grid {
-	display: grid;
-	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-	gap: 1.2rem;
-}
-
-.foundation-card {
-	padding: 1.55rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.9rem;
-}
-
-.profile-links {
-	display: flex;
-	flex-direction: column;
-	gap: 0.85rem;
-}
-
-.profile-links a {
-	display: flex;
-	flex-direction: column;
-	gap: 0.18rem;
-	text-decoration: none;
-}
-
-.profile-links a strong {
-	color: var(--color-text);
-}
-
-.profile-links a span {
-	color: var(--color-text-muted);
-	line-height: 1.6;
-}
-
 @media (max-width: 960px) {
 	.hero,
-	.foundation-grid,
 	.project-grid,
 	.experience-grid,
 	.instruction-section {
