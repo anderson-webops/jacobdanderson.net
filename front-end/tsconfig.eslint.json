@@ -9,8 +9,8 @@
 		"src/**/*.ts",
 		"src/**/*.tsx",
 		"src/**/*.vue",
-		"test/**/*.ts",
 		"cypress/**/*.ts",
+		"test/**/*.ts",
 		"cypress.config.ts",
 		"vite.config.mts",
 		"uno.config.ts"
