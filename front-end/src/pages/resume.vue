@@ -187,8 +187,8 @@ function printResume() {
 }
 
 .resume-copy h1 {
-	font-size: clamp(2.7rem, 6vw, 4.2rem);
-	line-height: 0.95;
+	font-size: 3.75rem;
+	line-height: 1.05;
 }
 
 .resume-headline {
@@ -251,7 +251,7 @@ function printResume() {
 }
 
 .section-head h2 {
-	font-size: clamp(1.9rem, 3.7vw, 2.35rem);
+	font-size: 2rem;
 }
 
 .resume-grid,
@@ -288,8 +288,8 @@ function printResume() {
 }
 
 .resume-card h3 {
-	font-size: 1.5rem;
-	line-height: 1.14;
+	font-size: 1.38rem;
+	line-height: 1.2;
 }
 
 .resume-card ul {
@@ -321,6 +321,14 @@ function printResume() {
 }
 
 @media (max-width: 720px) {
+	.resume-copy h1 {
+		font-size: 2.65rem;
+	}
+
+	.section-head h2 {
+		font-size: 1.75rem;
+	}
+
 	.resume-hero,
 	.resume-card {
 		padding: var(--panel-padding);

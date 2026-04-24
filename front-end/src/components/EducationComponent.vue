@@ -41,7 +41,7 @@ const education = computed(() => store.userProfile.education);
 }
 
 .section-head h2 {
-	font-size: clamp(1.9rem, 3.5vw, 2.35rem);
+	font-size: 2rem;
 	margin-top: 0.55rem;
 }
 
@@ -80,8 +80,8 @@ const education = computed(() => store.userProfile.education);
 }
 
 .education-card h3 {
-	font-size: 1.5rem;
-	line-height: 1.15;
+	font-size: 1.38rem;
+	line-height: 1.2;
 }
 
 .institution,
@@ -109,6 +109,10 @@ const education = computed(() => store.userProfile.education);
 }
 
 @media (max-width: 640px) {
+	.section-head h2 {
+		font-size: 1.75rem;
+	}
+
 	.education-card {
 		padding: var(--panel-padding);
 	}

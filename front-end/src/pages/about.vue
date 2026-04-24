@@ -14,12 +14,12 @@ const profile = computed(() => store.userProfile);
 			<div class="about-layout">
 				<div class="about-copy">
 					<header class="page-intro">
-						<h1>Engineering work and teaching practice built around the same standards.</h1>
+						<h1>Engineering and teaching, in practice.</h1>
 						<p>
-							My engineering work has included radiation-effects simulation tooling, sensing hardware for
+							Both are built around careful scoping, clear explanation, and reliable follow-through. My
+							engineering work has included radiation-effects simulation tooling, sensing hardware for
 							glucose-monitoring research, industrial telemetry interfaces, and product development at
-							Stride. In parallel, I teach programming, STEM, and Spanish one-on-one and support
-							instructor training and curriculum quality.
+							Stride. In parallel, I teach programming, STEM, and Spanish one-on-one.
 						</p>
 					</header>
 
@@ -133,7 +133,7 @@ const profile = computed(() => store.userProfile);
 }
 
 .about-intro .page-intro {
-	max-width: none;
+	max-width: min(680px, 100%);
 }
 
 .snapshot-card,
@@ -171,8 +171,8 @@ const profile = computed(() => store.userProfile);
 }
 
 .snapshot-practice h2 {
-	font-size: 1.55rem;
-	line-height: 1.16;
+	font-size: 1.42rem;
+	line-height: 1.2;
 }
 
 .snapshot-copy,
@@ -199,8 +199,8 @@ const profile = computed(() => store.userProfile);
 }
 
 .support-card h2 {
-	font-size: 1.6rem;
-	line-height: 1.14;
+	font-size: 1.42rem;
+	line-height: 1.2;
 }
 
 .support-card ul {

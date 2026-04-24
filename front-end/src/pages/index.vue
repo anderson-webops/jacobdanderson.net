@@ -174,9 +174,9 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 0.06em;
-	font-size: clamp(2.7rem, 5.8vw, 4.6rem);
-	line-height: 0.94;
-	letter-spacing: -0.03em;
+	font-size: 4.4rem;
+	line-height: 1;
+	letter-spacing: 0;
 	max-width: none;
 }
 
@@ -230,8 +230,8 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 }
 
 .aside-block h2 {
-	font-size: 1.95rem;
-	line-height: 1.08;
+	font-size: 1.55rem;
+	line-height: 1.18;
 }
 
 .aside-block p {
@@ -270,8 +270,8 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 
 .feature-card h3,
 .instruction-card h3 {
-	font-size: 1.6rem;
-	line-height: 1.14;
+	font-size: 1.42rem;
+	line-height: 1.2;
 }
 
 .feature-description,
@@ -297,7 +297,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 }
 
 .section-top h2 {
-	font-size: clamp(1.9rem, 3.6vw, 2.4rem);
+	font-size: 2rem;
 	margin-top: 0.55rem;
 }
 
@@ -359,8 +359,8 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 }
 
 .instruction-copy h2 {
-	font-size: clamp(2rem, 4vw, 2.6rem);
-	line-height: 1.05;
+	font-size: 2rem;
+	line-height: 1.15;
 	max-width: 15ch;
 }
 
@@ -394,7 +394,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 
 	.hero-copy h1 {
 		gap: 0.07em;
-		font-size: clamp(2.45rem, 8vw, 3.9rem);
+		font-size: 3.55rem;
 		max-width: none;
 	}
 }
@@ -406,8 +406,8 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 
 	.hero-copy h1 {
 		gap: 0.08em;
-		font-size: clamp(2rem, 10.8vw, 3rem);
-		line-height: 0.96;
+		font-size: 2.75rem;
+		line-height: 1.02;
 	}
 
 	.section-top {

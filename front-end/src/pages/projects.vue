@@ -10,7 +10,7 @@ const projects = computed(() => store.userProfile.projects);
 	<div class="projects-page">
 		<header class="page-intro">
 			<p class="eyebrow">Projects</p>
-			<h1>Selected engineering and research projects.</h1>
+			<h1>Selected projects</h1>
 		</header>
 
 		<section class="grid">
@@ -79,8 +79,8 @@ const projects = computed(() => store.userProfile.projects);
 }
 
 .project-card h2 {
-	font-size: 1.62rem;
-	line-height: 1.14;
+	font-size: 1.42rem;
+	line-height: 1.2;
 }
 
 .description,

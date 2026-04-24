@@ -15,7 +15,7 @@ const instructionExperience = computed(() =>
 	<div class="experience-page">
 		<header class="page-intro">
 			<p class="eyebrow">Experience</p>
-			<h1>Engineering and instructional experience.</h1>
+			<h1>Experience</h1>
 		</header>
 
 		<section class="section-block">
@@ -86,7 +86,7 @@ const instructionExperience = computed(() =>
 }
 
 .section-top h2 {
-	font-size: clamp(1.9rem, 3.4vw, 2.3rem);
+	font-size: 2rem;
 	margin-top: 0.55rem;
 }
 
@@ -129,8 +129,8 @@ const instructionExperience = computed(() =>
 }
 
 .entry h3 {
-	font-size: 1.65rem;
-	line-height: 1.14;
+	font-size: 1.42rem;
+	line-height: 1.2;
 }
 
 .entry-location,
@@ -159,6 +159,10 @@ const instructionExperience = computed(() =>
 }
 
 @media (max-width: 640px) {
+	.section-top h2 {
+		font-size: 1.75rem;
+	}
+
 	.entry {
 		padding: var(--panel-padding);
 	}
