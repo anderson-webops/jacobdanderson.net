@@ -11,11 +11,11 @@ const profile = computed(() => store.userProfile);
 		<section class="hero">
 			<div class="hero-copy">
 				<p class="eyebrow">Private Instruction</p>
-				<h1>Private lessons in programming, STEM, and Spanish.</h1>
+				<h1>Private instruction.</h1>
 				<p>
-					I teach one-on-one lessons for students from grade school through adulthood. Sessions are built
-					around concrete goals such as foundations, school support, project work, and deeper technical
-					practice.
+					One-on-one programming, STEM, and Spanish lessons for students from grade school through adulthood.
+					Sessions are built around concrete goals such as foundations, school support, project work, and
+					deeper technical practice.
 				</p>
 
 				<div class="button-row">
@@ -96,9 +96,9 @@ const profile = computed(() => store.userProfile);
 }
 
 .hero-copy h1 {
-	font-size: clamp(2.7rem, 6vw, 4.4rem);
-	line-height: 0.96;
-	max-width: 12ch;
+	font-size: 3.1rem;
+	line-height: 1.06;
+	max-width: none;
 }
 
 .hero-copy p,
@@ -150,8 +150,8 @@ const profile = computed(() => store.userProfile);
 }
 
 .info-card h2 {
-	font-size: 1.58rem;
-	line-height: 1.14;
+	font-size: 1.42rem;
+	line-height: 1.2;
 }
 
 .info-card ul {
@@ -179,6 +179,10 @@ const profile = computed(() => store.userProfile);
 }
 
 @media (max-width: 720px) {
+	.hero-copy h1 {
+		font-size: 2.35rem;
+	}
+
 	.rate-card,
 	.info-card {
 		padding: var(--panel-padding);

@@ -11,8 +11,11 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 	<div class="contact-page">
 		<header class="page-intro">
 			<p class="eyebrow">Contact</p>
-			<h1>Engineering engagements, research collaborations, and private lessons.</h1>
-			<p>Email is the fastest way to reach me. I usually respond within two business days.</p>
+			<h1>Contact Jacob</h1>
+			<p>
+				For engineering work, research collaborations, or private lessons, email is the fastest way to reach me.
+				I usually respond within two business days.
+			</p>
 		</header>
 
 		<section class="contact-grid">
@@ -75,12 +78,7 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 }
 
 .contact-page .page-intro {
-	max-width: 56rem;
-}
-
-.contact-page .page-intro h1 {
-	font-size: clamp(2.45rem, 5vw, 4rem);
-	max-width: 11ch;
+	max-width: min(620px, 100%);
 }
 
 .contact-grid {
@@ -106,8 +104,8 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 }
 
 .contact-card h2 {
-	font-size: 1.7rem;
-	line-height: 1.14;
+	font-size: 1.42rem;
+	line-height: 1.2;
 }
 
 .detail-grid {
@@ -154,10 +152,6 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 @media (max-width: 960px) {
 	.contact-grid {
 		grid-template-columns: 1fr;
-	}
-
-	.contact-page .page-intro h1 {
-		max-width: none;
 	}
 }
 
