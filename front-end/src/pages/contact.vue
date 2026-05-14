@@ -146,7 +146,8 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 
 .contact-card ul a {
 	color: var(--color-accent);
-	text-decoration: none;
+	text-decoration: underline;
+	text-underline-offset: 0.16em;
 }
 
 @media (max-width: 960px) {
