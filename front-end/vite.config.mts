@@ -25,8 +25,12 @@ export default defineConfig(({ command }) => ({
 	},
 
 	build: {
-		// Avoid optional native CSS minifier bindings during Linux ARM64 deploys.
-		cssMinify: false
+		// Avoid Lightning CSS native bindings during Linux ARM64 deploys.
+		cssMinify: "esbuild"
+	},
+
+	css: {
+		transformer: "postcss"
 	},
 
 	plugins: [
