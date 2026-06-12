@@ -72,6 +72,20 @@ const profile = computed(() => store.userProfile);
 				</ul>
 			</article>
 		</section>
+
+		<section class="teaching-fit section-panel">
+			<div>
+				<span class="card-label">Good fit</span>
+				<h2>Structured help without making the student dependent.</h2>
+			</div>
+			<p>
+				The goal is not to replace classroom work or parent support. I help students build enough confidence,
+				technical vocabulary, and repeatable practice habits that they can keep moving between lessons.
+			</p>
+			<a class="section-link" href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
+				Review scheduling and tuition
+			</a>
+		</section>
 	</div>
 </template>
 
@@ -167,9 +181,30 @@ const profile = computed(() => store.userProfile);
 	text-decoration: none;
 }
 
+.teaching-fit {
+	display: grid;
+	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) auto;
+	gap: 1.2rem;
+	align-items: center;
+	padding: var(--panel-padding-roomy);
+}
+
+.teaching-fit h2 {
+	font-size: 1.65rem;
+	line-height: 1.16;
+	margin-top: 0.45rem;
+	max-width: 18ch;
+}
+
+.teaching-fit p {
+	color: var(--color-text-muted);
+	line-height: 1.74;
+}
+
 @media (max-width: 960px) {
 	.hero,
-	.grid {
+	.grid,
+	.teaching-fit {
 		grid-template-columns: 1fr;
 	}
 
@@ -184,7 +219,8 @@ const profile = computed(() => store.userProfile);
 	}
 
 	.rate-card,
-	.info-card {
+	.info-card,
+	.teaching-fit {
 		padding: var(--panel-padding);
 	}
 }

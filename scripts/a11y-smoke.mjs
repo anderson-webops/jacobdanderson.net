@@ -183,7 +183,25 @@ function startFrontend() {
 }
 
 function closeServer(server) {
-	return new Promise(resolveClose => server.close(resolveClose));
+	return new Promise(resolveClose => {
+		let resolved = false;
+		const finish = () => {
+			if (resolved) return;
+			resolved = true;
+			resolveClose();
+		};
+		const timeout = setTimeout(() => {
+			server.closeAllConnections?.();
+			finish();
+		}, 5_000);
+		timeout.unref();
+
+		server.close(() => {
+			clearTimeout(timeout);
+			finish();
+		});
+		server.closeIdleConnections?.();
+	});
 }
 
 function stopChildProcess(child) {
