@@ -15,3 +15,16 @@ for = "/site.webmanifest"
 
 [headers.values]
 Content-Type = "application/manifest+json"
+Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+for = "/favicon.ico"
+
+[headers.values]
+Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+for = "/favicons/*"
+
+[headers.values]
+Cache-Control = "public, max-age=0, must-revalidate"
