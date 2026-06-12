@@ -185,6 +185,27 @@ function closeServer(server) {
 	return new Promise(resolveClose => server.close(resolveClose));
 }
 
+function stopChildProcess(child) {
+	return new Promise(resolveStop => {
+		if (child.exitCode !== null || child.signalCode !== null) {
+			resolveStop();
+			return;
+		}
+
+		const timeout = setTimeout(() => {
+			child.kill("SIGKILL");
+			resolveStop();
+		}, 5_000);
+
+		child.once("exit", () => {
+			clearTimeout(timeout);
+			resolveStop();
+		});
+
+		child.kill("SIGTERM");
+	});
+}
+
 async function analyzePage(browser, route, scheme) {
 	const url = `${baseUrl}${route}`;
 	const page = await browser.newPage();
@@ -255,6 +276,6 @@ try {
 }
 finally {
 	if (browser) await browser.close();
-	frontendProcess.kill("SIGTERM");
+	await stopChildProcess(frontendProcess);
 	await closeServer(apiServer);
 }
