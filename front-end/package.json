@@ -14,7 +14,6 @@
 		"start": "vite --port 3333 --open --host",
 		"serve": "vite --port 3333 --open --host",
 		"preview": "vite preview",
-		"preview-https": "serve dist",
 		"test": "vitest",
 		"test:unit": "vitest",
 		"typecheck": "vue-tsc --noEmit",
