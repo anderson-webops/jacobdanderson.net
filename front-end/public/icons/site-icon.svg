@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+	<title id="title">Jacob Anderson icon</title>
+	<desc id="desc">A navy and warm cream JA monogram.</desc>
+	<rect width="128" height="128" rx="32" fill="#16344b" />
+	<path d="M32 94c10 0 15-6 15-18V34h14v43c0 20-11 31-29 31V94Z" fill="#fffdfa" />
+	<path d="M69 94 90 34h13l21 60h-15l-4-13H85l-4 13H69Zm20-25h13l-6-20-7 20Z" fill="#f1ebe1" />
+</svg>

@@ -46,11 +46,8 @@ export default defineConfig(({ command }) => ({
 		/* 4️⃣  Auto-import globals */
 		AutoImport({
 			include: [/\.[jt]sx?$/, /\.vue$/, /\.vue\?vue/, /\.md$/],
-			// ⚠️ remove @vueuse/head to avoid duplicate helpers
 			imports: [
 				"vue",
-				"vue-i18n",
-				"@vueuse/core",
 				unheadVueComposablesImports, // supplies useHead / useSeoMeta
 				VueRouterAutoImports,
 				{ "vue-router/auto": ["useLink"] }
@@ -61,7 +58,7 @@ export default defineConfig(({ command }) => ({
 				globalsPropValue: true // all the auto-imports become readonly globals
 			},
 			dts: "src/auto-imports.d.ts",
-			dirs: ["src/composables", "src/stores"],
+			dirs: ["src/stores"],
 			vueTemplate: true
 		}),
 
@@ -94,10 +91,6 @@ export default defineConfig(({ command }) => ({
 		onFinished() {
 			generateSitemap();
 		}
-	},
-
-	ssr: {
-		noExternal: [/vue-i18n/]
 	},
 
 	server: {

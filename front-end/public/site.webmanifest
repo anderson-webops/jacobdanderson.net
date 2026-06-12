@@ -1,0 +1,17 @@
+{
+	"name": "Jacob Anderson",
+	"short_name": "Jacob Anderson",
+	"description": "Engineering portfolio and teaching practice for Jacob Anderson.",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#f7f4ee",
+	"theme_color": "#17364d",
+	"icons": [
+		{
+			"src": "/icons/site-icon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any maskable"
+		}
+	]
+}
