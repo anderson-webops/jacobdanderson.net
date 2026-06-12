@@ -69,13 +69,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/hi/[name]': RouteRecordInfo<
-      '/hi/[name]',
-      '/hi/:name',
-      { name: ParamValue<true> },
-      { name: ParamValue<false> },
-      | never
-    >,
     '/projects': RouteRecordInfo<
       '/projects',
       '/projects',
@@ -136,12 +129,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/experience.vue': {
       routes:
         | '/experience'
-      views:
-        | never
-    }
-    'src/pages/hi/[name].vue': {
-      routes:
-        | '/hi/[name]'
       views:
         | never
     }

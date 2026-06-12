@@ -8,7 +8,7 @@ export const useMainStore = defineStore("main", {
 			location: "Alpharetta, GA",
 			email: "jacobdanderson@gmail.com",
 			phone: "404-626-0025",
-			lastUpdated: "April 2026",
+			lastUpdated: "June 2026",
 			summary:
 				"I build embedded systems and research tooling, and I teach programming, STEM, and Spanish through private instruction and instructor training. I serve as CTO and cofounder of Stride and am pursuing an M.S. in Computer Engineering at Georgia Tech after completing a B.S. in Computer Engineering with a minor in Computer Science at BYU.",
 			profiles: [
@@ -181,7 +181,7 @@ export const useMainStore = defineStore("main", {
 					"MATLAB",
 					"Swift"
 				],
-				frameworks: ["Vue", "Vitesse", "React", "SwiftUI", "NumPy", "Pandas", "Matplotlib"],
+				frameworks: ["Vue", "React", "Node.js", "Express", "SwiftUI", "NumPy", "Pandas", "Matplotlib"],
 				competencies: [
 					"Embedded systems & microcontroller programming",
 					"Sensor integration (I2C, BLE, industrial telemetry)",

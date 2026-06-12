@@ -3,6 +3,7 @@
 // you can use this to manipulate the document head in any components,
 // they will be rendered correctly in the html results with vite-ssg
 const siteUrl = "https://jacobdanderson.net";
+const socialImageUrl = `${siteUrl}/images/jacob-anderson.jpg`;
 const apiRoutePattern = /^\/api(?:\/|$)/;
 const route = useRoute();
 const summaryDescription =
@@ -29,8 +30,11 @@ const structuredData = computed(() => {
 		"@context": "https://schema.org",
 		"@type": "Person",
 		description: summaryDescription,
+		email: "mailto:jacobdanderson@gmail.com",
+		image: socialImageUrl,
 		jobTitle: "Computer Engineer, Cofounder, and Educator",
 		name: "Jacob Anderson",
+		sameAs: ["https://github.com/Jacoba1100254352", "https://classes.jacobdanderson.net"],
 		url: siteUrl
 	};
 	const page = {
@@ -80,8 +84,24 @@ useHead(
 					content: "website"
 				},
 				{
+					property: "og:site_name",
+					content: "Jacob Anderson"
+				},
+				{
+					property: "og:locale",
+					content: "en_US"
+				},
+				{
 					property: "og:url",
 					content: canonicalUrl.value
+				},
+				{
+					property: "og:image",
+					content: socialImageUrl
+				},
+				{
+					property: "og:image:alt",
+					content: "Portrait of Jacob Anderson"
 				},
 				{
 					name: "twitter:card",
@@ -96,6 +116,14 @@ useHead(
 					content: routeDescription.value
 				},
 				{
+					name: "twitter:image",
+					content: socialImageUrl
+				},
+				{
+					name: "twitter:image:alt",
+					content: "Portrait of Jacob Anderson"
+				},
+				{
 					name: "robots",
 					content: robotsContent.value
 				},
@@ -107,25 +135,12 @@ useHead(
 			link: [
 				{
 					rel: "icon",
-					type: "image/x-icon",
-					href: "https://jacobdanderson.s3.us-east-1.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon.ico"
+					type: "image/svg+xml",
+					href: "/icons/site-icon.svg"
 				},
 				{
-					rel: "icon",
-					type: "image/png",
-					sizes: "32x32",
-					href: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon-32x32.png"
-				},
-				{
-					rel: "icon",
-					type: "image/png",
-					sizes: "16x16",
-					href: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/favicon-16x16.png"
-				},
-				{
-					rel: "apple-touch-icon",
-					sizes: "180x180",
-					href: "https://jacobdanderson.s3.amazonaws.com/Favicons/favicons+Logo+Bo+Light/apple-touch-icon.png"
+					rel: "manifest",
+					href: "/site.webmanifest"
 				},
 				{
 					rel: "canonical",
