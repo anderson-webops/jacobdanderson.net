@@ -143,6 +143,7 @@ function startFrontend() {
 
 	const child = spawn("npm", args, {
 		cwd: projectRoot,
+		detached: process.platform !== "win32",
 		env: {
 			...process.env,
 			BROWSER: "none",
@@ -192,17 +193,33 @@ function stopChildProcess(child) {
 			return;
 		}
 
-		const timeout = setTimeout(() => {
-			child.kill("SIGKILL");
+		let resolved = false;
+		const finish = () => {
+			if (resolved) return;
+			resolved = true;
 			resolveStop();
+		};
+		const kill = signal => {
+			try {
+				if (process.platform === "win32") child.kill(signal);
+				else process.kill(-child.pid, signal);
+			}
+			catch (error) {
+				if (error?.code !== "ESRCH") console.warn(`Unable to stop a11y frontend process: ${error.message}`);
+			}
+		};
+		const timeout = setTimeout(() => {
+			kill("SIGKILL");
+			finish();
 		}, 5_000);
+		timeout.unref();
 
 		child.once("exit", () => {
 			clearTimeout(timeout);
-			resolveStop();
+			finish();
 		});
 
-		child.kill("SIGTERM");
+		kill("SIGTERM");
 	});
 }
 
