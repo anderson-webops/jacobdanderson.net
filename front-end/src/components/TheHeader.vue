@@ -43,7 +43,9 @@ watch(
 		<div class="shell">
 			<nav aria-label="Primary" class="nav">
 				<RouterLink class="brand" to="/" @click="closeMenu">
-					<div class="brand-mark">JA</div>
+					<div class="brand-mark" aria-hidden="true">
+						<img src="/images/original-logos/logo-bo-light.png" alt="" height="688" width="686" />
+					</div>
 					<div class="brand-copy">
 						<span class="brand-name">Jacob Anderson</span>
 						<span class="brand-meta">Engineering • Teaching</span>
@@ -116,15 +118,15 @@ watch(
 	width: 2.65rem;
 	height: 2.65rem;
 	border-radius: 15px;
-	display: grid;
-	place-items: center;
-	font-family: var(--font-display);
-	font-size: 0.98rem;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	color: var(--color-surface-strong);
-	background: linear-gradient(145deg, #17364d, #33546e);
+	overflow: hidden;
+	background: var(--color-surface);
 	box-shadow: 0 8px 18px rgba(22, 52, 75, 0.14);
+}
+
+.brand-mark img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .brand-copy {

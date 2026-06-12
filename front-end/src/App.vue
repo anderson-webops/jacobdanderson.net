@@ -133,8 +133,24 @@ useHead(
 			link: [
 				{
 					rel: "icon",
-					type: "image/svg+xml",
-					href: "/icons/site-icon.svg"
+					type: "image/png",
+					sizes: "32x32",
+					href: "/favicons/original-logo-bo-light/favicon-32x32.png"
+				},
+				{
+					rel: "icon",
+					type: "image/png",
+					sizes: "16x16",
+					href: "/favicons/original-logo-bo-light/favicon-16x16.png"
+				},
+				{
+					rel: "shortcut icon",
+					href: "/favicon.ico"
+				},
+				{
+					rel: "apple-touch-icon",
+					sizes: "180x180",
+					href: "/favicons/original-logo-bo-light/apple-touch-icon.png"
 				},
 				{
 					rel: "manifest",
