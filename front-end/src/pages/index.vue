@@ -11,6 +11,7 @@ const profile = computed(() => store.userProfile);
 const featuredExperience = computed(() => store.featuredEngineeringExperience);
 const instructionExperience = computed(() => store.instructionExperience[0]);
 const featuredProjects = computed(() => store.featuredProjects);
+const heroHeadline = "Computer Engineer, Cofounder, and Educator";
 const heroHeadlineLines = ["Computer", "Engineer,", "Cofounder,", "and Educator"];
 const githubProfile = computed(() => profile.value.profiles[0]);
 const teachingProfile = computed(() => profile.value.profiles[1]);
@@ -24,8 +25,8 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 		<section class="hero">
 			<div class="hero-copy">
 				<p class="eyebrow">Professional Portfolio</p>
-				<h1>
-					<span v-for="line in heroHeadlineLines" :key="line">{{ line }}</span>
+				<h1 :aria-label="heroHeadline">
+					<span v-for="line in heroHeadlineLines" :key="line" aria-hidden="true">{{ line }}</span>
 				</h1>
 				<p class="lede">{{ profile.summary }}</p>
 
@@ -48,6 +49,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 					<h2>{{ engineeringPractice.title }}</h2>
 					<p>{{ engineeringPractice.summary }}</p>
 					<span class="aside-meta">{{ engineeringPractice.details }}</span>
+					<RouterLink class="section-link" to="/experience">Review engineering background</RouterLink>
 				</div>
 
 				<div class="aside-divider" />
@@ -57,8 +59,35 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 					<h2>{{ teachingPractice.title }}</h2>
 					<p>{{ teachingPractice.summary }}</p>
 					<span class="aside-meta">{{ teachingPractice.details }}</span>
+					<RouterLink class="section-link" to="/classes">See lesson details</RouterLink>
 				</div>
 			</aside>
+		</section>
+
+		<section class="pathway-section section-panel" aria-labelledby="pathway-heading">
+			<div class="pathway-copy">
+				<p class="eyebrow">Start Here</p>
+				<h2 id="pathway-heading">Two connected practices, one standard for clarity.</h2>
+				<p>
+					Use the site based on what you need: engineering proof, lesson logistics, or a concise background
+					reference.
+				</p>
+			</div>
+
+			<div class="pathway-list" aria-label="Primary site paths">
+				<RouterLink to="/projects">
+					<strong>Engineering work</strong>
+					<span>Projects, research tooling, telemetry, and embedded systems outcomes.</span>
+				</RouterLink>
+				<RouterLink to="/classes">
+					<strong>Teaching practice</strong>
+					<span>Subjects, lesson format, tuition, and how to start private instruction.</span>
+				</RouterLink>
+				<RouterLink to="/contact">
+					<strong>Contact path</strong>
+					<span>What to include when reaching out for engineering, research, or lessons.</span>
+				</RouterLink>
+			</div>
 		</section>
 
 		<section class="featured-section">
@@ -255,6 +284,61 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 	background: var(--color-border);
 }
 
+.pathway-section {
+	display: grid;
+	grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+	gap: 1.4rem;
+	align-items: center;
+	padding: var(--panel-padding-roomy);
+}
+
+.pathway-copy {
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+}
+
+.pathway-copy h2 {
+	font-size: 2rem;
+	line-height: 1.12;
+	max-width: 16ch;
+}
+
+.pathway-copy p {
+	color: var(--color-text-muted);
+	line-height: 1.72;
+}
+
+.pathway-list {
+	display: grid;
+	gap: 0.72rem;
+}
+
+.pathway-list a {
+	display: grid;
+	gap: 0.25rem;
+	padding: 1rem;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background: var(--color-surface);
+	text-decoration: none;
+}
+
+.pathway-list a:hover {
+	border-color: var(--color-border-strong);
+	box-shadow: var(--shadow-card);
+	transform: translateY(-1px);
+}
+
+.pathway-list strong {
+	color: var(--color-text);
+}
+
+.pathway-list span {
+	color: var(--color-text-muted);
+	line-height: 1.58;
+}
+
 .experience-grid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -381,6 +465,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 
 @media (max-width: 960px) {
 	.hero,
+	.pathway-section,
 	.project-grid,
 	.experience-grid,
 	.instruction-section {
@@ -416,6 +501,7 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 	}
 
 	.hero-aside,
+	.pathway-section,
 	.feature-card,
 	.instruction-section {
 		padding: var(--panel-padding);

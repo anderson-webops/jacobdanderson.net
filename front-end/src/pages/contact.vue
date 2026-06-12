@@ -67,6 +67,18 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 				</ul>
 			</article>
 		</section>
+
+		<section class="contact-note section-panel">
+			<div>
+				<span class="card-label">Not sure where to start?</span>
+				<h2>Send the short version.</h2>
+			</div>
+			<p>
+				A concise note with the goal, timeline, and best next step is enough. If I am not the right fit, I will
+				try to make that clear quickly.
+			</p>
+			<a class="button-primary" :href="`mailto:${profile.email}`">Start by email</a>
+		</section>
 	</div>
 </template>
 
@@ -150,14 +162,35 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 	text-underline-offset: 0.16em;
 }
 
+.contact-note {
+	display: grid;
+	grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.2fr) auto;
+	gap: 1.2rem;
+	align-items: center;
+	padding: var(--panel-padding-roomy);
+}
+
+.contact-note h2 {
+	font-size: 1.65rem;
+	line-height: 1.16;
+	margin-top: 0.45rem;
+}
+
+.contact-note p {
+	color: var(--color-text-muted);
+	line-height: 1.72;
+}
+
 @media (max-width: 960px) {
-	.contact-grid {
+	.contact-grid,
+	.contact-note {
 		grid-template-columns: 1fr;
 	}
 }
 
 @media (max-width: 640px) {
-	.contact-card {
+	.contact-card,
+	.contact-note {
 		padding: var(--panel-padding);
 	}
 }
