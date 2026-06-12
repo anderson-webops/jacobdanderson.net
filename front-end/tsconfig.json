@@ -155,8 +155,7 @@
 	],
 	"exclude": [
 		"dist",
-		"node_modules",
-		"cypress"
+		"node_modules"
 	],
 	/* project reference for vite.config.ts type-checking (unchanged) */
 	"references": [

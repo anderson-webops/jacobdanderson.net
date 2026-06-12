@@ -87,6 +87,7 @@ export default defineConfig(({ command }) => ({
 	/* vite-ssg */
 	// https://github.com/antfu/vite-ssg
 	ssgOptions: {
+		dirStyle: "nested",
 		script: "async",
 		formatting: "minify",
 		beastiesOptions: {

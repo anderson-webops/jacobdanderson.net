@@ -1,2 +1,13 @@
-node_modules
-dist
+.git
+.github
+.run
+**/.DS_Store
+**/.env
+**/.env.*
+**/dist
+**/node_modules
+*.tsbuildinfo
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
