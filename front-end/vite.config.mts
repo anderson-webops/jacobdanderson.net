@@ -24,6 +24,11 @@ export default defineConfig(({ command }) => ({
 		}
 	},
 
+	build: {
+		// Avoid optional native CSS minifier bindings during Linux ARM64 deploys.
+		cssMinify: false
+	},
+
 	plugins: [
 		/* 1️⃣  Router (must run before macros/layouts) */
 		VueRouter({
@@ -105,4 +110,3 @@ export default defineConfig(({ command }) => ({
 		}
 	}
 }));
-
