@@ -101,9 +101,8 @@ export default defineConfig(({ command }) => ({
 	server: {
 		proxy: {
 			"/api": {
-				target: "http://localhost:3003",
-				changeOrigin: true,
-				rewrite: p => p.replace(/^\/api/, "") // strip /api
+				target: "http://127.0.0.1:3003",
+				changeOrigin: true
 			}
 		}
 	}

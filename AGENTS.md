@@ -14,7 +14,7 @@
 
 ## Build, Test, and Development Commands
 
-- `npm install` (root) installs all workspace dependencies using the pinned `npm@11` toolchain. Avoid mixing package
+- `npm install` (root) installs all workspace dependencies using the pinned `npm@12` toolchain. Avoid mixing package
   managers.
 - `npm run dev` starts the front-end dev server on port 3333; `npm run serve` runs the same build with `--host` enabled
   for LAN previews.
@@ -41,8 +41,8 @@
   in `__snapshots__/` and should be reviewed line-by-line.
 - Cypress specs should stub network calls against the Express test server; store fixtures under
   `front-end/cypress/fixtures/`.
-- Back-end tests are not yet wired up—when adding them, place suites under a new `back-end/test/` tree and update
-  `npm run -w back-end test` to execute them (prefer Vitest + Supertest for HTTP coverage).
+- Back-end security and runtime tests live under `back-end/test/` and run with Node's test runner through
+  `npm run -w back-end test`.
 - Aim to cover new endpoints, Pinia stores, and critical user flows before requesting review; document any intentionally
   skipped scenarios in the PR.
 
@@ -57,13 +57,12 @@
 
 ## Security & Configuration Tips
 
-- The API expects secrets via environment variables: `SESSION_SECRET`, Mongo credentials (`MONGODB_URI` or Vault via
-  `VAULT_ROLE_ID`/`VAULT_SECRET_ID`), and optional `CROSS_SITE` to adjust cookie policy. Load them through `.env` files
-  excluded from version control.
-- `npm run server` already loads `dotenv/config` and will attempt Vault retrieval via `src/vaultClient.ts`; validate
-  both code paths when changing auth or persistence.
-- Never commit real credentials or production endpoints. Scrub logs before sharing, and verify rate limiting when
-  exposing new routes under `/admin-mail` or other sensitive prefixes.
+- The public site has no authentication, account, role, promotion, or demotion workflow. Do not reintroduce a dormant
+  identity stack; any future authenticated feature needs a reviewed authorization design and dedicated security tests.
+- The readiness API expects Mongo credentials through either `MONGODB_URI` or a complete Vault AppRole pair. A
+  configured Vault failure must remain fail-closed.
+- Never commit real credentials or production endpoints. Keep local and production environment files mode `0600`,
+  diagnostics disabled by default, and public API exposure limited to the documented health/readiness routes.
 
 
 ## Agent Delivery Workflow

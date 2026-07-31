@@ -2,118 +2,111 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NODE_VERSION: 24.18.0
-  NPM_VERSION: 11.16.0
+  NODE_VERSION: 24.18.1
+  NPM_VERSION: 12.0.2
+  PUPPETEER_SKIP_DOWNLOAD: true
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: Pin npm version
-        run: |
-          npm i -g npm@${{ env.NPM_VERSION }}
-          npm -v
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
+      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm ci --include=optional --strict-allow-scripts
+      - run: npm run lint
 
   typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: Pin npm version
-        run: |
-          npm i -g npm@${{ env.NPM_VERSION }}
-          npm -v
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Typecheck
-        run: npm run typecheck
+      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm ci --include=optional --strict-allow-scripts
+      - run: npm run typecheck
 
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm ci --include=optional --strict-allow-scripts
+      - run: npm test
 
-      - name: Pin npm version
-        run: |
-          npm i -g npm@${{ env.NPM_VERSION }}
-          npm -v
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Unit tests
-        run: npm run -w front-end test:unit -- --run
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm ci --include=optional --strict-allow-scripts
+      - run: npm audit
+      - run: npm audit --omit=dev
+      - run: npm audit signatures
+      - run: npm run verify:native-lock
 
   accessibility:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: Pin npm version
-        run: |
-          npm i -g npm@${{ env.NPM_VERSION }}
-          npm -v
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Axe accessibility smoke checks
-        run: npm run a11y
+      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm ci --include=optional --strict-allow-scripts
+      - run: npm run a11y
 
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: Pin npm version
-        run: |
-          npm i -g npm@${{ env.NPM_VERSION }}
-          npm -v
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build
+      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm ci --include=optional --strict-allow-scripts
+      - name: Build exact source
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
         run: npm run build
+      - run: npm run smoke:backend-runtime
+
+  linux-arm64-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm run verify:platform-install

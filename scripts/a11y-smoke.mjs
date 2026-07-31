@@ -183,7 +183,7 @@ function startFrontend() {
 }
 
 function closeServer(server) {
-	return new Promise(resolveClose => {
+	return new Promise((resolveClose) => {
 		let resolved = false;
 		const finish = () => {
 			if (resolved) return;
@@ -205,7 +205,7 @@ function closeServer(server) {
 }
 
 function stopChildProcess(child) {
-	return new Promise(resolveStop => {
+	return new Promise((resolveStop) => {
 		if (child.exitCode !== null || child.signalCode !== null) {
 			resolveStop();
 			return;
@@ -217,7 +217,7 @@ function stopChildProcess(child) {
 			resolved = true;
 			resolveStop();
 		};
-		const kill = signal => {
+		const kill = (signal) => {
 			try {
 				if (process.platform === "win32") child.kill(signal);
 				else process.kill(-child.pid, signal);
