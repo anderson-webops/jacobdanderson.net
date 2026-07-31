@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { join } from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
 
 const distDir = fileURLToPath(new URL("../front-end/dist/", import.meta.url));
 
@@ -12,6 +13,7 @@ const requiredFiles = [
 	"classes/index.html",
 	"contact/index.html",
 	"resume/index.html",
+	"deployment.json",
 	"site.webmanifest",
 	"robots.txt"
 ];

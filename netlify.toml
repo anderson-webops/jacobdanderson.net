@@ -3,7 +3,8 @@ publish = "front-end/dist"
 command = "npm run build"
 
 [build.environment]
-NODE_VERSION = "24.18.0"
+NODE_VERSION = "24.18.1"
+NPM_VERSION = "12.0.2"
 
 [[redirects]]
 from = "/*"
@@ -11,11 +12,29 @@ to = "/index.html"
 status = 200
 
 [[headers]]
+for = "/*"
+
+[headers.values]
+Content-Security-Policy = "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://analytics.jacobdanderson.net; connect-src 'self' https://analytics.jacobdanderson.net; frame-src 'none'; media-src 'self'; worker-src 'self'; manifest-src 'self'"
+Cross-Origin-Opener-Policy = "same-origin"
+Cross-Origin-Resource-Policy = "same-origin"
+Permissions-Policy = "accelerometer=(), autoplay=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+Referrer-Policy = "strict-origin-when-cross-origin"
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "DENY"
+
+[[headers]]
 for = "/site.webmanifest"
 
 [headers.values]
 Content-Type = "application/manifest+json"
 Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+for = "/deployment.json"
+
+[headers.values]
+Cache-Control = "no-store"
 
 [[headers]]
 for = "/favicon.ico"
