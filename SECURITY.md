@@ -12,11 +12,12 @@ Unknown and retired identity routes return `404`. Any future authenticated featu
 
 ## Operational boundaries
 
-- Bind the backend to loopback and trust only exact proxy IP addresses.
+- Production binds to an exact loopback IP unless an explicit `ALLOW_PUBLIC_LISTENER=true` exception is supplied. The checked-in systemd unit fixes that exception to false and trusts only exact host-local proxy IPs.
 - Configure Vault AppRole completely or not at all. A configured Vault failure stops startup and never falls back to `MONGODB_URI`.
-- Use HTTPS for remote Vault endpoints. Vault responses are time- and size-bounded and redirects are rejected.
-- Keep diagnostics disabled for normal operation. Loopback and forwarded headers never authorize diagnostics.
+- Use HTTPS for remote Vault endpoints. Vault addresses, credentials, tokens, MongoDB URIs, responses, and requests are bounded; control characters and redirects are rejected.
+- Keep diagnostics disabled for normal operation. Loopback and forwarded headers never authorize diagnostics, and enabled keys must be 32 to 512 bytes.
 - Keep production environment files outside the repository with mode `0600`.
 - The public reverse proxy should expose only the documented health/readiness routes, never `/_dbinfo` or retired account paths.
+- Production uses an atomic direct Node/systemd/Nginx release with exact IPv4/IPv6 deployment-identity checks and automatic rollback; there is no production container path.
 
 Report security issues privately to the repository owner rather than opening a public issue with exploit details.

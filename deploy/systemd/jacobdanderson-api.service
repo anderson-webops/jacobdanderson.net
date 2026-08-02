@@ -7,22 +7,23 @@ Wants=network-online.target
 Type=simple
 User=jacobdanderson
 Group=jacobdanderson
-WorkingDirectory=/srv/jacobdanderson.net
-Environment=NODE_ENV=production
-Environment=HOST=127.0.0.1
-Environment=PORT=3003
-Environment=TRUST_PROXY_IPS=loopback
+WorkingDirectory=/srv/jacobdanderson.net/current
 EnvironmentFile=/etc/jacobdanderson/api.env
-ExecStart=/usr/bin/node /srv/jacobdanderson.net/back-end/dist/server.js
+ExecStartPre=/usr/bin/test -f /srv/jacobdanderson.net/current/back-end/dist/server.js
+ExecStartPre=/usr/bin/test -f /srv/jacobdanderson.net/current/front-end/dist/deployment.json
+ExecStart=/usr/bin/env NODE_ENV=production HOST=127.0.0.1 PORT=3003 ALLOW_PUBLIC_LISTENER=false /usr/bin/node back-end/dist/server.js
 Restart=on-failure
 RestartSec=5s
+SyslogIdentifier=jacobdanderson-api
 TimeoutStartSec=30s
 TimeoutStopSec=30s
 UMask=0077
+AmbientCapabilities=
 CapabilityBoundingSet=
 LockPersonality=true
 NoNewPrivileges=true
 PrivateDevices=true
+PrivateMounts=true
 PrivateTmp=true
 ProcSubset=pid
 ProtectClock=true

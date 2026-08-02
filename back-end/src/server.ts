@@ -13,6 +13,11 @@ import { resolveMongoConfiguration } from "./utils/mongoConfiguration.js";
 import { logError } from "./utils/safeLog.js";
 
 const READY_TIMEOUT_MS = 3_000;
+const REQUEST_TIMEOUT_MS = 10_000;
+const HEADERS_TIMEOUT_MS = 8_000;
+const KEEP_ALIVE_TIMEOUT_MS = 5_000;
+const MAX_REQUESTS_PER_SOCKET = 1_000;
+const LOOPBACK_LISTENERS = new Set(["127.0.0.1", "::1"]);
 
 export interface DatabaseInfo {
 	databaseName: string | null;
@@ -84,12 +89,39 @@ export function parsePort(value: string | undefined): number {
 	return port;
 }
 
+export function parseBooleanFlag(value: string | undefined, name: string, fallback = false): boolean {
+	const candidate = (value || "").trim();
+	if (!candidate) return fallback;
+	if (candidate === "true") return true;
+	if (candidate === "false") return false;
+	throw new Error(`${name} must be either true or false.`);
+}
+
 export function parseHost(value: string | undefined): string {
 	const candidate = (value || "127.0.0.1").trim();
-	if (!candidate || candidate.length > 253 || /[\s/\\]/.test(candidate)) {
+	const validHostname = candidate
+		.split(".")
+		.every(label => (
+			label.length >= 1
+			&& label.length <= 63
+			&& /^[a-z\d-]+$/i.test(label)
+			&& !label.startsWith("-")
+			&& !label.endsWith("-")
+		));
+	if (
+		!candidate
+		|| candidate.length > 253
+		|| (!isIP(candidate) && candidate !== "localhost" && !validHostname)
+	) {
 		throw new Error("HOST must be a valid hostname or IP address.");
 	}
 	return candidate;
+}
+
+export function validateProductionListener(host: string, isProduction: boolean, allowPublicListener: boolean) {
+	if (isProduction && !allowPublicListener && !LOOPBACK_LISTENERS.has(host)) {
+		throw new Error("Production HOST must be an exact loopback IP unless ALLOW_PUBLIC_LISTENER=true.");
+	}
 }
 
 export function createApp({
@@ -189,28 +221,34 @@ export function createApp({
 	return app;
 }
 
-function summarizeMongoTarget(uri: string): string {
-	const withoutScheme = uri.replace(/^mongodb(?:\+srv)?:\/\//, "");
-	const withoutAuth = withoutScheme.includes("@") ? withoutScheme.split("@").at(-1) ?? withoutScheme : withoutScheme;
-	return withoutAuth.split(/[/?]/)[0] || "unknown-target";
-}
-
 async function listen(app: ReturnType<typeof createApp>, port: number, host: string): Promise<Server> {
 	return await new Promise<Server>((resolve, reject) => {
 		const server = app.listen(port, host);
+		server.requestTimeout = REQUEST_TIMEOUT_MS;
+		server.headersTimeout = HEADERS_TIMEOUT_MS;
+		server.keepAliveTimeout = KEEP_ALIVE_TIMEOUT_MS;
+		server.maxRequestsPerSocket = MAX_REQUESTS_PER_SOCKET;
 		server.once("error", reject);
 		server.once("listening", () => resolve(server));
 	});
 }
 
 export async function main() {
-	const diagnosticsEnabled = env.ENABLE_INTERNAL_DIAGNOSTICS === "true";
+	const isProduction = env.NODE_ENV === "production";
+	const diagnosticsEnabled = parseBooleanFlag(
+		env.ENABLE_INTERNAL_DIAGNOSTICS,
+		"ENABLE_INTERNAL_DIAGNOSTICS"
+	);
 	const diagnosticsKey = env.INTERNAL_DIAGNOSTICS_KEY;
 	validateDiagnosticsConfiguration(diagnosticsEnabled, diagnosticsKey);
+	parseTrustedProxies(env.TRUST_PROXY_IPS);
+	const host = parseHost(env.HOST);
+	const port = parsePort(env.PORT);
+	const allowPublicListener = parseBooleanFlag(env.ALLOW_PUBLIC_LISTENER, "ALLOW_PUBLIC_LISTENER");
+	validateProductionListener(host, isProduction, allowPublicListener);
 
 	const mongoConfiguration = await resolveMongoConfiguration();
-	const mongoTarget = summarizeMongoTarget(mongoConfiguration.uri);
-	console.log(`Mongo startup: source=${mongoConfiguration.source} target=${mongoTarget}`);
+	console.log(`Mongo startup: source=${mongoConfiguration.source}`);
 	await mongoose.connect(mongoConfiguration.uri, {
 		connectTimeoutMS: 5_000,
 		serverSelectionTimeoutMS: 5_000
@@ -238,12 +276,10 @@ export async function main() {
 	const app = createApp({
 		diagnosticsEnabled,
 		diagnosticsKey,
-		isProduction: env.NODE_ENV === "production",
+		isProduction,
 		services,
 		trustedProxies: env.TRUST_PROXY_IPS
 	});
-	const host = parseHost(env.HOST);
-	const port = parsePort(env.PORT);
 	const server = await listen(app, port, host);
 	console.log(`Server listening on http://${host}:${port}`);
 
@@ -255,9 +291,13 @@ export async function main() {
 
 		try {
 			if (server.listening) {
+				const forceClose = setTimeout(() => server.closeAllConnections(), 10_000);
+				forceClose.unref();
+				server.closeIdleConnections();
 				await new Promise<void>((resolve, reject) => {
 					server.close(error => (error ? reject(error) : resolve()));
 				});
+				clearTimeout(forceClose);
 			}
 			if (mongoose.connection.readyState !== 0) await mongoose.disconnect();
 			console.log("Graceful shutdown complete.");

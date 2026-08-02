@@ -1,0 +1,111 @@
+# Direct Nginx edge for jacobdanderson.net.
+#
+# Install this as a host virtual server after adding certificate paths managed
+# by the production host. Static files and the API come from the same atomic
+# release selected by deploy/systemd/promote-release.sh.
+
+upstream jacobdanderson_api {
+	server 127.0.0.1:3003;
+	keepalive 16;
+}
+
+server {
+	listen 80;
+	listen [::]:80;
+	server_name jacobdanderson.net www.jacobdanderson.net;
+	server_tokens off;
+
+	location ^~ /.well-known/acme-challenge/ {
+		root /var/www/acme;
+		try_files $uri =404;
+	}
+
+	return 301 https://jacobdanderson.net$request_uri;
+}
+
+server {
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2;
+	server_name jacobdanderson.net www.jacobdanderson.net;
+	server_tokens off;
+
+	# Certificate paths are host-managed and intentionally not committed.
+	# ssl_certificate /etc/letsencrypt/live/jacobdanderson.net/fullchain.pem;
+	# ssl_certificate_key /etc/letsencrypt/live/jacobdanderson.net/privkey.pem;
+
+	root /srv/jacobdanderson.net/current/front-end/dist;
+	index index.html;
+	client_max_body_size 16k;
+
+	add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://analytics.jacobdanderson.net; script-src-attr 'none'; connect-src 'self' https://analytics.jacobdanderson.net; frame-src 'none'; media-src 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests" always;
+	add_header Cross-Origin-Opener-Policy "same-origin" always;
+	add_header Cross-Origin-Resource-Policy "same-origin" always;
+	add_header Permissions-Policy "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=(), xr-spatial-tracking=()" always;
+	add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+	add_header X-Content-Type-Options "nosniff" always;
+	add_header X-Frame-Options "DENY" always;
+
+	location = /_dbinfo {
+		return 404;
+	}
+
+	location ~ ^/(?:accounts|admin)(?:/|$) {
+		return 404;
+	}
+
+	location ~ ^/(?:api/)?(?:healthz|readyz)$ {
+		if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+		proxy_http_version 1.1;
+		proxy_connect_timeout 3s;
+		proxy_read_timeout 5s;
+		proxy_send_timeout 5s;
+		proxy_set_header Connection "";
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $remote_addr;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_hide_header X-Powered-By;
+		proxy_pass http://jacobdanderson_api;
+	}
+
+	location = /api {
+		return 404;
+	}
+
+	location ^~ /api/ {
+		return 404;
+	}
+
+	location = /deployment.json {
+		if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+		try_files $uri =404;
+		default_type application/json;
+		add_header Cache-Control "no-store" always;
+		add_header Content-Security-Policy "default-src 'none'; frame-ancestors 'none'" always;
+		add_header Cross-Origin-Opener-Policy "same-origin" always;
+		add_header Cross-Origin-Resource-Policy "same-origin" always;
+		add_header Referrer-Policy "no-referrer" always;
+		add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+		add_header X-Content-Type-Options "nosniff" always;
+		add_header X-Frame-Options "DENY" always;
+	}
+
+	location /assets/ {
+		if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+		try_files $uri =404;
+		expires 1y;
+		add_header Cache-Control "public, max-age=31536000, immutable" always;
+		add_header Cross-Origin-Resource-Policy "same-origin" always;
+		add_header X-Content-Type-Options "nosniff" always;
+	}
+
+	location ~ (^|/)\. {
+		return 404;
+	}
+
+	location / {
+		if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+		try_files $uri $uri/ $uri/index.html =404;
+	}
+}

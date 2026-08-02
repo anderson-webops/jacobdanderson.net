@@ -27,3 +27,4 @@ npm run up
 - The public site has no login, account, role, promotion, or demotion workflow. The backend does not accept content mutations.
 - Use `npm run server` and `npm run serve` when you want the readiness service and front-end started separately.
 - Use [`HEALTHCHECKS.md`](./HEALTHCHECKS.md) for deployment monitor targets instead of `/`.
+- Production serves the static bundle with host Nginx and runs the readiness API under systemd from one atomic release; Docker is not part of the production contract.

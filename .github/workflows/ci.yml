@@ -98,7 +98,12 @@ jobs:
         env:
           SOURCE_COMMIT: ${{ github.sha }}
         run: npm run build
-      - run: npm run smoke:backend-runtime
+      - name: Validate production-only runtime
+        run: |
+          npm ci --omit=dev --include=optional --ignore-scripts
+          npm audit --omit=dev
+          npm run verify:static
+          npm run smoke:backend-runtime
 
   linux-arm64-install:
     runs-on: ubuntu-latest
