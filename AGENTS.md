@@ -63,6 +63,8 @@
   configured Vault failure must remain fail-closed.
 - Never commit real credentials or production endpoints. Keep local and production environment files mode `0600`,
   diagnostics disabled by default, and public API exposure limited to the documented health/readiness routes.
+- Keep production on the direct Nginx plus Node/systemd release contract in `deploy/`. Do not reintroduce a production
+  Docker path; preparation and promotion must preserve the atomic symlink, rollback, and IPv4/IPv6 identity checks.
 
 
 ## Agent Delivery Workflow

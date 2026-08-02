@@ -8,9 +8,22 @@ export interface MongoConfiguration {
 
 type VaultReader = (environment: NodeJS.ProcessEnv) => Promise<{ uri: string }>;
 
+const MAX_MONGO_URI_LENGTH = 8_192;
+
+function hasControlCharacters(value: string): boolean {
+	return [...value].some((character) => {
+		const code = character.codePointAt(0) ?? 0;
+		return code <= 31 || code === 127;
+	});
+}
+
 function validMongoUri(value: string | undefined): string {
 	const uri = (value || "").trim();
-	if (!/^mongodb(?:\+srv)?:\/\//.test(uri) || /[\r\n]/.test(uri)) {
+	if (
+		!/^mongodb(?:\+srv)?:\/\//.test(uri)
+		|| uri.length > MAX_MONGO_URI_LENGTH
+		|| hasControlCharacters(uri)
+	) {
 		throw new Error("MongoDB configuration must provide a valid MongoDB URI.");
 	}
 	return uri;

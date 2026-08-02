@@ -2,22 +2,45 @@ import { env } from "node:process";
 import { z } from "zod";
 import { fetchJsonBounded } from "./utils/boundedFetch.js";
 
+const MAX_VAULT_ADDRESS_LENGTH = 2_048;
+const MAX_VAULT_CREDENTIAL_LENGTH = 4_096;
+const MAX_VAULT_TOKEN_LENGTH = 4_096;
+const MAX_MONGO_URI_LENGTH = 8_192;
+
+function boundedOpaqueValue(maximum: number) {
+	return z.string()
+		.min(1)
+		.max(maximum)
+		.refine(value => !/[\r\n\0]/.test(value), "Value contains forbidden control characters.");
+}
+
 const vaultLoginResponseSchema = z.object({
 	auth: z.object({
-		client_token: z.string().min(1)
+		client_token: boundedOpaqueValue(MAX_VAULT_TOKEN_LENGTH)
 	})
 });
 
 const vaultSecretResponseSchema = z.object({
 	data: z.object({
 		data: z.object({
-			uri: z.string().min(1)
+			uri: boundedOpaqueValue(MAX_MONGO_URI_LENGTH)
 		})
 	})
 });
 
 export function validateVaultAddress(environment: NodeJS.ProcessEnv = env): URL {
-	const parsed = new URL(environment.VAULT_ADDR || "http://127.0.0.1:8200");
+	const rawAddress = (environment.VAULT_ADDR || "http://127.0.0.1:8200").trim();
+	if (!rawAddress || rawAddress.length > MAX_VAULT_ADDRESS_LENGTH || /[\r\n\0]/.test(rawAddress)) {
+		throw new Error(`VAULT_ADDR must be at most ${MAX_VAULT_ADDRESS_LENGTH} characters without controls.`);
+	}
+
+	let parsed: URL;
+	try {
+		parsed = new URL(rawAddress);
+	}
+	catch {
+		throw new Error("VAULT_ADDR must be a valid HTTP or HTTPS origin.");
+	}
 	if (!["http:", "https:"].includes(parsed.protocol) || parsed.username || parsed.password) {
 		throw new Error("VAULT_ADDR must be an HTTP or HTTPS origin without embedded credentials.");
 	}
@@ -41,17 +64,33 @@ export function vaultConfigurationState(
 	return "incomplete";
 }
 
-async function vaultLogin(environment: NodeJS.ProcessEnv): Promise<string> {
+export function validateVaultCredentials(environment: NodeJS.ProcessEnv = env): {
+	roleId: string;
+	secretId: string;
+} {
 	if (vaultConfigurationState(environment) !== "configured") {
 		throw new Error("Vault AppRole credentials are not completely configured.");
 	}
+
+	const roleId = environment.VAULT_ROLE_ID!.trim();
+	const secretId = environment.VAULT_SECRET_ID!.trim();
+	for (const [name, value] of [["VAULT_ROLE_ID", roleId], ["VAULT_SECRET_ID", secretId]] as const) {
+		if (value.length > MAX_VAULT_CREDENTIAL_LENGTH || /[\r\n\0]/.test(value)) {
+			throw new Error(`${name} must be at most ${MAX_VAULT_CREDENTIAL_LENGTH} characters without controls.`);
+		}
+	}
+	return { roleId, secretId };
+}
+
+async function vaultLogin(environment: NodeJS.ProcessEnv): Promise<string> {
+	const credentials = validateVaultCredentials(environment);
 
 	const { data, response } = await fetchJsonBounded<unknown>(
 		new URL("/v1/auth/approle/login", validateVaultAddress(environment)),
 		{
 			body: JSON.stringify({
-				role_id: environment.VAULT_ROLE_ID,
-				secret_id: environment.VAULT_SECRET_ID
+				role_id: credentials.roleId,
+				secret_id: credentials.secretId
 			}),
 			headers: { "Content-Type": "application/json" },
 			method: "POST"
