@@ -143,6 +143,36 @@ export function createApp({
 				: false
 		})
 	);
+	const sendProbe = (request: express.Request, response: express.Response, ok: boolean) => {
+		const probe = response.status(ok ? 200 : 503).set("Cache-Control", "no-store");
+		return request.method === "HEAD" ? probe.end() : probe.json({ ok });
+	};
+	const healthHandler: express.RequestHandler = (request, response) => sendProbe(request, response, true);
+
+	const readinessHandler: express.RequestHandler = async (request, response) => {
+		const state = services.getDatabaseState();
+		if (state !== 1) {
+			return sendProbe(request, response, false);
+		}
+
+		try {
+			await timeoutAfter(services.pingDatabase(), READY_TIMEOUT_MS);
+			return sendProbe(request, response, true);
+		}
+		catch {
+			return sendProbe(request, response, false);
+		}
+	};
+
+	for (const path of ["/healthz", "/api/healthz"]) {
+		app.head(path, healthHandler);
+		app.get(path, healthHandler);
+	}
+	for (const path of ["/readyz", "/api/readyz"]) {
+		app.head(path, readinessHandler);
+		app.get(path, readinessHandler);
+	}
+
 	app.use(
 		rateLimit({
 			legacyHeaders: false,
@@ -151,39 +181,6 @@ export function createApp({
 			windowMs: 60_000
 		})
 	);
-
-	const healthHandler: express.RequestHandler = (_request, response) => {
-		response.set("Cache-Control", "no-store").json({ ok: true });
-	};
-
-	const readinessHandler: express.RequestHandler = async (_request, response) => {
-		const state = services.getDatabaseState();
-		if (state !== 1) {
-			return response.status(503).set("Cache-Control", "no-store").json({
-				ready: false,
-				components: { db: { ok: false, state } }
-			});
-		}
-
-		try {
-			await timeoutAfter(services.pingDatabase(), READY_TIMEOUT_MS);
-			return response.set("Cache-Control", "no-store").json({
-				ready: true,
-				components: { db: { ok: true, state } }
-			});
-		}
-		catch {
-			return response.status(503).set("Cache-Control", "no-store").json({
-				ready: false,
-				components: { db: { ok: false, state } }
-			});
-		}
-	};
-
-	app.get("/healthz", healthHandler);
-	app.get("/readyz", readinessHandler);
-	app.get("/api/healthz", healthHandler);
-	app.get("/api/readyz", readinessHandler);
 
 	app.get("/_dbinfo", (request, response) => {
 		if (!diagnosticsEnabled) {
