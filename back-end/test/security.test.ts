@@ -71,10 +71,19 @@ describe("backend security boundaries", () => {
 
 		const ready = await request(app, "/api/readyz");
 		assert.equal(ready.status, 200);
-		assert.deepEqual(await ready.json(), {
-			ready: true,
-			components: { db: { ok: true, state: 1 } }
-		});
+		assert.deepEqual(await ready.json(), { ok: true });
+		assert.equal(ready.headers.get("set-cookie"), null);
+		assert.equal(ready.headers.get("location"), null);
+		assert.equal(ready.headers.get("www-authenticate"), null);
+
+		const healthHead = await request(app, "/healthz", { method: "HEAD" });
+		assert.equal(healthHead.status, 200);
+		assert.equal(await healthHead.text(), "");
+		assert.equal(healthHead.headers.get("cache-control"), "no-store");
+
+		const readyHead = await request(app, "/readyz", { method: "HEAD" });
+		assert.equal(readyHead.status, 200);
+		assert.equal(await readyHead.text(), "");
 	});
 
 	it("returns generic readiness failures without database errors", async () => {
@@ -89,7 +98,7 @@ describe("backend security boundaries", () => {
 		assert.equal(response.status, 503);
 		const body = JSON.stringify(await response.json());
 		assert.doesNotMatch(body, /mongodb|password|private-host/);
-		assert.match(body, /"ready":false/);
+		assert.equal(body, "{\"ok\":false}");
 	});
 
 	it("keeps diagnostics disabled by default and never trusts loopback alone", async () => {
