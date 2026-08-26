@@ -7,10 +7,10 @@ const socialImageUrl = `${siteUrl}/images/jacob-anderson.jpg`;
 const apiRoutePattern = /^\/api(?:\/|$)/;
 const route = useRoute();
 const summaryDescription =
-	"Jacob Anderson is a computer engineer, cofounder, and educator working across embedded systems, research tooling, and private instruction.";
+	"Jacob Anderson is a Patent Technical Specialist at Meunier Carlin & Curfman with a background in computer engineering, research, product development, and instruction.";
 const defaultTitle = "Jacob Anderson";
 const defaultPageDescription =
-	"Professional portfolio for Jacob Anderson covering engineering work, research tooling, publications, and private instruction.";
+	"Professional portfolio for Jacob Anderson covering patent work, computer engineering, research, publications, and private instruction.";
 const routeTitle = computed(() =>
 	typeof route.meta.title === "string" && route.meta.title.length ? route.meta.title : defaultTitle
 );
@@ -30,11 +30,15 @@ const structuredData = computed(() => {
 		"@context": "https://schema.org",
 		"@type": "Person",
 		description: summaryDescription,
-		email: "mailto:jacobdanderson@gmail.com",
+		email: "mailto:jacob@jacobdanderson.net",
 		image: socialImageUrl,
-		jobTitle: "Computer Engineer, Cofounder, and Educator",
+		jobTitle: "Patent Technical Specialist",
 		name: "Jacob Anderson",
-		sameAs: ["https://github.com/Jacoba1100254352", "https://classes.jacobdanderson.net"],
+		sameAs: [
+			"https://www.linkedin.com/in/jacoba1100254352/",
+			"https://github.com/Jacoba1100254352",
+			"https://classes.jacobdanderson.net"
+		],
 		url: siteUrl
 	};
 	const page = {

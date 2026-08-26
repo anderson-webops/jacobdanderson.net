@@ -1,0 +1,150 @@
+@page {
+	size: Letter;
+	margin: 0.38in 0.5in 0.36in;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 8.65pt;
+	line-height: 1.27;
+	color: #172b3b;
+}
+
+body {
+	margin: 0;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+header {
+	padding-bottom: 7pt;
+	border-bottom: 1.6pt solid #214661;
+}
+
+h1,
+h2,
+h3,
+p,
+ul {
+	margin: 0;
+}
+
+h1 {
+	font-size: 22pt;
+	line-height: 1;
+	letter-spacing: -0.35pt;
+	color: #16364b;
+}
+
+.role-line {
+	margin-top: 2.5pt;
+	font-size: 9.3pt;
+	font-weight: 700;
+	letter-spacing: 0.25pt;
+	color: #8d552d;
+}
+
+.contact-line {
+	margin-top: 3pt;
+	font-size: 8.1pt;
+	color: #435969;
+}
+
+.summary {
+	margin-top: 6pt;
+	font-size: 8.8pt;
+	line-height: 1.32;
+}
+
+.section {
+	margin-top: 7pt;
+}
+
+h2 {
+	padding-bottom: 2pt;
+	border-bottom: 0.8pt solid #b9c7cf;
+	font-size: 9.2pt;
+	line-height: 1;
+	letter-spacing: 0.9pt;
+	text-transform: uppercase;
+	color: #214661;
+}
+
+.entry {
+	margin-top: 4.8pt;
+	break-inside: avoid;
+}
+
+.entry-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8pt;
+}
+
+.entry-head h3 {
+	font-size: 9.2pt;
+	line-height: 1.15;
+	font-weight: 700;
+}
+
+.date {
+	flex: none;
+	font-size: 8pt;
+	font-weight: 700;
+	color: #435969;
+}
+
+.organization {
+	margin-top: 0.8pt;
+	font-size: 8.2pt;
+	font-weight: 600;
+	color: #526a79;
+}
+
+ul {
+	margin-top: 2pt;
+	padding-left: 13pt;
+}
+
+li {
+	margin-top: 1pt;
+	padding-left: 1pt;
+}
+
+.education-grid,
+.skills-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8pt 18pt;
+}
+
+.compact p {
+	margin-top: 1.4pt;
+}
+
+.label {
+	font-weight: 700;
+	color: #214661;
+}
+
+.publication {
+	margin-top: 4.3pt;
+	font-size: 8.2pt;
+	line-height: 1.28;
+}
+
+.footer-note {
+	margin-top: 5pt;
+	padding-top: 3.5pt;
+	border-top: 0.6pt solid #d4dde2;
+	font-size: 7.4pt;
+	color: #5b6f7b;
+}

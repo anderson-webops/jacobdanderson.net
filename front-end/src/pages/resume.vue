@@ -5,11 +5,11 @@ import { useMainStore } from "~/stores";
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
 const profileLinks = computed(() => profile.value.profiles.filter(item => item.href !== "/resume"));
-const engineeringExperience = computed(() =>
-	store.userProfile.experience.filter(item => item.category === "engineering")
+const professionalExperience = computed(() =>
+	store.userProfile.experience.filter(item => item.category === "patent" || item.category === "engineering")
 );
-const instructionExperience = computed(() =>
-	store.userProfile.experience.filter(item => item.category === "instruction")
+const additionalExperience = computed(() =>
+	store.userProfile.experience.filter(item => item.category === "instruction" || item.category === "leadership")
 );
 
 function printResume() {
@@ -29,8 +29,8 @@ function printResume() {
 				</div>
 
 				<div class="resume-actions button-row">
-					<button class="button-primary" type="button" @click="printResume">Print résumé</button>
-					<a class="button-secondary" :href="`mailto:${profile.email}`">Email Jacob</a>
+					<a class="button-primary" download href="/resume/jacob-anderson-resume.pdf">Download PDF</a>
+					<button class="button-secondary" type="button" @click="printResume">Print page</button>
 				</div>
 			</div>
 
@@ -71,11 +71,16 @@ function printResume() {
 		<section class="resume-section">
 			<div class="section-head">
 				<p class="eyebrow">Experience</p>
-				<h2>Engineering, research, and instruction</h2>
+				<h2>Patent, engineering, and research</h2>
 			</div>
 
 			<div class="resume-grid">
-				<article v-for="item in engineeringExperience" :key="item.title" class="resume-card section-panel">
+				<article
+					v-for="item in professionalExperience"
+					:key="`${item.organization}-${item.title}`"
+					:class="{ 'current-role': item.category === 'patent' }"
+					class="resume-card section-panel"
+				>
 					<div class="card-top">
 						<span class="card-label">{{ item.organization }}</span>
 						<span class="timeframe">{{ item.timeframe }}</span>
@@ -87,8 +92,21 @@ function printResume() {
 						<li v-for="highlight in item.highlights" :key="highlight">{{ highlight }}</li>
 					</ul>
 				</article>
+			</div>
+		</section>
 
-				<article v-for="item in instructionExperience" :key="item.title" class="resume-card section-panel">
+		<section class="resume-section">
+			<div class="section-head">
+				<p class="eyebrow">Additional Experience</p>
+				<h2>Instruction and leadership</h2>
+			</div>
+
+			<div class="resume-grid">
+				<article
+					v-for="item in additionalExperience"
+					:key="`${item.organization}-${item.title}`"
+					class="resume-card section-panel"
+				>
 					<div class="card-top">
 						<span class="card-label">{{ item.organization }}</span>
 						<span class="timeframe">{{ item.timeframe }}</span>
@@ -264,6 +282,12 @@ function printResume() {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.current-role {
+	grid-column: 1 / -1;
+	border-color: rgba(33, 70, 97, 0.24);
+	box-shadow: 0 18px 44px rgba(22, 52, 75, 0.11);
+}
+
 .resume-columns {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -363,5 +387,5 @@ function printResume() {
 meta:
     layout: default
     title: Résumé | Jacob Anderson
-    description: Printable résumé for Jacob Anderson covering engineering work, teaching, education, and contact details.
+    description: Résumé for Jacob Anderson covering patent work at Meunier Carlin & Curfman, engineering, research, teaching, education, and technical skills.
 </route>

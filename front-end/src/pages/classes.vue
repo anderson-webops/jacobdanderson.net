@@ -230,5 +230,5 @@ const profile = computed(() => store.userProfile);
 meta:
     layout: default
     title: Teaching | Jacob Anderson
-    description: Private lessons in programming, STEM, and Spanish, plus instructor training and onboarding details for Jacob Anderson's teaching practice.
+    description: Private lessons in programming, STEM, math, and Spanish through Jacob Anderson's independent teaching practice.
 </route>

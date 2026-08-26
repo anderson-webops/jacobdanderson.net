@@ -14,12 +14,11 @@ const profile = computed(() => store.userProfile);
 			<div class="about-layout">
 				<div class="about-copy">
 					<header class="page-intro">
-						<h1>Engineering and teaching, in practice.</h1>
+						<h1>Patent work grounded in engineering practice.</h1>
 						<p>
-							Both are built around careful scoping, clear explanation, and reliable follow-through. My
-							engineering work has included radiation-effects simulation tooling, sensing hardware for
-							glucose-monitoring research, industrial telemetry interfaces, and product development at
-							Stride. In parallel, I teach programming, STEM, and Spanish one-on-one.
+							At Meunier Carlin & Curfman, I support patent attorneys by analyzing technical material and
+							assisting with patent application preparation. That work draws on experience with embedded
+							systems, simulation, sensing, software, product development, and technical instruction.
 						</p>
 					</header>
 
@@ -29,8 +28,14 @@ const profile = computed(() => store.userProfile);
 							<span class="snapshot-date">Updated {{ profile.lastUpdated }}</span>
 						</div>
 
+						<div class="snapshot-practice snapshot-primary">
+							<span class="card-label">Patent & technical</span>
+							<h2>{{ profile.practices.patent.title }}</h2>
+							<p class="snapshot-copy">{{ profile.practices.patent.summary }}</p>
+						</div>
+
 						<div class="snapshot-practice">
-							<span class="card-label">Engineering</span>
+							<span class="card-label">Engineering background</span>
 							<h2>{{ profile.practices.engineering.title }}</h2>
 							<p class="snapshot-copy">{{ profile.practices.engineering.summary }}</p>
 						</div>
@@ -48,16 +53,26 @@ const profile = computed(() => store.userProfile);
 					src="/images/jacob-anderson.jpg"
 					alt="Portrait of Jacob Anderson"
 					fetchpriority="high"
-					height="3088"
-					width="2316"
+					height="1200"
+					width="1200"
 				/>
 			</div>
 		</section>
 
 		<section class="support-grid">
 			<article class="support-card section-panel">
-				<span class="card-label">Recent engineering proof</span>
-				<h2>Recent outcomes and artifacts</h2>
+				<span class="card-label">Current professional focus</span>
+				<h2>Technical depth for patent preparation</h2>
+				<ul>
+					<li>Analyze invention disclosures and technical discussions across multiple technology areas.</li>
+					<li>Assist with claims, technical descriptions, figures, strategy, and research.</li>
+					<li>Perform patent-related work through MCC under attorney supervision.</li>
+				</ul>
+			</article>
+
+			<article class="support-card section-panel">
+				<span class="card-label">Engineering proof</span>
+				<h2>Research and technical outcomes</h2>
 				<ul>
 					<li>Co-authored the ISCAS 2025 paper on the OSCRE radiation-effects simulation framework.</li>
 					<li>Delivered a working industrial drill monitoring demo for Epiroc sponsor review.</li>
@@ -72,7 +87,7 @@ const profile = computed(() => store.userProfile);
 					<li>Private lessons in programming, STEM, and Spanish.</li>
 					<li>50-minute sessions with a consultation before the first lesson.</li>
 					<li>Follow-up, project review, and next steps after sessions when useful.</li>
-					<li>Instructor training and curriculum support through Juni Learning.</li>
+					<li>Prior instructor coaching and curriculum support through Juni Learning.</li>
 				</ul>
 			</article>
 
@@ -91,13 +106,6 @@ const profile = computed(() => store.userProfile);
 						</a>
 					</template>
 				</div>
-			</article>
-
-			<article class="support-card section-panel">
-				<span class="card-label">Résumé</span>
-				<h2>Printable background</h2>
-				<p>Use the résumé page for a direct view of experience, education, and contact details.</p>
-				<RouterLink class="section-link" to="/resume">Open résumé</RouterLink>
 			</article>
 		</section>
 
@@ -170,6 +178,11 @@ const profile = computed(() => store.userProfile);
 	gap: 0.4rem;
 }
 
+.snapshot-primary {
+	padding-bottom: 1rem;
+	border-bottom: 1px solid var(--color-border);
+}
+
 .snapshot-practice h2 {
 	font-size: 1.42rem;
 	line-height: 1.2;
@@ -186,7 +199,10 @@ const profile = computed(() => store.userProfile);
 
 .portrait-image {
 	width: 100%;
+	aspect-ratio: 4 / 5;
 	height: auto;
+	object-fit: cover;
+	object-position: center 40%;
 	border-radius: 24px;
 	border: 1px solid rgba(255, 255, 255, 0.72);
 	box-shadow: var(--shadow-card);
@@ -262,5 +278,5 @@ const profile = computed(() => store.userProfile);
 meta:
     layout: default
     title: About | Jacob Anderson
-    description: Background on Jacob Anderson's engineering work, teaching practice, publications, and current focus.
+    description: Background on Jacob Anderson's patent work at Meunier Carlin & Curfman, engineering experience, education, publications, and teaching practice.
 </route>
