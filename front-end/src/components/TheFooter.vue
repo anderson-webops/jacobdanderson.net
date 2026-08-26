@@ -19,8 +19,8 @@ const internalLinks = [
 		<div class="footer-shell section-panel">
 			<div class="footer-top">
 				<p class="footer-note">
-					Engineering engagements, research collaborations, and private instruction based in
-					{{ profile.location }}.
+					Patent technical work, computer engineering, research, and private instruction based in
+					{{ profile.location }}. Patent work is performed through MCC under attorney supervision.
 				</p>
 				<nav aria-label="Footer" class="footer-nav">
 					<RouterLink v-for="link in internalLinks" :key="link.to" :to="link.to">

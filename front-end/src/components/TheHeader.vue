@@ -48,7 +48,7 @@ watch(
 					</div>
 					<div class="brand-copy">
 						<span class="brand-name">Jacob Anderson</span>
-						<span class="brand-meta">Engineering • Teaching</span>
+						<span class="brand-meta">Patent • Engineering • Teaching</span>
 					</div>
 				</RouterLink>
 

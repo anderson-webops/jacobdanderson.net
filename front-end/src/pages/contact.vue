@@ -4,7 +4,7 @@ import { useMainStore } from "~/stores";
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
-const resumeRequest = computed(() => profile.value.profiles[2]);
+const resumeRequest = computed(() => profile.value.profiles.find(item => item.href === "/resume")!);
 </script>
 
 <template>
@@ -13,8 +13,8 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 			<p class="eyebrow">Contact</p>
 			<h1>Contact Jacob</h1>
 			<p>
-				For engineering work, research collaborations, or private lessons, email is the fastest way to reach me.
-				I usually respond within two business days.
+				For professional networking, engineering or research conversations, and private lessons, email is the
+				fastest way to reach me. I usually respond within two business days.
 			</p>
 		</header>
 
@@ -45,11 +45,11 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 			</article>
 
 			<article class="contact-card section-panel">
-				<span class="card-label">Engineering work</span>
+				<span class="card-label">Professional & technical</span>
 				<h2>What to include in an inquiry</h2>
 				<ul>
-					<li>The product, system, or research context you are working in.</li>
-					<li>The technical scope: embedded work, telemetry, tooling, or related software.</li>
+					<li>The professional, product, system, or research context you are working in.</li>
+					<li>The technical scope, relevant background, and question you would like to discuss.</li>
 					<li>Timing, stakeholders, and any constraints that matter early.</li>
 				</ul>
 			</article>
@@ -70,14 +70,14 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 
 		<section class="contact-note section-panel">
 			<div>
-				<span class="card-label">Not sure where to start?</span>
-				<h2>Send the short version.</h2>
+				<span class="card-label">Professional boundary</span>
+				<h2>Patent work stays with the firm.</h2>
 			</div>
 			<p>
-				A concise note with the goal, timeline, and best next step is enough. If I am not the right fit, I will
-				try to make that clear quickly.
+				This site presents my background and is not an offer of legal or patent services. My patent-related work
+				is performed through Meunier Carlin & Curfman under attorney supervision.
 			</p>
-			<a class="button-primary" :href="`mailto:${profile.email}`">Start by email</a>
+			<a class="button-primary" :href="`mailto:${profile.email}`">Send a concise note</a>
 		</section>
 	</div>
 </template>
@@ -200,5 +200,5 @@ const resumeRequest = computed(() => profile.value.profiles[2]);
 meta:
     layout: default
     title: Contact | Jacob Anderson
-    description: Contact Jacob Anderson for engineering engagements, research collaborations, and private instruction.
+    description: Contact Jacob Anderson for professional networking, engineering and research conversations, or private instruction.
 </route>

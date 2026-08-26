@@ -3,11 +3,12 @@ import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
 const store = useMainStore();
+const patentExperience = computed(() => store.userProfile.experience.filter(item => item.category === "patent"));
 const engineeringExperience = computed(() =>
 	store.userProfile.experience.filter(item => item.category === "engineering")
 );
-const instructionExperience = computed(() =>
-	store.userProfile.experience.filter(item => item.category === "instruction")
+const instructionAndLeadershipExperience = computed(() =>
+	store.userProfile.experience.filter(item => item.category === "instruction" || item.category === "leadership")
 );
 </script>
 
@@ -15,14 +16,52 @@ const instructionExperience = computed(() =>
 	<div class="experience-page">
 		<header class="page-intro">
 			<p class="eyebrow">Experience</p>
-			<h1>Experience</h1>
+			<h1>Patent work grounded in engineering practice.</h1>
+			<p>
+				My current role at Meunier Carlin & Curfman builds on hands-on experience in engineering, research,
+				product development, technical operations, and instruction.
+			</p>
 		</header>
 
 		<section class="section-block">
 			<div class="section-top">
 				<div>
+					<p class="eyebrow">Current Role</p>
+					<h2>Patent & technical work</h2>
+				</div>
+			</div>
+
+			<div class="timeline primary-timeline">
+				<article
+					v-for="(item, index) in patentExperience"
+					:key="index"
+					class="entry section-panel current-entry"
+				>
+					<div class="entry-meta">
+						<span class="entry-organization">{{ item.organization }}</span>
+						<span class="entry-timeframe">{{ item.timeframe }}</span>
+					</div>
+					<h3>{{ item.title }}</h3>
+					<p class="entry-location">{{ item.location }}</p>
+					<p class="entry-summary">{{ item.summary }}</p>
+					<ul>
+						<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
+							{{ highlight }}
+						</li>
+					</ul>
+					<p class="role-boundary">
+						This site describes my professional background only. Patent work is performed through MCC under
+						attorney supervision.
+					</p>
+				</article>
+			</div>
+		</section>
+
+		<section class="section-block">
+			<div class="section-top">
+				<div>
 					<p class="eyebrow">Engineering & Research</p>
-					<h2>Technical roles</h2>
+					<h2>Technical and product roles</h2>
 				</div>
 			</div>
 
@@ -47,13 +86,17 @@ const instructionExperience = computed(() =>
 		<section class="section-block">
 			<div class="section-top">
 				<div>
-					<p class="eyebrow">Teaching & Instruction</p>
-					<h2>Instructional work</h2>
+					<p class="eyebrow">Instruction & Leadership</p>
+					<h2>Teaching and additional experience</h2>
 				</div>
 			</div>
 
-			<div class="timeline instruction-timeline">
-				<article v-for="(item, index) in instructionExperience" :key="index" class="entry section-panel">
+			<div class="timeline">
+				<article
+					v-for="(item, index) in instructionAndLeadershipExperience"
+					:key="index"
+					class="entry section-panel"
+				>
 					<div class="entry-meta">
 						<span class="entry-organization">{{ item.organization }}</span>
 						<span class="entry-timeframe">{{ item.timeframe }}</span>
@@ -96,8 +139,13 @@ const instructionExperience = computed(() =>
 	gap: 1.1rem;
 }
 
-.instruction-timeline {
+.primary-timeline {
 	grid-template-columns: 1fr;
+}
+
+.current-entry {
+	border-color: rgba(33, 70, 97, 0.24);
+	box-shadow: 0 18px 44px rgba(22, 52, 75, 0.11);
 }
 
 .entry {
@@ -135,7 +183,8 @@ const instructionExperience = computed(() =>
 
 .entry-location,
 .entry-summary,
-.entry ul {
+.entry ul,
+.role-boundary {
 	color: var(--color-text-muted);
 	line-height: 1.72;
 }
@@ -150,6 +199,13 @@ const instructionExperience = computed(() =>
 	display: flex;
 	flex-direction: column;
 	gap: 0.55rem;
+}
+
+.role-boundary {
+	margin: 0;
+	padding-top: 0.85rem;
+	border-top: 1px solid var(--color-border);
+	font-size: 0.92rem;
 }
 
 @media (max-width: 900px) {
@@ -178,5 +234,5 @@ const instructionExperience = computed(() =>
 meta:
     layout: default
     title: Experience | Jacob Anderson
-    description: Engineering, research, and instructional experience for Jacob Anderson across embedded systems, tooling, and private instruction.
+    description: Patent, engineering, research, product, operations, and instructional experience for Jacob Anderson, led by his current Patent Technical Specialist role at Meunier Carlin & Curfman.
 </route>

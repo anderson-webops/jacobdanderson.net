@@ -8,14 +8,16 @@ defineOptions({
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
-const featuredExperience = computed(() => store.featuredEngineeringExperience);
+const featuredExperience = computed(() => store.featuredProfessionalExperience);
 const instructionExperience = computed(() => store.instructionExperience[0]);
 const featuredProjects = computed(() => store.featuredProjects);
-const heroHeadline = "Computer Engineer, Cofounder, and Educator";
-const heroHeadlineLines = ["Computer", "Engineer,", "Cofounder,", "and Educator"];
-const githubProfile = computed(() => profile.value.profiles[0]);
-const teachingProfile = computed(() => profile.value.profiles[1]);
+const heroHeadline = "Patent Technical Specialist";
+const heroHeadlineLines = ["Patent", "Technical", "Specialist"];
+const linkedinProfile = computed(() => profile.value.profiles.find(item => item.label === "LinkedIn")!);
+const githubProfile = computed(() => profile.value.profiles.find(item => item.label === "GitHub")!);
+const teachingProfile = computed(() => profile.value.profiles.find(item => item.label === "Teaching site")!);
 const featuredPublication = computed(() => profile.value.publications[0]);
+const patentPractice = computed(() => profile.value.practices.patent);
 const engineeringPractice = computed(() => profile.value.practices.engineering);
 const teachingPractice = computed(() => profile.value.practices.teaching);
 </script>
@@ -31,13 +33,12 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 				<p class="lede">{{ profile.summary }}</p>
 
 				<div class="button-row">
-					<RouterLink class="button-primary" to="/projects">View engineering work</RouterLink>
-					<a class="button-secondary" :href="teachingProfile.href" rel="noopener" target="_blank">
-						Visit teaching site
-					</a>
+					<RouterLink class="button-primary" to="/experience">View professional experience</RouterLink>
+					<RouterLink class="button-secondary" to="/resume">View résumé</RouterLink>
 				</div>
 
 				<div class="proof-strip">
+					<a :href="linkedinProfile.href" rel="noopener" target="_blank">View LinkedIn</a>
 					<a :href="githubProfile.href" rel="noopener" target="_blank">View GitHub</a>
 					<a :href="featuredPublication.href" rel="noopener" target="_blank">View OSCRE publication</a>
 				</div>
@@ -45,21 +46,21 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 
 			<aside class="hero-aside section-panel">
 				<div class="aside-block">
-					<span class="aside-label">{{ engineeringPractice.label }}</span>
-					<h2>{{ engineeringPractice.title }}</h2>
-					<p>{{ engineeringPractice.summary }}</p>
-					<span class="aside-meta">{{ engineeringPractice.details }}</span>
-					<RouterLink class="section-link" to="/experience">Review engineering background</RouterLink>
+					<span class="aside-label">{{ patentPractice.label }}</span>
+					<h2>{{ patentPractice.title }}</h2>
+					<p>{{ patentPractice.summary }}</p>
+					<span class="aside-meta">{{ patentPractice.details }}</span>
+					<RouterLink class="section-link" to="/experience">Review current role</RouterLink>
 				</div>
 
 				<div class="aside-divider" />
 
 				<div class="aside-block">
-					<span class="aside-label">{{ teachingPractice.label }}</span>
-					<h2>{{ teachingPractice.title }}</h2>
-					<p>{{ teachingPractice.summary }}</p>
-					<span class="aside-meta">{{ teachingPractice.details }}</span>
-					<RouterLink class="section-link" to="/classes">See lesson details</RouterLink>
+					<span class="aside-label">{{ engineeringPractice.label }}</span>
+					<h2>{{ engineeringPractice.title }}</h2>
+					<p>{{ engineeringPractice.summary }}</p>
+					<span class="aside-meta">{{ engineeringPractice.details }}</span>
+					<RouterLink class="section-link" to="/projects">Review technical work</RouterLink>
 				</div>
 			</aside>
 		</section>
@@ -67,25 +68,25 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 		<section class="pathway-section section-panel" aria-labelledby="pathway-heading">
 			<div class="pathway-copy">
 				<p class="eyebrow">Start Here</p>
-				<h2 id="pathway-heading">Two connected practices, one standard for clarity.</h2>
+				<h2 id="pathway-heading">One professional story, three areas of practice.</h2>
 				<p>
-					Use the site based on what you need: engineering proof, lesson logistics, or a concise background
-					reference.
+					Start with current patent work, then review the engineering experience and teaching practice that
+					inform it.
 				</p>
 			</div>
 
 			<div class="pathway-list" aria-label="Primary site paths">
+				<RouterLink to="/experience">
+					<strong>Patent & technical experience</strong>
+					<span>MCC role, technical analysis, engineering work, and prior positions.</span>
+				</RouterLink>
 				<RouterLink to="/projects">
-					<strong>Engineering work</strong>
-					<span>Projects, research tooling, telemetry, and embedded systems outcomes.</span>
+					<strong>Engineering & research</strong>
+					<span>Simulation, sensing, telemetry, embedded systems, and product work.</span>
 				</RouterLink>
 				<RouterLink to="/classes">
 					<strong>Teaching practice</strong>
 					<span>Subjects, lesson format, tuition, and how to start private instruction.</span>
-				</RouterLink>
-				<RouterLink to="/contact">
-					<strong>Contact path</strong>
-					<span>What to include when reaching out for engineering, research, or lessons.</span>
 				</RouterLink>
 			</div>
 		</section>
@@ -93,8 +94,8 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 		<section class="featured-section">
 			<div class="section-top">
 				<div>
-					<p class="eyebrow">Engineering & Research</p>
-					<h2>Selected technical work</h2>
+					<p class="eyebrow">Professional Experience</p>
+					<h2>Patent, engineering, and product work</h2>
 				</div>
 				<RouterLink class="section-link" to="/experience">View full experience</RouterLink>
 			</div>
@@ -157,17 +158,17 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 		<section class="instruction-section section-panel">
 			<div class="instruction-copy">
 				<p class="eyebrow">Teaching</p>
-				<h2>Private instruction and instructor training.</h2>
+				<h2>Independent instruction built on four years of teaching.</h2>
 				<p>
-					I teach one-on-one lessons in programming, STEM, and Spanish, and I support instructor quality and
-					curriculum delivery through training work.
+					I teach one-on-one lessons in programming, STEM, math, and Spanish through Classes with Jacob. That
+					work builds on my prior instruction and instructor coaching at Juni Learning.
 				</p>
 			</div>
 
 			<div class="instruction-card">
 				<span class="instruction-label">{{ instructionExperience.organization }}</span>
 				<h3>{{ instructionExperience.title }}</h3>
-				<p>Standard lessons run 50 minutes, and scheduling and tuition live on the dedicated teaching site.</p>
+				<p>{{ teachingPractice.summary }} Standard lessons run 50 minutes.</p>
 				<a class="section-link" :href="teachingProfile.href" rel="noopener" target="_blank"
 					>Visit teaching site</a
 				>
@@ -517,5 +518,5 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 meta:
     layout: default
     title: Jacob Anderson
-    description: Engineering portfolio and teaching practice for Jacob Anderson covering embedded systems, research tooling, publications, and private instruction.
+    description: Professional portfolio for Jacob Anderson covering patent work at Meunier Carlin & Curfman, computer engineering, research, publications, and private instruction.
 </route>

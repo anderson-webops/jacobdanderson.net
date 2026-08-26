@@ -4,14 +4,19 @@ export const useMainStore = defineStore("main", {
 	state: () => ({
 		userProfile: {
 			name: "Jacob Anderson",
-			headline: "Computer Engineer, Cofounder, and Educator",
-			location: "Alpharetta, GA",
-			email: "jacobdanderson@gmail.com",
+			headline: "Patent Technical Specialist, Computer Engineer, and Educator",
+			location: "Atlanta Metropolitan Area",
+			email: "jacob@jacobdanderson.net",
 			phone: "404-626-0025",
-			lastUpdated: "June 2026",
+			lastUpdated: "August 2026",
 			summary:
-				"I build embedded systems and research tooling, and I teach programming, STEM, and Spanish through private instruction and instructor training. I serve as CTO and cofounder of Stride and am pursuing an M.S. in Computer Engineering at Georgia Tech after completing a B.S. in Computer Engineering with a minor in Computer Science at BYU.",
+				"At Meunier Carlin & Curfman, I support patent attorneys with application preparation and technical analysis across electrical, computer, biomedical, and related technologies. My background spans embedded systems, research tooling, product development, software, and instruction while I pursue an M.S. in Computer Engineering at Georgia Tech.",
 			profiles: [
+				{
+					label: "LinkedIn",
+					href: "https://www.linkedin.com/in/jacoba1100254352/",
+					description: "Current professional roles, education, and activity."
+				},
 				{
 					label: "GitHub",
 					href: "https://github.com/Jacoba1100254352",
@@ -25,7 +30,7 @@ export const useMainStore = defineStore("main", {
 				{
 					label: "View résumé",
 					href: "/resume",
-					description: "Printable résumé with experience, education, and contact details."
+					description: "Professional experience, education, technical work, and contact details."
 				}
 			],
 			publications: [
@@ -37,16 +42,23 @@ export const useMainStore = defineStore("main", {
 				}
 			],
 			practices: {
+				patent: {
+					label: "Current role",
+					title: "Patent Technical Specialist, MCC",
+					summary:
+						"Patent application preparation, technical analysis, figures, and research under attorney supervision.",
+					details: "Atlanta Metropolitan Area · Aug 2026 – Present"
+				},
 				engineering: {
-					label: "Engineering work",
-					title: "CTO & Cofounder, Stride",
-					summary: "Embedded systems, research tooling, telemetry, and technical product work.",
-					details: "Open to engineering engagements and research collaborations."
+					label: "Engineering background",
+					title: "Computer engineering & technical systems",
+					summary: "Embedded systems, simulation, sensing, software, telemetry, and technical product work.",
+					details: "Research, product, and operations experience across academic and independent teams."
 				},
 				teaching: {
 					label: "Teaching work",
-					title: "Private instruction & instructor training",
-					summary: "Programming, STEM, and Spanish through one-on-one lessons and instructor support.",
+					title: "Private programming, STEM & Spanish instruction",
+					summary: "One-on-one lessons through Classes with Jacob, informed by four years at Juni Learning.",
 					details: "$40 per 50-minute lesson through the teaching site."
 				}
 			},
@@ -54,28 +66,58 @@ export const useMainStore = defineStore("main", {
 				{
 					program: "M.S. Computer Engineering",
 					institution: "Georgia Institute of Technology, Atlanta, GA",
-					timeframe: "Aug 2025 – Present",
-					highlights: ["GPA 4.0", "Graduate study across hardware, software, and analysis."]
+					timeframe: "Aug 2025 – Expected May 2027",
+					highlights: [
+						"Graduate GPA 3.50 through Spring 2026.",
+						"Coursework in advanced programming, computer architecture, hardware security, communications, and network security."
+					]
 				},
 				{
 					program: "B.S. Computer Engineering, Minor in Computer Science",
 					institution: "Brigham Young University, Provo, UT",
 					timeframe: "Aug 2020 – Apr 2025",
-					highlights: ["GPA 3.79", "Coursework in embedded systems, BLE networking, and software design."]
+					highlights: [
+						"Cumulative GPA 3.79.",
+						"Coursework in embedded systems, digital design, computer networks, software design, and persuasive writing."
+					]
 				}
 			],
 			experience: [
 				{
-					category: "instruction",
-					title: "Private Instructor & Instructor Success Trainer",
-					organization: "Juni Learning",
-					timeframe: "May 2021 – Present",
-					location: "Remote",
-					summary: "Private lessons and instructor training across programming, STEM, and Spanish.",
+					category: "patent",
+					title: "Patent Technical Specialist",
+					organization: "Meunier Carlin & Curfman LLC",
+					timeframe: "Aug 2026 – Present",
+					location: "Atlanta Metropolitan Area",
+					summary: "Technical analysis and patent application preparation under attorney supervision.",
 					highlights: [
-						"Run one-on-one lessons for students from grade school through adulthood in programming, STEM, and Spanish.",
-						"Coach instructors on lesson delivery, student communication, and curriculum execution.",
-						"Develop training materials and feedback practices used in instructor support and lesson review."
+						"Analyze invention disclosures and inventor discussions involving electrical, computer, biomedical, and related technologies.",
+						"Assist with claims, technical descriptions, figures, application strategy, and technical and patent-related research.",
+						"Continued with the firm as a Patent Technical Specialist after serving as a Summer Intern from June through August 2026."
+					]
+				},
+				{
+					category: "engineering",
+					title: "Programmer & Technical Operations",
+					organization: "AudioT",
+					timeframe: "May 2020 – Aug 2020; Mar 2026 – Present",
+					location: "Remote and field systems",
+					summary: "Edge-computing, remote audio-ingest, and field-readiness work for startup systems.",
+					highlights: [
+						"Programmed Raspberry Pi devices in Python and Bash and documented sensor-data collection for prototype iteration.",
+						"Configured Debian-based infrastructure for remote audio ingest, deployment tooling, and field-readiness validation."
+					]
+				},
+				{
+					category: "engineering",
+					title: "Co-Founder & CTO",
+					organization: "Stride",
+					timeframe: "Sep 2025 – Aug 2026",
+					location: "Atlanta, GA",
+					summary: "Led technical execution for a rental-based backcountry search-and-rescue device concept.",
+					highlights: [
+						"Owned prototype development and product architecture for a device intended to reduce friction, cost, and time-to-help for backcountry visitors.",
+						"Developed concepts for SOS and non-emergency alerts, location reporting, and responder dispatch support."
 					]
 				},
 				{
@@ -98,11 +140,11 @@ export const useMainStore = defineStore("main", {
 					organization: "Purdue SCALE x Brigham Young University",
 					timeframe: "Summer 2024",
 					location: "Provo, UT",
-					summary: "Built simulation tooling for radiation-effects analysis in analog circuits.",
+					summary: "Implemented simulation tooling for radiation-effects analysis in analog circuits.",
 					highlights: [
-						"Led development of the Open-Source Circuit Radiation Effects (OSCRE) simulation framework.",
-						"Created installer scripts and setup workflows that made Xschem and Ngspice analysis reproducible on new lab machines.",
-						"Co-authored the ISCAS 2025 paper describing OSCRE and its applications."
+						"Implemented Xschem and Ngspice workflows within the OSCRE simulation framework.",
+						"Documented repeatable setup and analysis workflows for collaborators.",
+						"Contributed technical documentation and co-authored the ISCAS 2025 paper describing OSCRE and its applications."
 					]
 				},
 				{
@@ -117,6 +159,40 @@ export const useMainStore = defineStore("main", {
 						"Implemented I2C sensor communication for temperature and pressure telemetry.",
 						"Delivered a working operator-facing monitoring demo for sponsor review."
 					]
+				},
+				{
+					category: "instruction",
+					title: "Private Youth STEM Instructor",
+					organization: "Classes with Jacob",
+					timeframe: "Sep 2025 – Present",
+					location: "Remote",
+					summary: "Independent one-on-one instruction in programming, STEM, math, and Spanish.",
+					highlights: [
+						"Build lessons around each student's goals, prior experience, schoolwork, and independent projects.",
+						"Teach durable problem-solving and coding fundamentals through guided, project-based practice."
+					]
+				},
+				{
+					category: "instruction",
+					title: "Instructor & Instructor Success Trainer",
+					organization: "Juni Learning",
+					timeframe: "Jun 2021 – Nov 2025",
+					location: "Remote",
+					summary: "Private computer science and math instruction plus instructor coaching.",
+					highlights: [
+						"Delivered one-on-one programming, math, and science instruction for students with varied backgrounds and experience levels.",
+						"Coached instructors on technical communication, lesson quality, and follow-up with students and families."
+					]
+				},
+				{
+					category: "leadership",
+					title: "Shift Lead",
+					organization: "Crumbl Cookies",
+					timeframe: "May 2020 – Jun 2026",
+					location: "Alpharetta, GA",
+					summary:
+						"Part-time baking, customer service, and shift leadership alongside school and technical work.",
+					highlights: []
 				}
 			],
 			projects: [
@@ -125,11 +201,11 @@ export const useMainStore = defineStore("main", {
 					timeframe: "2024 – 2025",
 					description:
 						"Open-source simulation workflow for modeling single-event effects in analog circuits.",
-					role: "Architecture, tooling workflow design, documentation, and publication support.",
+					role: "Simulation workflow implementation, technical documentation, and publication support.",
 					results: [
-						"Built a repeatable Xschem and Ngspice workflow collaborators could install and reuse across institutions.",
-						"Documented installer and analysis steps so single-event-effects studies could start from a shared baseline.",
-						"Supported the ISCAS 2025 publication describing the framework and its applications."
+						"Implemented a repeatable Xschem and Ngspice workflow collaborators could install and reuse across institutions.",
+						"Documented setup and analysis steps so single-event-effects studies could start from a shared baseline.",
+						"Co-authored the ISCAS 2025 publication describing the framework and its applications."
 					],
 					links: [
 						{
@@ -165,36 +241,71 @@ export const useMainStore = defineStore("main", {
 						"Produced repeatable analysis outputs used to compare runs and refine the prototype."
 					],
 					links: []
+				},
+				{
+					name: "Stride Search-and-Rescue Device Concept",
+					timeframe: "2025 – 2026",
+					description:
+						"Rental-based backcountry device concept for SOS and non-emergency alerts, location reporting, and responder support.",
+					role: "Co-founder, technical architecture, and prototype direction.",
+					results: [
+						"Defined end-to-end technical direction and prototype architecture.",
+						"Explored location and alert workflows intended to reduce time-to-help for backcountry visitors."
+					],
+					links: []
 				}
 			],
 			skills: {
 				languages: [
+					"Python",
 					"C",
 					"C++",
-					"Java",
-					"Python",
+					"MATLAB",
 					"TypeScript",
+					"Java",
+					"Bash",
+					"SystemVerilog",
+					"Verilog",
+					"VHDL",
 					"HTML/CSS",
 					"JavaScript",
-					"SystemVerilog",
-					"VHDL",
-					"MATLAB",
 					"Swift"
 				],
-				frameworks: ["Vue", "React", "Node.js", "Express", "SwiftUI", "NumPy", "Pandas", "Matplotlib"],
-				competencies: [
-					"Embedded systems & microcontroller programming",
-					"Sensor integration (I2C, BLE, industrial telemetry)",
-					"Research tooling, simulation workflows, and data analysis",
-					"Private instruction, instructor training, and curriculum design"
+				frameworks: [
+					"Linux",
+					"Git",
+					"Raspberry Pi",
+					"Xschem",
+					"Ngspice",
+					"Vue",
+					"Nuxt",
+					"Node.js",
+					"Express",
+					"Postgres",
+					"MongoDB"
 				],
-				languagesSpoken: ["English", "Spanish (fluent)", "Portuguese (conversational)"]
+				competencies: [
+					"Patent application preparation and technical analysis under attorney supervision",
+					"Invention disclosure analysis, technical descriptions, figures, and research",
+					"Embedded systems, sensor integration, communication systems, and telemetry",
+					"Research tooling, simulation workflows, signal analysis, and technical documentation",
+					"Private instruction, instructor training, and curriculum adaptation"
+				],
+				languagesSpoken: [
+					"English",
+					"Spanish (professional working)",
+					"Portuguese (professional working)",
+					"French (elementary)",
+					"Russian (elementary)"
+				]
 			}
 		}
 	}),
 	getters: {
-		featuredEngineeringExperience: state =>
-			state.userProfile.experience.filter(item => item.category === "engineering").slice(0, 3),
+		featuredProfessionalExperience: state =>
+			state.userProfile.experience
+				.filter(item => item.category === "patent" || item.category === "engineering")
+				.slice(0, 3),
 		instructionExperience: state => state.userProfile.experience.filter(item => item.category === "instruction"),
 		featuredProjects: state => state.userProfile.projects.slice(0, 2)
 	}
