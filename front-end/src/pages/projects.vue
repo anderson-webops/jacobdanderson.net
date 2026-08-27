@@ -34,6 +34,18 @@ const projects = computed(() => store.userProfile.projects);
 				</div>
 			</article>
 		</section>
+
+		<section class="other-projects-callout section-panel">
+			<div>
+				<p class="card-label">Working index</p>
+				<h2>Looking for the less formal project list?</h2>
+			</div>
+			<p>
+				The broader index covers active experiments, prototypes, maintained tools, teaching platforms, and
+				completed technical work that does not belong in the selected portfolio above.
+			</p>
+			<RouterLink class="section-link" to="/other-projects">Browse other projects</RouterLink>
+		</section>
 	</div>
 </template>
 
@@ -113,6 +125,24 @@ const projects = computed(() => store.userProfile.projects);
 	font-size: 0.92rem;
 	font-weight: 700;
 	text-decoration: none;
+}
+
+.other-projects-callout {
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+	padding: var(--panel-padding);
+}
+
+.other-projects-callout h2 {
+	font-size: 1.42rem;
+	line-height: 1.25;
+}
+
+.other-projects-callout > p {
+	color: var(--color-text-muted);
+	line-height: 1.72;
+	max-width: var(--text-measure);
 }
 
 @media (max-width: 900px) {

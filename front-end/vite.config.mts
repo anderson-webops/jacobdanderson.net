@@ -94,14 +94,30 @@ export default defineConfig(({ command }) => ({
 			reduceInlineStyles: false
 		},
 		onFinished() {
-			generateSitemap();
+			generateSitemap({
+				exclude: ["/admin", "/other-projects"],
+				hostname: "https://jacobdanderson.net",
+				robots: [
+					{ userAgent: "GPTBot", disallow: "/" },
+					{ userAgent: "ClaudeBot", disallow: "/" },
+					{ userAgent: "Google-Extended", disallow: "/" },
+					{ userAgent: "Googlebot", allow: "/", disallow: ["/admin", "/api"] },
+					{ userAgent: "Bingbot", allow: "/", disallow: ["/admin", "/api"] },
+					{ userAgent: "OAI-SearchBot", allow: "/", disallow: ["/admin", "/api"] },
+					{ userAgent: "Claude-SearchBot", allow: "/", disallow: ["/admin", "/api"] },
+					{ userAgent: "PerplexityBot", allow: "/", disallow: ["/admin", "/api"] },
+					{ userAgent: "Perplexity-User", allow: "/", disallow: ["/admin", "/api"] },
+					{ userAgent: "Claude-User", allow: "/", disallow: ["/admin", "/api"] },
+					{ userAgent: "*", allow: "/", disallow: ["/admin", "/api"] }
+				]
+			});
 		}
 	},
 
 	server: {
 		proxy: {
 			"/api": {
-				target: "http://127.0.0.1:3003",
+				target: process.env.VITE_API_PROXY_TARGET || "http://127.0.0.1:3003",
 				changeOrigin: true
 			}
 		}

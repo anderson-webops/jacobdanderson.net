@@ -24,6 +24,8 @@ const routes = [
 	"/",
 	"/about",
 	"/projects",
+	"/other-projects",
+	"/admin",
 	"/experience",
 	"/resume",
 	"/classes",
@@ -75,6 +77,7 @@ function emptyCollection() {
 
 function responseFor(url) {
 	const pathname = url.pathname.replace(/\/+/g, "/");
+	if (pathname.endsWith("/projects/visibility")) return { items: [] };
 	if (pathname.endsWith("/pageview")) return { pageview: 0, startAt: Date.now() };
 	if (pathname.includes("/session")) return { authenticated: false, user: null, admin: null };
 	if (pathname.includes("/auth") || pathname.includes("/login")) return { authenticated: false, user: null, token: "" };
@@ -171,6 +174,7 @@ function startFrontend() {
 			NUXT_PUBLIC_PORTAL_URL: baseUrl,
 			VITE_API_BASE_URL: apiUrl,
 			VITE_API_URL: apiUrl,
+			VITE_API_PROXY_TARGET: `http://127.0.0.1:${apiPort}`,
 			VITE_SSG_API_BASE_URL: apiUrl,
 			VITE_PUBLIC_SITE_ORIGIN: baseUrl,
 			VITE_SHOW_AD_SLOTS: "false"

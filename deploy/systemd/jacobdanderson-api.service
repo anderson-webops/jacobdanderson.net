@@ -1,5 +1,5 @@
 [Unit]
-Description=jacobdanderson.net readiness API
+Description=jacobdanderson.net readiness and project visibility API
 After=network-online.target
 Wants=network-online.target
 

@@ -52,6 +52,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/admin': RouteRecordInfo<
+      '/admin',
+      '/admin',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/classes': RouteRecordInfo<
       '/classes',
       '/classes',
@@ -69,6 +76,13 @@ declare module 'vue-router/auto-routes' {
     '/experience': RouteRecordInfo<
       '/experience',
       '/experience',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/other-projects': RouteRecordInfo<
+      '/other-projects',
+      '/other-projects',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -124,6 +138,14 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/admin.vue': {
+      routes:
+        | '/admin'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/classes.vue': {
       routes:
         | '/classes'
@@ -143,6 +165,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/experience.vue': {
       routes:
         | '/experience'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/other-projects.vue': {
+      routes:
+        | '/other-projects'
       views:
         | never
       pathParamNames:
