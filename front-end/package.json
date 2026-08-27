@@ -27,7 +27,7 @@
 		"lint-fix": "eslint \"src/**/*.{js,ts,vue}\" --fix"
 	},
 	"dependencies": {
-		"@unhead/vue": "^3.0.2",
+		"@unhead/vue": "^2.1.17",
 		"@unocss/reset": "^66.7.5",
 		"pinia": "^4.0.2",
 		"vite-plugin-pages": "^0.33.3",

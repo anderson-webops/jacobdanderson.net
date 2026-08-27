@@ -1,4 +1,5 @@
 import type { Server } from "node:http";
+import type { ProjectVisibilityRecord } from "./models/projectVisibility.js";
 import { isIP } from "node:net";
 import path from "node:path";
 import process, { env } from "node:process";
@@ -8,8 +9,16 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import mongoose from "mongoose";
 
+import { z } from "zod";
+import { listProjectVisibility, setProjectVisibility } from "./models/projectVisibility.js";
 import { canReadDiagnostics, validateDiagnosticsConfiguration } from "./utils/diagnostics.js";
 import { resolveMongoConfiguration } from "./utils/mongoConfiguration.js";
+import {
+	canUseProjectAdmin,
+	isLoopbackRemoteAddress,
+	PROJECT_ADMIN_HEADER,
+	validateProjectAdminConfiguration
+} from "./utils/projectAdmin.js";
 import { logError } from "./utils/safeLog.js";
 
 const READY_TIMEOUT_MS = 3_000;
@@ -18,6 +27,8 @@ const HEADERS_TIMEOUT_MS = 8_000;
 const KEEP_ALIVE_TIMEOUT_MS = 5_000;
 const MAX_REQUESTS_PER_SOCKET = 1_000;
 const LOOPBACK_LISTENERS = new Set(["127.0.0.1", "::1"]);
+const PROJECT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const projectVisibilityUpdateSchema = z.object({ visible: z.boolean() }).strict();
 
 export interface DatabaseInfo {
 	databaseName: string | null;
@@ -30,13 +41,17 @@ export interface DatabaseInfo {
 export interface BackendServices {
 	getDatabaseInfo: () => DatabaseInfo;
 	getDatabaseState: () => number;
+	listProjectVisibility: () => Promise<ProjectVisibilityRecord[]>;
 	pingDatabase: () => Promise<void>;
+	setProjectVisibility: (slug: string, visible: boolean) => Promise<ProjectVisibilityRecord>;
 }
 
 export interface AppOptions {
 	diagnosticsEnabled?: boolean;
 	diagnosticsKey?: string;
 	isProduction?: boolean;
+	projectAdminEnabled?: boolean;
+	projectAdminKey?: string;
 	services: BackendServices;
 	trustedProxies?: string;
 }
@@ -128,10 +143,13 @@ export function createApp({
 	diagnosticsEnabled = false,
 	diagnosticsKey,
 	isProduction = false,
+	projectAdminEnabled = false,
+	projectAdminKey,
 	services,
 	trustedProxies
 }: AppOptions) {
 	validateDiagnosticsConfiguration(diagnosticsEnabled, diagnosticsKey);
+	validateProjectAdminConfiguration(projectAdminEnabled, projectAdminKey);
 
 	const app = express();
 	app.disable("x-powered-by");
@@ -142,6 +160,83 @@ export function createApp({
 				? { includeSubDomains: true, maxAge: 63_072_000, preload: true }
 				: false
 		})
+	);
+
+	const projectVisibilityReadLimiter = rateLimit({
+		legacyHeaders: false,
+		limit: 120,
+		standardHeaders: "draft-8",
+		windowMs: 60_000
+	});
+
+	app.get("/api/projects/visibility", projectVisibilityReadLimiter, async (_request, response) => {
+		try {
+			const records = await services.listProjectVisibility();
+			return response
+				.set("Cache-Control", "no-store")
+				.json({ items: records.map(({ slug, visible }) => ({ slug, visible })) });
+		}
+		catch (error) {
+			logError("Project visibility read failed", error);
+			return response.status(503).set("Cache-Control", "no-store").json({ ok: false, error: "unavailable" });
+		}
+	});
+
+	const projectAdminLimiter = rateLimit({
+		legacyHeaders: false,
+		limit: 30,
+		standardHeaders: "draft-8",
+		windowMs: 60_000
+	});
+	const parseProjectAdminJson = express.json({ limit: "2kb", strict: true, type: "application/json" });
+
+	app.patch(
+		"/api/admin/projects/:slug",
+		(request, response, next) => {
+			if (!projectAdminEnabled) {
+				response.status(404).set("Cache-Control", "no-store").json({ ok: false, error: "not_found" });
+				return;
+			}
+			if (
+				!isLoopbackRemoteAddress(request.socket.remoteAddress)
+				|| !canUseProjectAdmin({
+					configuredKey: projectAdminKey,
+					enabled: projectAdminEnabled,
+					providedKey: request.get(PROJECT_ADMIN_HEADER)
+				})
+			) {
+				response.status(403).set("Cache-Control", "no-store").json({ ok: false, error: "forbidden" });
+				return;
+			}
+			next();
+		},
+		projectAdminLimiter,
+		parseProjectAdminJson,
+		async (request, response) => {
+			const slug = typeof request.params.slug === "string" ? request.params.slug : "";
+			const payload = projectVisibilityUpdateSchema.safeParse(request.body);
+			if (!slug || slug.length > 80 || !PROJECT_SLUG_PATTERN.test(slug) || !payload.success) {
+				return response
+					.status(400)
+					.set("Cache-Control", "no-store")
+					.json({ ok: false, error: "invalid_request" });
+			}
+
+			try {
+				const record = await services.setProjectVisibility(slug, payload.data.visible);
+				return response.set("Cache-Control", "no-store").json({
+					slug: record.slug,
+					visible: record.visible
+				});
+			}
+			catch (error) {
+				logError("Project visibility update failed", error);
+				return response
+					.status(503)
+					.set("Cache-Control", "no-store")
+					.json({ ok: false, error: "unavailable" });
+			}
+		}
 	);
 	const sendProbe = (request: express.Request, response: express.Response, ok: boolean) => {
 		const probe = response.status(ok ? 200 : 503).set("Cache-Control", "no-store");
@@ -211,6 +306,20 @@ export function createApp({
 			response: express.Response,
 			_next: express.NextFunction
 		) => {
+			if (_error instanceof Error && "type" in _error && _error.type === "entity.parse.failed") {
+				response
+					.status(400)
+					.set("Cache-Control", "no-store")
+					.json({ ok: false, error: "invalid_request" });
+				return;
+			}
+			if (_error instanceof Error && "type" in _error && _error.type === "entity.too.large") {
+				response
+					.status(413)
+					.set("Cache-Control", "no-store")
+					.json({ ok: false, error: "request_too_large" });
+				return;
+			}
 			response.status(500).set("Cache-Control", "no-store").json({ ok: false, error: "internal_error" });
 		}
 	);
@@ -238,6 +347,9 @@ export async function main() {
 	);
 	const diagnosticsKey = env.INTERNAL_DIAGNOSTICS_KEY;
 	validateDiagnosticsConfiguration(diagnosticsEnabled, diagnosticsKey);
+	const projectAdminEnabled = parseBooleanFlag(env.ENABLE_PROJECT_ADMIN, "ENABLE_PROJECT_ADMIN");
+	const projectAdminKey = env.PROJECT_ADMIN_PROXY_KEY;
+	validateProjectAdminConfiguration(projectAdminEnabled, projectAdminKey);
 	parseTrustedProxies(env.TRUST_PROXY_IPS);
 	const host = parseHost(env.HOST);
 	const port = parsePort(env.PORT);
@@ -263,17 +375,21 @@ export async function main() {
 			};
 		},
 		getDatabaseState: () => mongoose.connection.readyState,
+		listProjectVisibility,
 		pingDatabase: async () => {
 			const database = mongoose.connection.db;
 			if (!database) throw new Error("Database unavailable.");
 			await database.admin().ping();
-		}
+		},
+		setProjectVisibility
 	};
 
 	const app = createApp({
 		diagnosticsEnabled,
 		diagnosticsKey,
 		isProduction,
+		projectAdminEnabled,
+		projectAdminKey,
 		services,
 		trustedProxies: env.TRUST_PROXY_IPS
 	});

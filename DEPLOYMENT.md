@@ -1,6 +1,6 @@
 # Production Deployment
 
-The public site is a Vite SSG bundle served directly by host Nginx. The optional Express service runs directly under systemd and exists only for liveness and MongoDB readiness; it is not an authentication or content API. Production Docker artifacts are intentionally absent.
+The public site is a Vite SSG bundle served directly by host Nginx. The optional Express service runs directly under systemd and provides liveness, MongoDB readiness, public project-card visibility, and a narrowly protected project-visibility mutation. It does not provide application accounts, roles, or sessions. Production Docker artifacts are intentionally absent.
 
 ## Toolchain
 
@@ -37,9 +37,20 @@ Choose one database-secret path:
 
 A configured Vault failure remains fail-closed. Do not enable `ENABLE_INTERNAL_DIAGNOSTICS` during normal operation. When temporarily enabled, use a unique `INTERNAL_DIAGNOSTICS_KEY` between 32 and 512 bytes and access the route only over the host-local listener.
 
+## Project visibility administration
+
+`/admin` is intentionally absent from site navigation and has no application login form. Production Nginx uses browser-managed Basic authentication before serving the route. The mutation API also requires a separate strong proxy key injected by Nginx over the loopback connection. The backend returns `404` for mutations until project administration is explicitly enabled, and it rejects direct requests that do not come from loopback with the trusted key.
+
+One-time host setup requires two independent secrets:
+
+1. Create `/etc/nginx/jacobdanderson-admin.htpasswd` with an owner-only administrator credential. Do not commit the file or pass the password on a command line.
+2. Generate a random proxy key using 32 to 512 base64url characters. Put it in `/etc/jacobdanderson/api.env` as `PROJECT_ADMIN_PROXY_KEY`, set `ENABLE_PROJECT_ADMIN=true`, and install the matching `proxy_set_header` directive from `deploy/nginx/jacobdanderson-admin-secret.conf.example` as `/etc/nginx/snippets/jacobdanderson-admin-secret.conf` with mode `0600`.
+
+The Basic-auth password and proxy key must be different. Validate the complete Nginx graph before restarting the backend or reloading Nginx. If either gate is absent or mismatched, leave `ENABLE_PROJECT_ADMIN=false`; public cards then use their source defaults and `/admin` remains unavailable at the edge.
+
 ## Nginx edge
 
-Use `deploy/nginx/jacobdanderson.conf.example` as the host virtual-server contract and add the certificate paths managed by the host. It listens on both IPv4 and IPv6, serves `front-end/dist` from the active release, exposes only the four documented health/readiness paths, blocks diagnostics and retired account paths, and adds the production security-header policy.
+Use `deploy/nginx/jacobdanderson.conf.example` as the host virtual-server contract and add the certificate paths managed by the host. It listens on both IPv4 and IPv6, serves `front-end/dist` from the active release, exposes the documented health/readiness and project-visibility paths, blocks diagnostics and retired account paths, protects `/admin` and the mutation API, and adds the production security-header policy.
 
 Validate the finished host configuration before any reload:
 

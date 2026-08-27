@@ -20,9 +20,11 @@ const routeDescription = computed(() =>
 		: defaultPageDescription
 );
 const robotsContent = computed(() =>
-	apiRoutePattern.test(route.path)
-		? "noindex,nofollow"
-		: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+	typeof route.meta.robots === "string" && route.meta.robots.length
+		? route.meta.robots
+		: apiRoutePattern.test(route.path)
+			? "noindex,nofollow"
+			: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
 );
 const canonicalUrl = computed(() => new URL(route.path || "/", `${siteUrl}/`).toString());
 const structuredData = computed(() => {
@@ -168,7 +170,7 @@ useHead(
 				}
 			],
 			script: [
-				...(import.meta.env.PROD
+				...(import.meta.env.PROD && route.path !== "/admin"
 					? [
 							{
 								defer: true,

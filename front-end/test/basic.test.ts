@@ -11,7 +11,9 @@ describe("production route surface", () => {
 		for (const page of [
 			"index.vue",
 			"about.vue",
+			"admin.vue",
 			"experience.vue",
+			"other-projects.vue",
 			"projects.vue",
 			"classes.vue",
 			"contact.vue",
@@ -19,6 +21,20 @@ describe("production route surface", () => {
 		]) {
 			expect(existsSync(resolve(process.cwd(), "src/pages", page))).toBe(true);
 		}
+	});
+
+	it("keeps the other-project index and admin controls out of primary navigation", () => {
+		const header = readFileSync(resolve(process.cwd(), "src/components/TheHeader.vue"), "utf8");
+		const footer = readFileSync(resolve(process.cwd(), "src/components/TheFooter.vue"), "utf8");
+		const projects = readFileSync(resolve(process.cwd(), "src/pages/projects.vue"), "utf8");
+		const admin = readFileSync(resolve(process.cwd(), "src/pages/admin.vue"), "utf8");
+
+		expect(header).not.toContain('path: "/other-projects"');
+		expect(header).not.toContain('path: "/admin"');
+		expect(footer).not.toContain('to: "/other-projects"');
+		expect(footer).not.toContain('to: "/admin"');
+		expect(projects).toContain('to="/other-projects"');
+		expect(admin).not.toMatch(/type="password"|<form/i);
 	});
 
 	it("ships the downloadable professional résumé", () => {
