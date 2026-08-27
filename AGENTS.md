@@ -71,6 +71,15 @@
 - Do not leave completed work uncommitted. After each coherent, validated change set, create a commit and push it in the same session.
 - Use multiple commits and pushes when that keeps unrelated changes, partial validations, or follow-up fixes clearly separated. Prefer small, logically grouped commits over one mixed commit.
 - Keep `package-lock.json` synchronized before every commit or push.
+- Complete all work that can be performed safely in this checkout and through the repository host, but do not connect to,
+  authenticate with, or directly change the production server from this agent.
+- When production-server work remains, provide a complete copy-and-paste prompt for the separate server AI directly in
+  the user-facing response. Do not create or maintain a server handoff file in the repository.
+- The server-AI prompt must state the exact repository and intended ref, the observed live state, the requested result,
+  secret and privilege boundaries, validation checks, and rollback expectations. Clearly distinguish source, pushed
+  release, and verified-live status.
+- Never ask the user to paste a server, sudo, administrator, or HTTP-authentication password into chat. Any necessary
+  credential entry belongs in a private, no-echo prompt controlled by the server AI and operator.
 - Use lowercase annotated semver tags only. Do not invent ad-hoc labels such as `V1`, `torca-r07`, `pre-lfs-migration-*`, or similar one-off names.
 - This repo follows the stable `v2.x` line. Stay on `v2` for routine work; only cut `v3` for an intentional breaking site or back-end/API change.
 - Before creating a new tag, check the latest tag in the active semver line and decide whether the new commit is still the same release milestone. If it is, move that existing tag forward to the new validated commit instead of minting a new version number.
