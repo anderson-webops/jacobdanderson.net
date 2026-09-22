@@ -4,6 +4,9 @@
 *.tsbuildinfo
 .run
 .jacobdanderson-release-prepared.json
+.runtime-artifact/
+jacobdanderson.net-runtime.tar.gz
+jacobdanderson.net-runtime.tar.gz.sha256
 
 #package-lock.json
 #pnpm-lock.yaml

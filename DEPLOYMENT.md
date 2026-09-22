@@ -1,81 +1,92 @@
 # Production Deployment
 
-The public site is a Vite SSG bundle served directly by host Nginx. The optional Express service runs directly under systemd and provides liveness, MongoDB readiness, public project-card visibility, and a narrowly protected project-visibility mutation. It does not provide application accounts, roles, or sessions. Production Docker artifacts are intentionally absent.
+The public site is a Vite SSG bundle served by host Nginx. The optional Express API runs directly under systemd on `127.0.0.1:3003`. Production does not use Docker and does not build or install dependencies from a live checkout.
 
-## Toolchain
+## Pinned toolchain and artifact
 
 - Node `24.18.1`
 - npm `12.0.2`
-- Root `package-lock.json` is authoritative
+- source/build lock: `package-lock.json`
+- standalone backend runtime lock: `back-end/package-lock.json`
 
-Each release is a complete Git checkout beneath `/srv/jacobdanderson.net/releases`. The `/srv/jacobdanderson.net/current` symlink selects the active release for both Nginx and systemd.
+`npm run artifact:build` creates `.runtime-artifact/` containing only:
 
-## Prepare a release
+- `front-end/dist/`
+- compiled `back-end/dist/`
+- the standalone backend manifest and lock
+- production backend dependencies
+- `.runtime-manifest.json` with source identity, required paths, complete hashes/modes, entrypoints, dependency names, native bindings, static assets, external state, and writable-path declarations
 
-Create the checkout as the unprivileged `jacobdanderson` deployment user, then run:
+The exact copied artifact is tested in a clean temporary directory with no source or development dependencies. Acceptance covers missing configuration, health/readiness, a real synthetic MongoDB read/write, semantic audit persistence, dependency failure, graceful shutdown, and a deliberately removed runtime module.
 
-```bash
-deploy/systemd/prepare-release.sh /srv/jacobdanderson.net/releases/<release>
-```
+`npm run artifact:pack` produces:
 
-Preparation requires a clean checkout and the exact Node/npm toolchain. It performs a clean install, full and production dependency audits, registry signature checks, Linux ARM64 glibc/musl lock verification, linting, type checking, all tests, accessibility checks, the production build, static-output checks, and a compiled-backend fail-closed smoke test. It then replaces development dependencies with a clean production-only install and writes an ignored preparation marker matching `front-end/dist/deployment.json`.
+- `jacobdanderson.net-runtime.tar.gz`
+- `jacobdanderson.net-runtime.tar.gz.sha256`
 
-## Backend service
+CI publishes both as one short-retention workflow artifact. A release-worthy tag must attach those same reviewed files as GitHub release assets.
 
-Install the unit once with:
+After packing, `npm run artifact:archive-smoke` verifies the checksum, safely extracts the final archive into a new temporary directory, and repeats the complete runtime acceptance suite against those unpacked bytes. Release preparation fails unless both the pre-pack tree and the exact post-pack archive pass.
+
+## One-time host installation
+
+From a reviewed source revision, the host operator installs the service unit and the root-owned promotion components:
 
 ```bash
 sudo deploy/systemd/install-api-unit.sh
 ```
 
-The installer preserves an existing `/etc/jacobdanderson/api.env` unless `--force-env` is explicitly supplied. Keep that file owned by root with mode `0600`. The unit fixes the production listener to `127.0.0.1:3003`, disables public-listener opt-in, starts only compiled code from the active release, and runs without service capabilities.
+The installer refuses to preserve an existing environment file unless it is a regular root:root mode `0600` file. It installs:
 
-Choose one database-secret path:
+- `/usr/local/sbin/jacobdanderson-promote-release`
+- `/usr/local/libexec/jacobdanderson/verify-runtime-artifact.mjs`
+- `/usr/local/libexec/jacobdanderson/extract-runtime-artifact.py`
 
-- Vault: set `VAULT_ADDR`, `VAULT_ROLE_ID`, and `VAULT_SECRET_ID` together.
-- Environment: leave both AppRole values empty and set `MONGODB_URI`.
+These files are the trusted promotion boundary. Never invoke a promoter from an unprivileged checkout with sudo.
 
-A configured Vault failure remains fail-closed. Do not enable `ENABLE_INTERNAL_DIAGNOSTICS` during normal operation. When temporarily enabled, use a unique `INTERNAL_DIAGNOSTICS_KEY` between 32 and 512 bytes and access the route only over the host-local listener.
+The checked-in unit preserves the established `/srv/jacobdanderson.net/current` path and port 3003. It fixes loopback binding/trust, starts compiled code only, makes release trees read-only to the service, limits tasks/file descriptors, caps V8 old space at 64 MiB, and applies measured 128/160 MiB systemd memory thresholds.
 
-## Project visibility administration
+Choose exactly one database credential source in `/etc/jacobdanderson/api.env`:
 
-`/admin` is intentionally absent from site navigation and has no application login form. Production Nginx uses browser-managed Basic authentication before serving the route. The mutation API also requires a separate strong proxy key injected by Nginx over the loopback connection. The backend returns `404` for mutations until project administration is explicitly enabled, and it rejects direct requests that do not come from loopback with the trusted key.
+- complete Vault AppRole: `VAULT_ADDR`, `VAULT_ROLE_ID`, and `VAULT_SECRET_ID`
+- direct environment: `MONGODB_URI`, with both AppRole values empty
 
-One-time host setup requires two independent secrets:
+Keep diagnostics disabled normally. Project administration remains disabled until both Nginx gates are installed.
 
-1. Create `/etc/nginx/jacobdanderson-admin.htpasswd` with an owner-only administrator credential. Do not commit the file or pass the password on a command line.
-2. Generate a random proxy key using 32 to 512 base64url characters. Put it in `/etc/jacobdanderson/api.env` as `PROJECT_ADMIN_PROXY_KEY`, set `ENABLE_PROJECT_ADMIN=true`, and install the matching `proxy_set_header` directive from `deploy/nginx/jacobdanderson-admin-secret.conf.example` as `/etc/nginx/snippets/jacobdanderson-admin-secret.conf` with mode `0600`.
+## Nginx
 
-The Basic-auth password and proxy key must be different. Validate the complete Nginx graph before restarting the backend or reloading Nginx. If either gate is absent or mismatched, leave `ENABLE_PROJECT_ADMIN=false`; public cards then use their source defaults and `/admin` remains unavailable at the edge.
+Install `deploy/nginx/jacobdanderson-rate-limits.conf.example` in the Nginx `http` context, then use `deploy/nginx/jacobdanderson.conf.example` as the full virtual-server contract. Hosts retaining their existing TLS server can use `jacobdanderson-api.locations.conf` only if the same rate-limit zones are loaded.
 
-## Nginx edge
+The edge contract:
 
-Use `deploy/nginx/jacobdanderson.conf.example` as the host virtual-server contract and add the certificate paths managed by the host. It listens on both IPv4 and IPv6, serves `front-end/dist` from the active release, exposes the documented health/readiness and project-visibility paths, blocks diagnostics and retired account paths, protects `/admin` and the mutation API, and adds the production security-header policy.
+- preserves IPv4 and IPv6 listeners
+- uses current `http2 on` syntax
+- has four exact probe locations so `^~ /api/` cannot shadow them
+- clears caller-controlled auth/internal headers
+- limits public and administrative request/connection work
+- delays Basic-auth failures
+- injects `$remote_user` and `$request_id` only for authorized mutations
+- serves static files from `/srv/jacobdanderson.net/current/front-end/dist`
 
-Validate the finished host configuration before any reload:
+Validate the complete effective graph before reload:
 
 ```bash
 sudo nginx -t
 ```
 
-The older `deploy/nginx/jacobdanderson-api.locations.conf` remains a narrowly scoped include for hosts that already own the surrounding TLS virtual server. The full example is the source of truth for a new direct deployment.
-
 ## Promote and roll back
 
-Promote a prepared checkout as root:
+Download the release archive and checksum to a root-controlled staging location. Verify the GitHub release/tag/commit relationship, then invoke only the installed helper:
 
 ```bash
-sudo deploy/systemd/promote-release.sh /srv/jacobdanderson.net/releases/<release>
+sudo /usr/local/sbin/jacobdanderson-promote-release \
+  /root/staging/jacobdanderson.net-runtime.tar.gz \
+  <full-40-hex-commit> \
+  <full-64-hex-sha256>
 ```
 
-Promotion atomically replaces the `current` symlink, restarts the API, validates and reloads Nginx, checks database readiness, and requires the exact deployment identity over local IPv4 and IPv6 TLS. If any check fails, the script restores and re-verifies the previous release. It refuses to replace a non-symlink `current` path.
+The helper first copies the supplied archive into a root-owned mode `0600` file under the protected release root, verifies the supplied digest against that stable copy, and extracts only those verified bytes. It safely extracts only regular files into a root-owned staging directory, independently verifies every artifact path/hash/mode and source identity, and installs the release at `/srv/jacobdanderson.net/releases/<commit>`. New, pre-existing, selected, and rollback release trees must all be root-owned and non-writable by other users. The helper then atomically changes `current`, restarts the API, validates Nginx, and requires readiness plus exact deployment identity over local IPv4 and IPv6 TLS.
 
-After promotion, verify the public route and both authoritative address families:
+Rollback is allowed only to a previously verified, root-owned, non-writable artifact release. The first transition from a legacy source-checkout release therefore requires a reviewed supervised migration plan. Do not weaken the helper or relabel an unverified legacy checkout merely to pass that gate.
 
-```bash
-LIVE_SMOKE_EXPECT_COMMIT=<commit-prefix> npm run smoke:live
-curl -4 --fail https://jacobdanderson.net/deployment.json
-curl -6 --fail https://jacobdanderson.net/deployment.json
-```
-
-Static preview services may run the checked-in build command, but they are not the production runtime contract and do not require Docker.
+MongoDB data and audit records remain external state and are not synchronized during promotion or rollback. No schema migration is part of this release contract.

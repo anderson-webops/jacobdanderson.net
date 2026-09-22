@@ -9,15 +9,20 @@ User=jacobdanderson
 Group=jacobdanderson
 WorkingDirectory=/srv/jacobdanderson.net/current
 EnvironmentFile=/etc/jacobdanderson/api.env
+Environment=NODE_OPTIONS=--max-old-space-size=64
 ExecStartPre=/usr/bin/test -f /srv/jacobdanderson.net/current/back-end/dist/server.js
 ExecStartPre=/usr/bin/test -f /srv/jacobdanderson.net/current/front-end/dist/deployment.json
-ExecStart=/usr/bin/env NODE_ENV=production HOST=127.0.0.1 PORT=3003 ALLOW_PUBLIC_LISTENER=false /usr/bin/node back-end/dist/server.js
+ExecStart=/usr/bin/env NODE_ENV=production HOST=127.0.0.1 PORT=3003 ALLOW_PUBLIC_LISTENER=false TRUST_PROXY_IPS=loopback /usr/bin/node back-end/dist/server.js
 Restart=on-failure
 RestartSec=5s
 SyslogIdentifier=jacobdanderson-api
 TimeoutStartSec=30s
 TimeoutStopSec=30s
 UMask=0077
+MemoryAccounting=true
+MemoryHigh=128M
+MemoryMax=160M
+MemorySwapMax=0
 AmbientCapabilities=
 CapabilityBoundingSet=
 LockPersonality=true
@@ -35,12 +40,15 @@ ProtectKernelModules=true
 ProtectKernelTunables=true
 ProtectProc=invisible
 ProtectSystem=strict
+ReadOnlyPaths=-/srv/jacobdanderson.net/releases
 RemoveIPC=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 RestrictNamespaces=true
 RestrictRealtime=true
 RestrictSUIDSGID=true
 SystemCallArchitectures=native
+TasksMax=64
+LimitNOFILE=4096
 
 [Install]
 WantedBy=multi-user.target

@@ -1,18 +1,13 @@
-# Readiness API
+# Portfolio visibility API
 
-This service supports deployment liveness and MongoDB readiness checks. It has no browser authentication, account-management, administrator, promotion, demotion, or content-mutation routes.
+This compiled Express service provides bounded liveness, MongoDB readiness, public project-card visibility, and a narrowly protected visibility mutation. It has no application login, account, role, promotion, or demotion routes.
 
-Run locally with a protected `back-end/.env`:
+Run locally:
 
 ```bash
 npm run -w back-end server:once
 ```
 
-Production starts the compiled service with environment variables supplied by systemd:
+Production runs `back-end/dist/server.js` from the accepted immutable runtime artifact on `127.0.0.1:3003`. Nginx owns public routing, Basic authentication, throttling, and injection of the host-only mutation key plus semantic audit identity. Public and administrative database admission use separate no-queue limits, and each slot remains held until the protected operation settles rather than until the HTTP client disconnects.
 
-```bash
-npm run -w back-end build
-npm run -w back-end start
-```
-
-See [`../SECURITY.md`](../SECURITY.md), [`../HEALTHCHECKS.md`](../HEALTHCHECKS.md), and [`../DEPLOYMENT.md`](../DEPLOYMENT.md) for the enforced boundaries.
+See [SECURITY.md](../SECURITY.md), [HEALTHCHECKS.md](../HEALTHCHECKS.md), and [DEPLOYMENT.md](../DEPLOYMENT.md).

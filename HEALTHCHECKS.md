@@ -18,6 +18,16 @@ Use these endpoints for monitoring. They do not require auth and do not redirect
 - `GET /api/readyz`
   - same payload as `/readyz`
 
+## Project Visibility API
+
+- `GET` or `HEAD /api/projects/visibility` returns only canonical project
+  slugs and their saved visibility state.
+- The endpoint returns `503` with `Retry-After` when its bounded database-work
+  capacity is already in use. Clients must keep project cards hidden until a
+  complete successful response arrives.
+- Administrative changes remain behind the Nginx Basic-auth boundary and are
+  accepted only for canonical slugs. They are not monitoring endpoints.
+
 The public probes do not authenticate, redirect, set cookies, or expose secrets,
 database names, host details, process metrics, environment information, or
 component diagnostics. Prefer `/api/healthz` and `/api/readyz` for public

@@ -1,30 +1,32 @@
 # jacobdanderson.net
 
-Personal site, content hub, and narrowly scoped readiness API for `jacobdanderson.net`.
+Public Vite SSG portfolio plus a small loopback-only Express API for health, readiness, and curated project-card visibility.
 
-## Repo Layout
+## Layout
 
-- `front-end/` - Vite SSG application
-- `back-end/` - Express service for liveness and MongoDB readiness only
-- `HEALTHCHECKS.md` - monitor endpoints and expected `200`/`503` behavior
-- `SECURITY.md` - authentication/authorization boundary and backend threat model
-- `DEPLOYMENT.md` - production toolchain, service, and promotion guidance
+- `front-end/`: Vue static site, unlisted project index, and Basic-auth-gated administration UI.
+- `back-end/`: direct MongoDB-driver API with bounded reads, one serialized mutation path, and durable semantic audit records.
+- `deploy/`: direct Nginx and systemd contracts. Production does not use Docker.
+- `HEALTHCHECKS.md`: monitor behavior.
+- `SECURITY.md`: authentication, authorization, and data boundaries.
+- `DEPLOYMENT.md`: immutable runtime artifact and rollback workflow.
 
-## Common Commands
+## Local validation
 
 ```bash
 npm ci --include=optional --strict-allow-scripts
-npm run dev
-npm run server
-npm run serve
+npm audit
+npm audit --omit=dev
+npm run lint
+npm run typecheck
+npm test
+npm run a11y
 npm run build
-npm run up
+npm run artifact:build
+npm run artifact:verify
+RUNTIME_ARTIFACT_MONGO_URI=mongodb://127.0.0.1:27017 npm run artifact:smoke
 ```
 
-## Operational Notes
+Use Node `24.18.1` and npm `12.0.2`. The root lockfile governs the monorepo build. `back-end/package-lock.json` separately governs the exact standalone production install copied into the runtime artifact.
 
-- The root `package-lock.json` is the authoritative lockfile for the repo. Keep it updated whenever dependencies change.
-- The public site has no login, account, role, promotion, or demotion workflow. The backend does not accept content mutations.
-- Use `npm run server` and `npm run serve` when you want the readiness service and front-end started separately.
-- Use [`HEALTHCHECKS.md`](./HEALTHCHECKS.md) for deployment monitor targets instead of `/`.
-- Production serves the static bundle with host Nginx and runs the readiness API under systemd from one atomic release; Docker is not part of the production contract.
+The public site has no application account, session, role, promotion, or demotion system. Project administration is a narrow host-authenticated operation, not a general application login.

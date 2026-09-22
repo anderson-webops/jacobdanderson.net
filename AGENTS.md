@@ -1,127 +1,50 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+## Scope and architecture
 
-- `front-end/` hosts the Vite-powered Vue 3 client. Routing views live in `src/pages`, shared UI in `src/components`,
-  state in `src/stores`, and feature logic in `src/modules`. Static assets belong in `public/` and `src/assets/`, while
-  i18n copy sits under `locales/`.
-- Front-end unit specs reside in `front-end/test/*.spec.test.ts` (snapshots in `__snapshots__/`). End-to-end workflows
-  live in `front-end/cypress/`.
-- `back-end/` contains the Express + Mongoose API. Keep request handling in `src/controllers/`, validation in
-  `src/middleware/`, schemas in `src/models/`, and route wiring under `src/routes/`.
-- Monorepo-wide configuration (ESLint, TypeScript base config, workspace scripts) is defined at the repository root;
-  update these when adjusting tooling for either project.
+- `front-end/` is the Vue/Vite SSG site. Pages are in `src/pages`, shared UI in `src/components`, and curated project data in `src/data/otherProjects.ts`.
+- `back-end/` is the loopback Express API using the direct MongoDB driver. Keep the backend catalog synchronized with the frontend catalog.
+- The site has no application account, session, role, promotion, or demotion system. Do not reintroduce one without a separately reviewed authorization design.
+- Production is direct Nginx plus systemd. Do not add a production Docker path.
 
-## Build, Test, and Development Commands
+## Toolchain and dependency rules
 
-- `npm install` (root) installs all workspace dependencies using the pinned `npm@12` toolchain. Avoid mixing package
-  managers.
-- `npm run dev` starts the front-end dev server on port 3333; `npm run serve` runs the same build with `--host` enabled
-  for LAN previews.
-- `npm run server` launches the API with live reload via `tsx watch -r dotenv/config` on port 3008.
-- `npm run build` produces optimized client + server bundles (`front-end/dist/`, `back-end/dist/`).
-- `npm run -w front-end test` / `test:unit` run Vitest suites; `npm run -w front-end test:e2e` opens Cypress.
-- `npm run lint` (or `lint-fix`) runs the shared ESLint configuration across both workspaces; pre-commit hooks run
-  `lint-staged` automatically.
+- Use Node `24.18.1` and npm `12.0.2`.
+- The root `package-lock.json` is authoritative for development and builds. `back-end/package-lock.json` is authoritative for the standalone production dependency tree.
+- Keep optional Linux ARM64/x64 glibc and musl bindings aligned with the exact resolved esbuild, OXC parser/formatter, Rolldown, Rollup, Unrs, and Lightning CSS versions.
+- Before dependency delivery, run a clean locked install, full and production audits, registry signatures, native/platform checks, lint, types, tests, accessibility, build, and runtime artifact acceptance.
 
-## Coding Style & Naming Conventions
+## Security and release rules
 
-- ESLint extends `@antfu/eslint-config` and enforces Prettier with tab indentation, double quotes, semicolons,
-  120-character lines, and LF endings. Run `npm run lint-fix` before pushing.
-- Vue single-file components use PascalCase filenames (`TheHeader.vue`), composables use the `useFeature` pattern, and
-  Pinia stores live in `src/stores/`.
-- TypeScript modules should export camelCase functions and PascalCase classes/types. Keep front-end route files
-  lowercase to match the generated router.
-- Prefer descriptive directory names (`controllers/common/`, `controllers/users/`) and colocate feature-specific assets
-  alongside their modules.
+- Preserve loopback-only API binding, exact proxy trust, fixed database concurrency, bounded MongoDB timeouts/pool size, fail-closed project visibility, semantic mutation audit records, and Nginx-generated admin identity.
+- Keep secrets and writable database state outside immutable artifacts.
+- Production promotion is archive-only. Never execute `deploy/systemd/promote-release.sh` directly with sudo from a checkout. Install it and its verifier/extractor once through the reviewed installer, then invoke the root-owned helper with the reviewed archive, full commit, and SHA-256.
+- Do not move a published tag or force-push shared history. This repository stays on the stable `v2.x` line unless an intentional breaking change justifies `v3`.
 
-## Testing Guidelines
+## Validation
 
-- Write unit tests with Vitest and follow the `*.spec.test.ts` naming used in `front-end/test/`. Snapshot updates belong
-  in `__snapshots__/` and should be reviewed line-by-line.
-- Cypress specs should stub network calls against the Express test server; store fixtures under
-  `front-end/cypress/fixtures/`.
-- Back-end security and runtime tests live under `back-end/test/` and run with Node's test runner through
-  `npm run -w back-end test`.
-- Aim to cover new endpoints, Pinia stores, and critical user flows before delivery; document any intentionally skipped
-  scenarios in the final handoff and in any required pull request.
+```bash
+npm ci --include=optional --strict-allow-scripts
+npm audit
+npm audit --omit=dev
+npm audit signatures
+npm run verify:native-lock
+npm run verify:platform-install
+npm run lint
+npm run typecheck
+npm test
+npm run a11y
+npm run build
+npm run artifact:build
+npm run artifact:verify
+RUNTIME_ARTIFACT_MONGO_URI=<synthetic-mongodb-uri> npm run artifact:smoke
+npm run smoke:promotion
+npm run artifact:pack
+RUNTIME_ARTIFACT_MONGO_URI=<synthetic-mongodb-uri> npm run artifact:archive-smoke
+```
 
-## Commit and Review Guidelines
+## Delivery
 
-- Follow the existing history: present-tense, concise subjects (`Add tutor availability routes`). Keep summaries under
-  72 characters and expand details in the body when needed.
-- Reference GitHub issues with `Fixes #123` or `Refs #123` in the description.
-- Before direct delivery or a required pull request, ensure `npm run lint` and relevant tests pass, and include
-  screenshots or screen recordings for UI-facing changes when useful.
-- The final handoff and any required pull-request description should outline scope, testing evidence, migration steps
-  (if any), and rollout considerations.
-
-## Security & Configuration Tips
-
-- The public site has no authentication, account, role, promotion, or demotion workflow. Do not reintroduce a dormant
-  identity stack; any future authenticated feature needs a reviewed authorization design and dedicated security tests.
-- The readiness API expects Mongo credentials through either `MONGODB_URI` or a complete Vault AppRole pair. A
-  configured Vault failure must remain fail-closed.
-- Never commit real credentials or production endpoints. Keep local and production environment files mode `0600`,
-  diagnostics disabled by default, and public API exposure limited to the documented health/readiness routes.
-- Keep production on the direct Nginx plus Node/systemd release contract in `deploy/`. Do not reintroduce a production
-  Docker path; preparation and promotion must preserve the atomic symlink, rollback, and IPv4/IPv6 identity checks.
-
-
-## Agent Delivery Workflow
-- Do not leave completed work uncommitted. After each coherent, validated change set, create a commit and push it in the same session.
-- Use multiple commits and pushes when that keeps unrelated changes, partial validations, or follow-up fixes clearly separated. Prefer small, logically grouped commits over one mixed commit.
-- Keep `package-lock.json` synchronized before every commit or push.
-- Complete all work that can be performed safely in this checkout and through the repository host, but do not connect to,
-  authenticate with, or directly change the production server from this agent.
-- When production-server work remains, provide a complete copy-and-paste prompt for the separate server AI directly in
-  the user-facing response. Do not create or maintain a server handoff file in the repository.
-- The server-AI prompt must state the exact repository and intended ref, the observed live state, the requested result,
-  secret and privilege boundaries, validation checks, and rollback expectations. Clearly distinguish source, pushed
-  release, and verified-live status.
-- Never ask the user to paste a server, sudo, administrator, or HTTP-authentication password into chat. Any necessary
-  credential entry belongs in a private, no-echo prompt controlled by the server AI and operator.
-- Use lowercase annotated semver tags only. Do not invent ad-hoc labels such as `V1`, `torca-r07`, `pre-lfs-migration-*`, or similar one-off names.
-- This repo follows the stable `v2.x` line. Stay on `v2` for routine work; only cut `v3` for an intentional breaking site or back-end/API change.
-- Before creating a new tag, check the latest tag in the active semver line and decide whether the new commit is still the same release milestone. If it is, move that existing tag forward to the new validated commit instead of minting a new version number.
-- Keep the GitHub release aligned with that decision: when the commit still belongs to the same milestone, update or recreate the existing release so it points at the moved tag/current commit; only create a brand-new release when the change creates a genuinely new milestone.
-- Cut a fresh semver tag and release only when the work crosses a real release boundary, such as a new deployable milestone, a materially different operator/user-facing state, or a version-line change that deserves its own notes and rollback point.
-- Create an annotated tag when personal-site features, content systems, back-end routes, auth/proxy behavior, dependency/security, or deploy/health behavior materially changes.
-- Create a GitHub release when that tag represents a real production milestone worth naming for rollback or operator reference. Release notes should summarize scope, validation, rollout notes, and any migration or recovery steps.
-- If the existing tag or release history contains stale drafts, redundant entries, or ad-hoc labels, clean that history up instead of preserving clutter.
-- Skip tags and releases for trivial doc-only edits, formatting-only changes, or routine housekeeping unless they change deployment, operations, or a consumer-facing contract.
-
-## Dependency & Lockfile Discipline
-
-- Treat the repo-root `npm ci` path as the source of truth for deploy readiness.
-- Any time `package.json`, any workspace `package.json`, dependency ranges, `package-lock.json`, or dependency update tooling changes, verify lockfile parity from the repo root before committing.
-- Do not rely on `npm install` fallback as success. A change is not deploy-ready unless root `npm ci` succeeds.
-
-Required production/dev dependency update flow before every dependency commit:
-1. Check production and development dependency freshness from the repository root with `npm outdated --workspaces --long` or the repo's documented equivalent.
-2. Review both `dependencies` and `devDependencies` in the root and every workspace package; do not limit updates to production-only packages.
-3. Apply needed updates with the narrowest command that updates the relevant manifest and lockfile together, such as `npm install -w <workspace> <package>@<version>` or `npm install -D -w <workspace> <package>@<version>`.
-4. If the update is only a lockfile/security refresh, regenerate from the root with `npm install --package-lock-only --ignore-scripts --no-fund --no-audit`.
-5. Run `npm audit` from the repository root and resolve remaining production or dev advisories before committing unless a documented upstream limitation prevents it.
-
-Required dependency verification before every commit/push:
-1. Run `npm ci` from the repository root.
-2. Run `npm run lint`.
-3. Run `npm run typecheck`.
-4. Run `npm run build`.
-5. If API or back-end behavior changed and the repo has a back-end workspace, run `npm run -w back-end test` or the repo's equivalent API test command.
-
-If `npm ci` fails because `package.json` and `package-lock.json` are out of sync:
-1. Run `npm install --package-lock-only --ignore-scripts --no-fund --no-audit` from the repository root.
-2. Re-run `npm ci` from the repository root.
-3. Commit the resulting `package-lock.json` change with the related dependency/package change.
-
-Never commit or push dependency/package changes if root `npm ci` fails.
-
-## Direct Delivery and Pull Requests
-
-- After a coherent change set passes the repository's required checks, default to committing it and pushing it directly to the repository's default branch. Do not open a pull request unless the user explicitly asks for one, branch protection requires it, or an external-contribution policy makes direct integration inappropriate.
-- For a release-worthy application change, update the project version as required, create an annotated tag, and publish or update the corresponding GitHub release in the same work session. Keep documentation-only, formatting-only, and other non-deployable housekeeping changes as committed and pushed source changes without inventing an application release.
-- Never force-push a shared branch or move an existing published tag unless the user explicitly authorizes that exact history rewrite.
-- If automation or repository policy creates a pull request, review it, wait for required checks, merge it when safe, and remove the merged branch before wrapping up. Do not leave redundant pull requests or branches open.
-- Treat commit, push, tag, and GitHub release publication as source delivery only. Do not claim or perform production deployment unless it was separately authorized and verified.
+- After a coherent validated change, commit and push directly to the default branch unless branch protection requires a pull request or the user explicitly asks for one.
+- For a material deployable milestone, create a new annotated semver tag and GitHub release, attach the verified runtime archive and checksum, and verify the uploaded assets. Never leave a generated pull request or branch open after safe integration.
+- Source delivery is not production deployment. Do not access or mutate the production host from this task. Provide a bounded server-AI handoff when activation remains.
