@@ -37,6 +37,9 @@ export async function resolveMongoConfiguration(
 	if (vaultState === "incomplete") {
 		throw new Error("VAULT_ROLE_ID and VAULT_SECRET_ID must be configured together.");
 	}
+	if (vaultState === "configured" && environment.MONGODB_URI) {
+		throw new Error("Configure exactly one MongoDB credential source: Vault or MONGODB_URI.");
+	}
 
 	if (vaultState === "configured") {
 		const secret = await readFromVault(environment);

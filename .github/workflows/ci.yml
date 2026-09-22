@@ -115,3 +115,66 @@ jobs:
           cache: npm
       - run: npm install --global "npm@${NPM_VERSION}"
       - run: npm run verify:platform-install
+
+  nginx-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm install --global "npm@${NPM_VERSION}"
+      - run: npm ci --include=optional --strict-allow-scripts
+      - run: sudo apt-get update && sudo apt-get install --yes nginx
+      - run: npm run smoke:nginx
+        env:
+          NGINX_REQUIRED: true
+
+  runtime-artifact:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:8.0.32
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm install --global "npm@${NPM_VERSION}"
+      - run: npm ci --include=optional --strict-allow-scripts
+      - name: Build exact source
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: npm run build
+      - name: Build and accept isolated runtime artifact
+        env:
+          RUNTIME_ARTIFACT_EXPECT_COMMIT: ${{ github.sha }}
+          RUNTIME_ARTIFACT_MONGO_URI: mongodb://127.0.0.1:27017
+          RUNTIME_ARTIFACT_REQUIRE_CLEAN: true
+          RUNTIME_ARTIFACT_REQUIRE_MONGO: true
+        run: |
+          npm run artifact:build
+          npm run artifact:verify
+          npm run artifact:smoke
+          npm run smoke:promotion
+          npm audit --prefix .runtime-artifact/back-end --omit=dev
+          npm run artifact:pack
+          npm run artifact:archive-smoke
+      - name: Upload reviewed runtime archive
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jacobdanderson.net-runtime-${{ github.sha }}
+          path: |
+            jacobdanderson.net-runtime.tar.gz
+            jacobdanderson.net-runtime.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 14

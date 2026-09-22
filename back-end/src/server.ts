@@ -1,16 +1,21 @@
 import type { Server } from "node:http";
-import type { ProjectVisibilityRecord } from "./models/projectVisibility.js";
+import type { ProjectVisibilityMutation, ProjectVisibilityRecord } from "./models/projectVisibility.js";
+import { realpathSync } from "node:fs";
 import { isIP } from "node:net";
 import path from "node:path";
 import process, { env } from "node:process";
 import { fileURLToPath } from "node:url";
 import express from "express";
-import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import mongoose from "mongoose";
-
+import { MongoClient } from "mongodb";
 import { z } from "zod";
-import { listProjectVisibility, setProjectVisibility } from "./models/projectVisibility.js";
+import { createProjectVisibilityStore } from "./models/projectVisibility.js";
+import { isProjectSlug } from "./projectCatalog.js";
+import {
+	parseProjectAdminAuditContext,
+	PROJECT_ADMIN_ACTOR_HEADER,
+	PROJECT_ADMIN_REQUEST_ID_HEADER
+} from "./utils/adminAudit.js";
 import { canReadDiagnostics, validateDiagnosticsConfiguration } from "./utils/diagnostics.js";
 import { resolveMongoConfiguration } from "./utils/mongoConfiguration.js";
 import {
@@ -21,13 +26,15 @@ import {
 } from "./utils/projectAdmin.js";
 import { logError } from "./utils/safeLog.js";
 
-const READY_TIMEOUT_MS = 3_000;
+const READY_SUCCESS_CACHE_MS = 1_000;
+const READY_FAILURE_CACHE_MS = 250;
 const REQUEST_TIMEOUT_MS = 10_000;
 const HEADERS_TIMEOUT_MS = 8_000;
 const KEEP_ALIVE_TIMEOUT_MS = 5_000;
 const MAX_REQUESTS_PER_SOCKET = 1_000;
+const PUBLIC_DATABASE_CONCURRENCY = 4;
+const ADMIN_DATABASE_CONCURRENCY = 1;
 const LOOPBACK_LISTENERS = new Set(["127.0.0.1", "::1"]);
-const PROJECT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const projectVisibilityUpdateSchema = z.object({ visible: z.boolean() }).strict();
 
 export interface DatabaseInfo {
@@ -43,7 +50,7 @@ export interface BackendServices {
 	getDatabaseState: () => number;
 	listProjectVisibility: () => Promise<ProjectVisibilityRecord[]>;
 	pingDatabase: () => Promise<void>;
-	setProjectVisibility: (slug: string, visible: boolean) => Promise<ProjectVisibilityRecord>;
+	setProjectVisibility: (mutation: ProjectVisibilityMutation) => Promise<ProjectVisibilityRecord>;
 }
 
 export interface AppOptions {
@@ -56,21 +63,58 @@ export interface AppOptions {
 	trustedProxies?: string;
 }
 
-function timeoutAfter<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-	return new Promise<T>((resolve, reject) => {
-		const timeout = setTimeout(() => reject(new Error("Operation timed out.")), timeoutMs);
-		timeout.unref();
-		promise.then(
-			(value) => {
-				clearTimeout(timeout);
-				resolve(value);
-			},
-			(error) => {
-				clearTimeout(timeout);
-				reject(error);
-			}
-		);
-	});
+interface CapacityGate {
+	tryAcquire: () => (() => void) | undefined;
+}
+
+function createCapacityGate(limit: number): CapacityGate {
+	let active = 0;
+	return {
+		tryAcquire() {
+			if (active >= limit) return undefined;
+
+			active += 1;
+			let released = false;
+			return () => {
+				if (released) return;
+				released = true;
+				active -= 1;
+			};
+		}
+	};
+}
+
+function sendDatabaseBusy(response: express.Response) {
+	return response
+		.status(503)
+		.set({ "Cache-Control": "no-store", "Retry-After": "1" })
+		.json({ ok: false, error: "busy" });
+}
+
+function createReadinessCheck(services: BackendServices): () => Promise<boolean> {
+	let cached: { expiresAt: number; ok: boolean } | undefined;
+	let pending: Promise<boolean> | undefined;
+
+	return async () => {
+		if (services.getDatabaseState() !== 1) return false;
+		const now = Date.now();
+		if (cached && cached.expiresAt > now) return cached.ok;
+		if (pending) return pending;
+
+		pending = services.pingDatabase().then(
+			() => true,
+			() => false
+		).then((ok) => {
+			cached = {
+				expiresAt: Date.now() + (ok ? READY_SUCCESS_CACHE_MS : READY_FAILURE_CACHE_MS),
+				ok
+			};
+			return ok;
+		}).finally(() => {
+			pending = undefined;
+		});
+		return pending;
+	};
 }
 
 export function parseTrustedProxies(value: string | undefined): false | string[] {
@@ -161,15 +205,13 @@ export function createApp({
 				: false
 		})
 	);
+	const publicDatabaseCapacity = createCapacityGate(PUBLIC_DATABASE_CONCURRENCY);
+	const adminDatabaseCapacity = createCapacityGate(ADMIN_DATABASE_CONCURRENCY);
 
-	const projectVisibilityReadLimiter = rateLimit({
-		legacyHeaders: false,
-		limit: 120,
-		standardHeaders: "draft-8",
-		windowMs: 60_000
-	});
+	app.get("/api/projects/visibility", async (_request, response) => {
+		const releaseCapacity = publicDatabaseCapacity.tryAcquire();
+		if (!releaseCapacity) return sendDatabaseBusy(response);
 
-	app.get("/api/projects/visibility", projectVisibilityReadLimiter, async (_request, response) => {
 		try {
 			const records = await services.listProjectVisibility();
 			return response
@@ -180,13 +222,9 @@ export function createApp({
 			logError("Project visibility read failed", error);
 			return response.status(503).set("Cache-Control", "no-store").json({ ok: false, error: "unavailable" });
 		}
-	});
-
-	const projectAdminLimiter = rateLimit({
-		legacyHeaders: false,
-		limit: 30,
-		standardHeaders: "draft-8",
-		windowMs: 60_000
+		finally {
+			releaseCapacity();
+		}
 	});
 	const parseProjectAdminJson = express.json({ limit: "2kb", strict: true, type: "application/json" });
 
@@ -208,22 +246,40 @@ export function createApp({
 				response.status(403).set("Cache-Control", "no-store").json({ ok: false, error: "forbidden" });
 				return;
 			}
+			const auditContext = parseProjectAdminAuditContext(
+				request.get(PROJECT_ADMIN_ACTOR_HEADER),
+				request.get(PROJECT_ADMIN_REQUEST_ID_HEADER)
+			);
+			if (!auditContext) {
+				response.status(403).set("Cache-Control", "no-store").json({ ok: false, error: "forbidden" });
+				return;
+			}
+			response.locals.projectAdminAudit = auditContext;
 			next();
 		},
-		projectAdminLimiter,
 		parseProjectAdminJson,
 		async (request, response) => {
 			const slug = typeof request.params.slug === "string" ? request.params.slug : "";
 			const payload = projectVisibilityUpdateSchema.safeParse(request.body);
-			if (!slug || slug.length > 80 || !PROJECT_SLUG_PATTERN.test(slug) || !payload.success) {
+			if (!isProjectSlug(slug) || !payload.success) {
 				return response
 					.status(400)
 					.set("Cache-Control", "no-store")
 					.json({ ok: false, error: "invalid_request" });
 			}
+			const releaseCapacity = adminDatabaseCapacity.tryAcquire();
+			if (!releaseCapacity) return sendDatabaseBusy(response);
 
 			try {
-				const record = await services.setProjectVisibility(slug, payload.data.visible);
+				const auditContext = response.locals.projectAdminAudit as {
+					actor: string;
+					requestId: string;
+				};
+				const record = await services.setProjectVisibility({
+					...auditContext,
+					slug,
+					visible: payload.data.visible
+				});
 				return response.set("Cache-Control", "no-store").json({
 					slug: record.slug,
 					visible: record.visible
@@ -236,6 +292,9 @@ export function createApp({
 					.set("Cache-Control", "no-store")
 					.json({ ok: false, error: "unavailable" });
 			}
+			finally {
+				releaseCapacity();
+			}
 		}
 	);
 	const sendProbe = (request: express.Request, response: express.Response, ok: boolean) => {
@@ -243,20 +302,9 @@ export function createApp({
 		return request.method === "HEAD" ? probe.end() : probe.json({ ok });
 	};
 	const healthHandler: express.RequestHandler = (request, response) => sendProbe(request, response, true);
-
+	const checkReadiness = createReadinessCheck(services);
 	const readinessHandler: express.RequestHandler = async (request, response) => {
-		const state = services.getDatabaseState();
-		if (state !== 1) {
-			return sendProbe(request, response, false);
-		}
-
-		try {
-			await timeoutAfter(services.pingDatabase(), READY_TIMEOUT_MS);
-			return sendProbe(request, response, true);
-		}
-		catch {
-			return sendProbe(request, response, false);
-		}
+		return sendProbe(request, response, await checkReadiness());
 	};
 
 	for (const path of ["/healthz", "/api/healthz"]) {
@@ -267,15 +315,6 @@ export function createApp({
 		app.head(path, readinessHandler);
 		app.get(path, readinessHandler);
 	}
-
-	app.use(
-		rateLimit({
-			legacyHeaders: false,
-			limit: 300,
-			standardHeaders: "draft-8",
-			windowMs: 60_000
-		})
-	);
 
 	app.get("/_dbinfo", (request, response) => {
 		if (!diagnosticsEnabled) {
@@ -358,76 +397,98 @@ export async function main() {
 
 	const mongoConfiguration = await resolveMongoConfiguration();
 	console.log(`Mongo startup: source=${mongoConfiguration.source}`);
-	await mongoose.connect(mongoConfiguration.uri, {
+	const mongoClient = new MongoClient(mongoConfiguration.uri, {
 		connectTimeoutMS: 5_000,
-		serverSelectionTimeoutMS: 5_000
+		maxConnecting: 1,
+		maxIdleTimeMS: 30_000,
+		maxPoolSize: 3,
+		minPoolSize: 0,
+		serverSelectionTimeoutMS: 5_000,
+		socketTimeoutMS: 5_000,
+		timeoutMS: 3_000,
+		waitQueueTimeoutMS: 1_000
 	});
+	await mongoClient.connect();
+	try {
+		const database = mongoClient.db();
+		const projectVisibility = createProjectVisibilityStore(database);
+		await projectVisibility.ensureIndexes();
+		let databaseReady = true;
 
-	const services: BackendServices = {
-		getDatabaseInfo: () => {
-			const connection = mongoose.connection;
-			return {
-				databaseName: connection.db?.databaseName ?? null,
-				host: connection.host || null,
-				name: connection.name || null,
-				readyState: connection.readyState,
+		const services: BackendServices = {
+			getDatabaseInfo: () => ({
+				databaseName: database.databaseName,
+				host: null,
+				name: database.databaseName,
+				readyState: databaseReady ? 1 : 0,
 				usingVault: mongoConfiguration.source === "vault"
-			};
-		},
-		getDatabaseState: () => mongoose.connection.readyState,
-		listProjectVisibility,
-		pingDatabase: async () => {
-			const database = mongoose.connection.db;
-			if (!database) throw new Error("Database unavailable.");
-			await database.admin().ping();
-		},
-		setProjectVisibility
-	};
+			}),
+			getDatabaseState: () => databaseReady ? 1 : 0,
+			listProjectVisibility: projectVisibility.list,
+			pingDatabase: async () => {
+				await database.command({ ping: 1 }, { timeoutMS: 2_000 });
+			},
+			setProjectVisibility: projectVisibility.set
+		};
 
-	const app = createApp({
-		diagnosticsEnabled,
-		diagnosticsKey,
-		isProduction,
-		projectAdminEnabled,
-		projectAdminKey,
-		services,
-		trustedProxies: env.TRUST_PROXY_IPS
-	});
-	const server = await listen(app, port, host);
-	console.log(`Server listening on http://${host}:${port}`);
+		const app = createApp({
+			diagnosticsEnabled,
+			diagnosticsKey,
+			isProduction,
+			projectAdminEnabled,
+			projectAdminKey,
+			services,
+			trustedProxies: env.TRUST_PROXY_IPS
+		});
+		const server = await listen(app, port, host);
+		console.log(`Server listening on http://${host}:${port}`);
 
-	let isShuttingDown = false;
-	const shutdown = async (signal: NodeJS.Signals) => {
-		if (isShuttingDown) return;
-		isShuttingDown = true;
-		console.log(`${signal} received, shutting down gracefully.`);
+		let isShuttingDown = false;
+		const shutdown = async (signal: NodeJS.Signals) => {
+			if (isShuttingDown) return;
+			isShuttingDown = true;
+			console.log(`${signal} received, shutting down gracefully.`);
 
-		try {
-			if (server.listening) {
-				const forceClose = setTimeout(() => server.closeAllConnections(), 10_000);
-				forceClose.unref();
-				server.closeIdleConnections();
-				await new Promise<void>((resolve, reject) => {
-					server.close(error => (error ? reject(error) : resolve()));
-				});
-				clearTimeout(forceClose);
+			try {
+				if (server.listening) {
+					const forceClose = setTimeout(() => server.closeAllConnections(), 10_000);
+					forceClose.unref();
+					server.closeIdleConnections();
+					await new Promise<void>((resolve, reject) => {
+						server.close(error => (error ? reject(error) : resolve()));
+					});
+					clearTimeout(forceClose);
+				}
+				databaseReady = false;
+				await mongoClient.close();
+				console.log("Graceful shutdown complete.");
+				process.exitCode = 0;
 			}
-			if (mongoose.connection.readyState !== 0) await mongoose.disconnect();
-			console.log("Graceful shutdown complete.");
-			process.exitCode = 0;
-		}
-		catch (error) {
-			logError("Graceful shutdown failed", error);
-			process.exitCode = 1;
-		}
-	};
+			catch (error) {
+				logError("Graceful shutdown failed", error);
+				process.exitCode = 1;
+			}
+		};
 
-	process.once("SIGINT", () => void shutdown("SIGINT"));
-	process.once("SIGTERM", () => void shutdown("SIGTERM"));
+		process.once("SIGINT", () => void shutdown("SIGINT"));
+		process.once("SIGTERM", () => void shutdown("SIGTERM"));
+	}
+	catch (error) {
+		await mongoClient.close().catch(() => undefined);
+		throw error;
+	}
 }
 
 const entryPath = process.argv[1] ? path.resolve(process.argv[1]) : "";
-if (entryPath && fileURLToPath(import.meta.url) === entryPath) {
+const isMainModule = entryPath && (() => {
+	try {
+		return realpathSync(entryPath) === realpathSync(fileURLToPath(import.meta.url));
+	}
+	catch {
+		return false;
+	}
+})();
+if (isMainModule) {
 	void main().catch((error) => {
 		logError("Backend startup failed", error);
 		process.exitCode = 1;

@@ -5,9 +5,8 @@ import { useProjectVisibility } from "~/composables/useProjectVisibility";
 import { otherProjectCategories, otherProjects } from "~/data/otherProjects";
 
 const allCategoriesLabel = "All projects" as const;
-const isReady = ref(false);
 const selectedCategory = ref<OtherProjectCategory | typeof allCategoriesLabel>(allCategoriesLabel);
-const { isProjectVisible, loadVisibility } = useProjectVisibility();
+const { errorMessage, hasLoadedVisibility, isLoading, isProjectVisible, loadVisibility } = useProjectVisibility();
 
 const visibleProjects = computed(() =>
 	otherProjects.filter(
@@ -23,10 +22,7 @@ const availableCategories = computed(() =>
 	)
 );
 
-onMounted(async () => {
-	await loadVisibility();
-	isReady.value = true;
-});
+onMounted(() => void loadVisibility());
 </script>
 
 <template>
@@ -41,9 +37,15 @@ onMounted(async () => {
 			</p>
 		</header>
 
-		<p v-if="!isReady" class="loading-state section-panel" role="status">Loading the current project index…</p>
+		<p v-if="isLoading" class="loading-state section-panel" role="status">Loading the current project index…</p>
 
-		<nav v-if="isReady" aria-label="Filter other projects by category" class="filters">
+		<section v-else-if="!hasLoadedVisibility" class="empty-state section-panel" role="alert">
+			<h2>The project index is temporarily unavailable</h2>
+			<p>{{ errorMessage }}</p>
+			<button class="retry-button" type="button" @click="loadVisibility">Try again</button>
+		</section>
+
+		<nav v-if="hasLoadedVisibility" aria-label="Filter other projects by category" class="filters">
 			<button
 				:aria-pressed="selectedCategory === allCategoriesLabel"
 				class="filter-button"
@@ -64,11 +66,15 @@ onMounted(async () => {
 			</button>
 		</nav>
 
-		<p v-if="isReady" class="result-count" aria-live="polite">
+		<p v-if="hasLoadedVisibility" class="result-count" aria-live="polite">
 			{{ visibleProjects.length }} {{ visibleProjects.length === 1 ? "project" : "projects" }} shown
 		</p>
 
-		<section v-if="isReady && visibleProjects.length" class="project-grid" aria-label="Other project cards">
+		<section
+			v-if="hasLoadedVisibility && visibleProjects.length"
+			class="project-grid"
+			aria-label="Other project cards"
+		>
 			<article v-for="project in visibleProjects" :key="project.slug" class="project-card section-panel">
 				<div class="card-top">
 					<span class="category">{{ project.category }}</span>
@@ -91,7 +97,7 @@ onMounted(async () => {
 			</article>
 		</section>
 
-		<section v-else-if="isReady" class="empty-state section-panel">
+		<section v-else-if="hasLoadedVisibility" class="empty-state section-panel">
 			<h2>No projects in this view</h2>
 			<p>Choose another category to continue browsing.</p>
 		</section>
@@ -151,6 +157,18 @@ onMounted(async () => {
 .loading-state {
 	color: var(--color-text-muted);
 	padding: var(--panel-padding);
+}
+
+.retry-button {
+	align-self: flex-start;
+	border: 1px solid var(--color-accent-strong);
+	border-radius: 999px;
+	background: var(--color-accent-strong);
+	color: var(--color-surface-strong);
+	cursor: pointer;
+	font: inherit;
+	font-weight: 700;
+	padding: 0.62rem 0.95rem;
 }
 
 .project-grid {

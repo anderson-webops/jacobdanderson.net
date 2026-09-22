@@ -12,39 +12,43 @@ PATH="$node_bin_dir_real:$system_path"
 export PATH
 export PUPPETEER_SKIP_DOWNLOAD=true
 
-release_root="${RELEASE_ROOT:-/srv/jacobdanderson.net/releases}"
-
 if [[ $# -ne 1 ]]; then
-	echo "Usage: prepare-release.sh /srv/jacobdanderson.net/releases/<release>" >&2
+	echo "Usage: prepare-release.sh /path/to/clean/tagged/source-checkout" >&2
 	exit 2
 fi
 if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
-	echo "Prepare releases as the unprivileged jacobdanderson deployment user, not root." >&2
+	echo "Build release artifacts as an unprivileged maintainer or CI user, not root." >&2
 	exit 1
 fi
 
-release_root_real="$(cd -- "$release_root" && pwd -P)"
 candidate="$(cd -- "$1" && pwd -P)"
-case "$candidate/" in
-	"$release_root_real/"*) ;;
-	*) echo "Candidate must resolve beneath $release_root_real: $candidate" >&2; exit 1 ;;
-esac
-
 if [[ ! -f "$candidate/package-lock.json" ]] || ! git -C "$candidate" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 	echo "Candidate must be a complete Git checkout with the committed root lockfile." >&2
 	exit 1
 fi
 if [[ -n "$(git -C "$candidate" status --porcelain)" ]]; then
-	echo "Candidate checkout must be clean before preparation." >&2
+	echo "Candidate checkout must be clean before release artifact preparation." >&2
 	exit 1
 fi
 if [[ "$(node --version)" != "v24.18.1" || "$(npm --version)" != "12.0.2" ]]; then
 	echo "Preparation requires Node 24.18.1 and npm 12.0.2." >&2
 	exit 1
 fi
+if [[ -z "${RUNTIME_ARTIFACT_MONGO_URI:-}" ]]; then
+	echo "Set RUNTIME_ARTIFACT_MONGO_URI to an isolated synthetic acceptance database." >&2
+	exit 1
+fi
 
-export SOURCE_COMMIT="$(git -C "$candidate" rev-parse HEAD)"
-export SOURCE_TAG="$(git -C "$candidate" describe --tags --exact-match 2>/dev/null || true)"
+SOURCE_COMMIT="$(git -C "$candidate" rev-parse HEAD)"
+SOURCE_TAG="$(git -C "$candidate" describe --tags --exact-match 2>/dev/null || true)"
+export SOURCE_COMMIT SOURCE_TAG
+if [[ -z "$SOURCE_TAG" ]]; then
+	echo "Release artifacts must be built from an exact reviewed tag." >&2
+	exit 1
+fi
+export RUNTIME_ARTIFACT_EXPECT_COMMIT="$SOURCE_COMMIT"
+export RUNTIME_ARTIFACT_REQUIRE_CLEAN=true
+export RUNTIME_ARTIFACT_REQUIRE_MONGO=true
 unset NODE_ENV
 
 cd -- "$candidate"
@@ -58,22 +62,12 @@ npm run lint
 npm run typecheck
 npm test
 npm run a11y
-export NODE_ENV=production
-npm run build
+NODE_ENV=production npm run build
 npm run smoke:backend-runtime
-
-node - <<'NODE'
-import { copyFileSync, readFileSync } from "node:fs";
-
-const deployment = JSON.parse(readFileSync("front-end/dist/deployment.json", "utf8"));
-if (deployment.commit !== process.env.SOURCE_COMMIT) {
-	throw new Error("Built deployment identity does not match the candidate commit.");
-}
-copyFileSync("front-end/dist/deployment.json", ".jacobdanderson-release-prepared.json");
-NODE
-
-npm ci --omit=dev --include=optional --ignore-scripts
-npm audit --omit=dev
-npm run verify:static
-npm run smoke:backend-runtime
-echo "Prepared direct runtime release $candidate at $SOURCE_COMMIT."
+npm run artifact:build
+npm run artifact:verify
+npm run artifact:smoke
+npm audit --prefix .runtime-artifact/back-end --omit=dev
+npm run artifact:pack
+npm run artifact:archive-smoke
+echo "Prepared immutable runtime archive for $SOURCE_TAG at $SOURCE_COMMIT. Production must use the root-installed archive promoter."

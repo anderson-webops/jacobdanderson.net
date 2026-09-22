@@ -6,7 +6,8 @@ import { otherProjects } from "~/data/otherProjects";
 
 const pendingSlug = ref("");
 const statusMessage = ref("");
-const { errorMessage, isLoading, isProjectVisible, loadVisibility, setProjectVisibility } = useProjectVisibility();
+const { errorMessage, hasLoadedVisibility, isLoading, isProjectVisible, loadVisibility, setProjectVisibility } =
+	useProjectVisibility();
 
 async function toggleVisibility(project: OtherProject) {
 	pendingSlug.value = project.slug;
@@ -42,10 +43,13 @@ onMounted(() => {
 		</div>
 
 		<p v-if="isLoading" class="notice" role="status">Loading saved visibility settings…</p>
-		<p v-if="errorMessage" class="notice notice-error" role="alert">{{ errorMessage }}</p>
+		<div v-else-if="!hasLoadedVisibility" class="notice notice-error" role="alert">
+			<p>{{ errorMessage || "Saved visibility settings have not loaded." }}</p>
+			<button class="retry-button" type="button" @click="loadVisibility">Try again</button>
+		</div>
 		<p v-if="statusMessage" class="notice notice-success" role="status">{{ statusMessage }}</p>
 
-		<section class="control-list" aria-label="Project visibility controls">
+		<section v-if="hasLoadedVisibility" class="control-list" aria-label="Project visibility controls">
 			<article v-for="project in otherProjects" :key="project.slug" class="control-row section-panel">
 				<div class="project-copy">
 					<span class="category">{{ project.category }}</span>
@@ -90,6 +94,10 @@ onMounted(() => {
 	border-radius: var(--radius-md);
 	background: var(--color-surface-strong);
 	color: var(--color-text-muted);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
 	padding: 0.85rem 1rem;
 }
 
@@ -103,6 +111,17 @@ onMounted(() => {
 	border-color: #bdd9c4;
 	background: #edf7ef;
 	color: #285b36;
+}
+
+.retry-button {
+	border: 1px solid currentcolor;
+	border-radius: 999px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+	font: inherit;
+	font-weight: 750;
+	padding: 0.48rem 0.78rem;
 }
 
 .control-list {
