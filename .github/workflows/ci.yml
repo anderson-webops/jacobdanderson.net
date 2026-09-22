@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm install --global "npm@${NPM_VERSION}"
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm run lint
 
@@ -40,7 +40,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm install --global "npm@${NPM_VERSION}"
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm run typecheck
 
@@ -52,7 +52,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm install --global "npm@${NPM_VERSION}"
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm test
 
@@ -64,7 +64,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm install --global "npm@${NPM_VERSION}"
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm audit
       - run: npm audit --omit=dev
@@ -80,7 +80,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm install --global "npm@${NPM_VERSION}"
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm run a11y
 
@@ -92,7 +92,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm install --global "npm@${NPM_VERSION}"
       - run: npm ci --include=optional --strict-allow-scripts
       - name: Build exact source
         env:
@@ -113,5 +113,5 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-      - run: npm install --global npm@${NPM_VERSION}
+      - run: npm install --global "npm@${NPM_VERSION}"
       - run: npm run verify:platform-install
