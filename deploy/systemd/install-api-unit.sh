@@ -10,6 +10,12 @@ env_dest="${ENV_DEST:-/etc/jacobdanderson/api.env}"
 promoter_dest="${PROMOTER_DEST:-/usr/local/sbin/jacobdanderson-promote-release}"
 verifier_dest="${VERIFIER_DEST:-/usr/local/libexec/jacobdanderson/verify-runtime-artifact.mjs}"
 extractor_dest="${EXTRACTOR_DEST:-/usr/local/libexec/jacobdanderson/extract-runtime-artifact.py}"
+legacy_verifier_dest="${LEGACY_VERIFIER_DEST:-/usr/local/libexec/jacobdanderson/legacy-runtime-artifact.mjs}"
+legacy_prepare_dest="${LEGACY_PREPARE_DEST:-/usr/local/sbin/jacobdanderson-prepare-legacy-rollback}"
+site_root="${SITE_ROOT:-/srv/jacobdanderson.net}"
+release_root="${RELEASE_ROOT:-/srv/jacobdanderson.net/releases}"
+legacy_release_root="${LEGACY_RELEASE_ROOT:-/srv/jacobdanderson.net/legacy-releases}"
+deploy_lock="${DEPLOY_LOCK:-/srv/jacobdanderson.net/.deploy.lock}"
 dry_run=false
 force_env=false
 
@@ -58,12 +64,32 @@ if [[ "$dry_run" == false ]]; then
 			exit 1
 		fi
 	fi
+	if [[ -e "$site_root" && ( ! -d "$site_root" || -L "$site_root" ) ]]; then
+		echo "Existing $site_root must be a real directory." >&2
+		exit 1
+	fi
 fi
 
+if [[ "$dry_run" == true || ! -e "$site_root" ]]; then
+	run install -d -o root -g root -m 0755 "$site_root"
+else
+	run chown root:root "$site_root"
+	run chmod go-w "$site_root"
+fi
 run install -D -m 0644 "$script_dir/jacobdanderson-api.service" "$unit_dest"
 run install -D -o root -g root -m 0755 "$script_dir/promote-release.sh" "$promoter_dest"
 run install -D -o root -g root -m 0644 "$script_dir/../../scripts/verify-runtime-artifact.mjs" "$verifier_dest"
 run install -D -o root -g root -m 0755 "$script_dir/extract-runtime-artifact.py" "$extractor_dest"
+run install -D -o root -g root -m 0644 "$script_dir/legacy-runtime-artifact.mjs" "$legacy_verifier_dest"
+run install -D -o root -g root -m 0755 "$script_dir/prepare-legacy-rollback.sh" "$legacy_prepare_dest"
+run install -d -o root -g root -m 0755 "$release_root"
+run install -d -o root -g root -m 0755 "$legacy_release_root"
+if [[ "$dry_run" == true || ! -e "$deploy_lock" ]]; then
+	run install -o root -g root -m 0600 /dev/null "$deploy_lock"
+elif [[ ! -f "$deploy_lock" || -L "$deploy_lock" || "$(stat -c '%u:%g:%a' -- "$deploy_lock")" != "0:0:600" ]]; then
+	echo "Existing $deploy_lock must be a root:root mode 0600 regular file." >&2
+	exit 1
+fi
 if [[ "$force_env" == true || ! -e "$env_dest" ]]; then
 	run install -D -o root -g root -m 0600 "$script_dir/jacobdanderson-api.env.example" "$env_dest"
 else

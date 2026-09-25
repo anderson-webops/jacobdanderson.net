@@ -123,6 +123,20 @@ function databaseUri(baseUri) {
 	return `${prefix}/jacob_artifact_${process.pid}_${Date.now()}${query}`;
 }
 
+function serviceEnvironment(mongoUri, port, overrides = {}) {
+	return cleanEnvironment({
+		ALLOW_PUBLIC_LISTENER: "false",
+		ENABLE_INTERNAL_DIAGNOSTICS: "false",
+		ENABLE_PROJECT_ADMIN: "false",
+		HOST: "127.0.0.1",
+		MONGODB_URI: mongoUri,
+		NODE_ENV: "production",
+		PORT: String(port),
+		TRUST_PROXY_IPS: "loopback",
+		...overrides
+	});
+}
+
 const acceptanceRoot = await mkdtemp(path.join(os.tmpdir(), "jacobdanderson-runtime-acceptance-"));
 const artifactRoot = path.join(acceptanceRoot, "artifact");
 const verifier = path.join(acceptanceRoot, "verify-runtime-artifact.mjs");
@@ -172,6 +186,20 @@ try {
 		databaseClient = new MongoClient(mongoUri, { serverSelectionTimeoutMS: 5_000 });
 		await databaseClient.connect();
 		await databaseClient.db().dropDatabase();
+		const legacyCreatedAt = new Date("2026-08-27T12:00:00.000Z");
+		const legacyUpdatedAt = new Date("2026-08-27T12:30:00.000Z");
+		const legacyVisibility = databaseClient.db().collection("project_visibility");
+		assert.equal(
+			await legacyVisibility.createIndex({ slug: 1 }, { unique: true }),
+			"slug_1",
+			"The retained v2.11.0 schema must use Mongoose's default unique-index name."
+		);
+		await legacyVisibility.insertOne({
+			createdAt: legacyCreatedAt,
+			slug: "oscre",
+			updatedAt: legacyUpdatedAt,
+			visible: true
+		});
 
 		const apiPort = await ephemeralPort();
 		const apiBaseUrl = `http://127.0.0.1:${apiPort}`;
@@ -180,16 +208,9 @@ try {
 		const api = startService(
 			path.join(artifactRoot, "back-end/dist/server.js"),
 			artifactRoot,
-			cleanEnvironment({
-				ALLOW_PUBLIC_LISTENER: "false",
-				ENABLE_INTERNAL_DIAGNOSTICS: "false",
+			serviceEnvironment(mongoUri, apiPort, {
 				ENABLE_PROJECT_ADMIN: "true",
-				HOST: "127.0.0.1",
-				MONGODB_URI: mongoUri,
-				NODE_ENV: "production",
-				PORT: String(apiPort),
-				PROJECT_ADMIN_PROXY_KEY: adminKey,
-				TRUST_PROXY_IPS: "loopback"
+				PROJECT_ADMIN_PROXY_KEY: adminKey
 			})
 		);
 		try {
@@ -222,11 +243,74 @@ try {
 			const audit = await databaseClient.db().collection("project_visibility_audit").find({ requestId }).sort({ phase: 1 }).toArray();
 			assert.deepEqual(audit.map(record => record.phase), ["attempt", "result"]);
 			assert.deepEqual(audit.map(record => record.actor), ["artifact-test", "artifact-test"]);
+			const persisted = await legacyVisibility.findOne({ slug: "oscre" });
+			assert.equal(persisted?.visible, false);
+			assert.deepEqual(persisted?.createdAt, legacyCreatedAt);
+			assert.notDeepEqual(persisted?.updatedAt, legacyUpdatedAt);
+			const visibilityIndexes = await legacyVisibility.listIndexes().toArray();
+			assert.deepEqual(
+				visibilityIndexes
+					.filter(index => index.name !== "_id_")
+					.map(index => ({ key: index.key, name: index.name, unique: index.unique })),
+				[{ key: { slug: 1 }, name: "slug_1", unique: true }],
+				"The upgrade must retain the exact v2.11.0 uniqueness index without a renamed duplicate."
+			);
+			assert.equal(
+				await legacyVisibility.createIndex({ slug: 1 }, { unique: true }),
+				"slug_1",
+				"The retained database must remain index-compatible with a v2.11.0 rollback."
+			);
 		}
 		finally {
 			await stopService(api);
 		}
 		assert.equal(api.child.exitCode, 0, `API did not shut down cleanly.\n${api.output()}`);
+
+		await databaseClient.db().dropDatabase();
+		const incompatibleVisibility = databaseClient.db().collection("project_visibility");
+		assert.equal(
+			await incompatibleVisibility.createIndex({ slug: 1 }),
+			"slug_1"
+		);
+		const incompatible = startService(
+			path.join(artifactRoot, "back-end/dist/server.js"),
+			artifactRoot,
+			serviceEnvironment(mongoUri, await ephemeralPort())
+		);
+		assert.equal(
+			await waitForExit(incompatible.child, 10_000),
+			true,
+			"An incompatible legacy uniqueness index did not fail startup."
+		);
+		assert.equal(incompatible.child.exitCode, 1, incompatible.output());
+		assert.match(incompatible.output(), /Backend startup failed: MongoServerError/u);
+		assert.doesNotMatch(incompatible.output(), /mongodb(?:\+srv)?:\/\/|jacob_artifact_/iu);
+
+		await databaseClient.db().dropDatabase();
+		const freshPorts = await Promise.all([ephemeralPort(), ephemeralPort()]);
+		const freshServices = freshPorts.map(port => startService(
+			path.join(artifactRoot, "back-end/dist/server.js"),
+			artifactRoot,
+			serviceEnvironment(mongoUri, port)
+		));
+		try {
+			await Promise.all(freshServices.map((service, index) => (
+				waitForResponse(service, `http://127.0.0.1:${freshPorts[index]}/readyz`)
+			)));
+			const freshIndexes = await databaseClient.db().collection("project_visibility").listIndexes().toArray();
+			assert.deepEqual(
+				freshIndexes
+					.filter(index => index.name !== "_id_")
+					.map(index => ({ key: index.key, name: index.name, unique: index.unique })),
+				[{ key: { slug: 1 }, name: "slug_1", unique: true }]
+			);
+		}
+		finally {
+			await Promise.all(freshServices.map(stopService));
+		}
+		for (const service of freshServices) {
+			assert.equal(service.child.exitCode, 0, `Concurrent API did not shut down cleanly.\n${service.output()}`);
+		}
 
 		const unavailable = startService(
 			path.join(artifactRoot, "back-end/dist/server.js"),

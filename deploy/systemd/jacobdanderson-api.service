@@ -41,6 +41,7 @@ ProtectKernelTunables=true
 ProtectProc=invisible
 ProtectSystem=strict
 ReadOnlyPaths=-/srv/jacobdanderson.net/releases
+ReadOnlyPaths=-/srv/jacobdanderson.net/legacy-releases
 RemoveIPC=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 RestrictNamespaces=true

@@ -92,14 +92,20 @@ export function createProjectVisibilityStore(
 
 	return {
 		async ensureIndexes() {
-			await Promise.all([
-				visibility.createIndex({ slug: 1 }, { name: "project_visibility_slug", unique: true }),
-				audit.createIndex(
-					{ requestId: 1, phase: 1 },
-					{ name: "project_visibility_audit_request_phase", unique: true }
-				),
-				audit.createIndex({ occurredAt: 1 }, { name: "project_visibility_audit_occurred_at" })
-			]);
+			// v2.11.0 used Mongoose's default name for this index. Keep that exact
+			// name so an upgrade and a rollback both remain idempotent. MongoDB
+			// rejects an equivalent index requested under a different name with
+			// IndexOptionsConflict (code 85), and this startup path must never drop
+			// or rewrite a production uniqueness constraint to work around it.
+			await visibility.createIndex({ slug: 1 }, { name: "slug_1", unique: true });
+			await audit.createIndex(
+				{ requestId: 1, phase: 1 },
+				{ name: "project_visibility_audit_request_phase", unique: true }
+			);
+			await audit.createIndex(
+				{ occurredAt: 1 },
+				{ name: "project_visibility_audit_occurred_at" }
+			);
 		},
 		async list() {
 			const documents = await visibility

@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { chmod, copyFile, lstat, mkdir, mkdtemp, readdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { chmod, copyFile, lstat, mkdir, mkdtemp, readdir, readFile, realpath, rm, symlink, truncate, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 
 const root = process.cwd();
 const extractor = path.join(root, "deploy/systemd/extract-runtime-artifact.py");
+const legacyTool = path.join(root, "deploy/systemd/legacy-runtime-artifact.mjs");
 const promoter = path.join(root, "deploy/systemd/promote-release.sh");
 const workDirectory = await mkdtemp(path.join(os.tmpdir(), "jacobdanderson-promotion-"));
 
@@ -91,6 +92,129 @@ try {
 	assert.match(rejectedNonempty.output, /must be empty/u);
 	assert.equal(await readFile(path.join(nonemptyDestination, "preserve"), "utf8"), "preserve\n");
 
+	const legacySource = path.join(workDirectory, "legacy-source");
+	const legacyRoot = path.join(workDirectory, "legacy-releases");
+	await Promise.all([
+		mkdir(path.join(legacySource, "back-end", "dist"), { recursive: true }),
+		mkdir(path.join(legacySource, "front-end", "dist"), { recursive: true }),
+		mkdir(path.join(legacySource, "node_modules", "runtime-package"), { recursive: true }),
+		mkdir(path.join(legacySource, "node_modules", ".bin"), { recursive: true }),
+		mkdir(legacyRoot)
+	]);
+	for (const relativePath of ["package.json", "package-lock.json", "back-end/package.json"]) {
+		const sourceFile = run("git", ["show", `v2.11.0:${relativePath}`], { cwd: root });
+		assert.equal(sourceFile.status, 0, sourceFile.output);
+		await writeFile(path.join(legacySource, relativePath), sourceFile.stdout);
+	}
+	const legacyIdentity = `${JSON.stringify({
+		commit: "d807a52a7b41ae7774cc528c82ab218fbf423475",
+		ok: true,
+		ref: "v2.11.0",
+		runtime: "vite-ssg",
+		service: "front-end"
+	}, null, 2)}\n`;
+	await Promise.all([
+		writeFile(path.join(legacySource, ".jacobdanderson-release-prepared.json"), legacyIdentity),
+		writeFile(path.join(legacySource, "back-end", "dist", "server.js"), "console.log('legacy');\n"),
+		writeFile(path.join(legacySource, "front-end", "dist", "deployment.json"), legacyIdentity),
+		writeFile(path.join(legacySource, "front-end", "dist", "index.html"), "legacy\n"),
+		writeFile(path.join(legacySource, "node_modules", "runtime-package", "index.js"), "export {};\n")
+	]);
+	await symlink(
+		"../runtime-package/index.js",
+		path.join(legacySource, "node_modules", ".bin", "runtime-package")
+	);
+	const legacyEnvironment = { ...process.env, ALLOW_ROOTLESS_LEGACY_CAPTURE: "true" };
+	const oversizedLegacyFile = path.join(legacySource, "node_modules", "runtime-package", "oversized.bin");
+	await writeFile(oversizedLegacyFile, "");
+	await truncate(oversizedLegacyFile, 64 * 1024 * 1024 + 1);
+	const rejectedOversizedLegacy = run(
+		process.execPath,
+		[
+			legacyTool,
+			"capture",
+			legacySource,
+			legacyRoot,
+			"d807a52a7b41ae7774cc528c82ab218fbf423475"
+		],
+		{ env: legacyEnvironment }
+	);
+	assert.notEqual(rejectedOversizedLegacy.status, 0);
+	assert.match(rejectedOversizedLegacy.output, /exceeds its size bound/u);
+	assert.deepEqual(
+		await readdir(legacyRoot),
+		[],
+		"Legacy capture must enforce resource bounds before creating a staging tree."
+	);
+	await rm(oversizedLegacyFile);
+	const capturedLegacy = run(
+		process.execPath,
+		[
+			legacyTool,
+			"capture",
+			legacySource,
+			legacyRoot,
+			"d807a52a7b41ae7774cc528c82ab218fbf423475"
+		],
+		{ env: legacyEnvironment }
+	);
+	assert.equal(capturedLegacy.status, 0, capturedLegacy.output);
+	const sealedLegacy = JSON.parse(capturedLegacy.stdout);
+	assert.match(sealedLegacy.manifestSha256, /^[a-f0-9]{64}$/u);
+	assert.ok(sealedLegacy.path.startsWith(`${await realpath(legacyRoot)}${path.sep}`));
+	const comparedLegacy = run(
+		process.execPath,
+		[
+			legacyTool,
+			"compare-source",
+			legacySource,
+			sealedLegacy.path,
+			"d807a52a7b41ae7774cc528c82ab218fbf423475"
+		],
+		{ env: legacyEnvironment }
+	);
+	assert.equal(comparedLegacy.status, 0, comparedLegacy.output);
+	const legacyServerPath = path.join(legacySource, "back-end", "dist", "server.js");
+	await writeFile(legacyServerPath, "console.log('changed');\n");
+	const rejectedChangedSource = run(
+		process.execPath,
+		[
+			legacyTool,
+			"compare-source",
+			legacySource,
+			sealedLegacy.path,
+			"d807a52a7b41ae7774cc528c82ab218fbf423475"
+		],
+		{ env: legacyEnvironment }
+	);
+	assert.notEqual(rejectedChangedSource.status, 0);
+	assert.match(rejectedChangedSource.output, /differs from its sealed rollback tree/u);
+	await writeFile(legacyServerPath, "console.log('legacy');\n");
+	const verifiedLegacy = run(
+		process.execPath,
+		[
+			legacyTool,
+			"verify",
+			sealedLegacy.path,
+			"d807a52a7b41ae7774cc528c82ab218fbf423475"
+		],
+		{ env: legacyEnvironment }
+	);
+	assert.equal(verifiedLegacy.status, 0, verifiedLegacy.output);
+	await writeFile(path.join(sealedLegacy.path, "front-end", "dist", "index.html"), "tampered\n");
+	const rejectedLegacyMutation = run(
+		process.execPath,
+		[
+			legacyTool,
+			"verify",
+			sealedLegacy.path,
+			"d807a52a7b41ae7774cc528c82ab218fbf423475"
+		],
+		{ env: legacyEnvironment }
+	);
+	assert.notEqual(rejectedLegacyMutation.status, 0);
+	assert.match(rejectedLegacyMutation.output, /differs from its sealed manifest/u);
+
 	const promoterSource = await readFile(promoter, "utf8");
 	const protectedCopy = promoterSource.indexOf(
 		"install -o root -g root -m 0600 -- \"$archive\" \"$protected_archive\""
@@ -105,9 +229,18 @@ try {
 	assert.match(promoterSource, /assert_trusted_tree "\$candidate" "Existing release"/u);
 	assert.match(promoterSource, /assert_trusted_tree "\$previous_target" "Current rollback target"/u);
 	assert.match(promoterSource, /assert_trusted_tree "\$candidate" "Selected candidate"/u);
+	assert.match(promoterSource, /expected_current="\$\{4,,\}"/u);
+	assert.match(promoterSource, /verify_legacy_tree "\$sealed_legacy"/u);
+	assert.match(promoterSource, /compare-source/u);
+	assert.match(promoterSource, /separately sealed v2\.11\.0 rollback tree/u);
+	assert.match(promoterSource, /flock -n 9/u);
+	assert.match(promoterSource, /A valid current release symlink is required for guarded promotion/u);
+	const currentRecheck = promoterSource.indexOf("assert_current_unchanged");
+	const candidateActivation = promoterSource.indexOf("activate_target \"$candidate\"");
+	assert.ok(currentRecheck >= 0 && currentRecheck < candidateActivation, "Current identity must be rechecked before activation.");
 
 	await chmod(destination, 0o755);
-	process.stdout.write("Promotion archive and trusted-release contract passed.\n");
+	process.stdout.write("Promotion archive, sealed legacy transition, and trusted-release contract passed.\n");
 }
 finally {
 	await rm(workDirectory, { force: true, recursive: true });
