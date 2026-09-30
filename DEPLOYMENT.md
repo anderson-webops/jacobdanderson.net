@@ -45,6 +45,11 @@ The installer refuses to preserve an existing environment file unless it is a re
 - `/usr/local/libexec/jacobdanderson/legacy-runtime-artifact.mjs`
 
 These files are the trusted promotion boundary. Never invoke a promoter from an unprivileged checkout with sudo.
+Before promotion, the installed helper requires the release and rollback roots,
+the current-link parent, the deployment-lock parent, and every ancestor of those
+directories to be root-owned, non-writable by other users, and free of symlinks.
+Missing or unsafe directories are host prerequisites to repair deliberately;
+the promoter will not create or silently take ownership of them.
 
 The checked-in unit preserves the established `/srv/jacobdanderson.net/current` path and port 3003. It fixes loopback binding/trust, starts compiled code only, makes release trees read-only to the service, limits tasks/file descriptors, caps V8 old space at 64 MiB, and applies measured 128/160 MiB systemd memory thresholds.
 
