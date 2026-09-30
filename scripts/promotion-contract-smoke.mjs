@@ -22,7 +22,7 @@ try {
 	const destination = path.join(workDirectory, "destination");
 	const archive = path.join(workDirectory, "runtime.tar.gz");
 	await mkdir(path.join(source, "front-end", "dist"), { recursive: true, mode: 0o700 });
-	await mkdir(destination);
+	await mkdir(destination, { mode: 0o700 });
 	await writeFile(path.join(source, "front-end", "dist", "index.html"), "ok\n", { mode: 0o600 });
 	const packed = run("tar", ["-C", source, "-czf", archive, "."]);
 	assert.equal(packed.status, 0, packed.output);
@@ -39,7 +39,7 @@ try {
 	const protectedArchive = path.join(workDirectory, "protected.tar.gz");
 	const protectedDestination = path.join(workDirectory, "protected-destination");
 	await mkdir(replacementSource);
-	await mkdir(protectedDestination);
+	await mkdir(protectedDestination, { mode: 0o700 });
 	await writeFile(path.join(replacementSource, "payload.txt"), "replacement\n");
 	const replacementPacked = run("tar", ["-C", replacementSource, "-czf", replacementArchive, "."]);
 	assert.equal(replacementPacked.status, 0, replacementPacked.output);
@@ -61,7 +61,7 @@ try {
 	const symlinkDestination = path.join(workDirectory, "symlink-destination");
 	const symlinkArchive = path.join(workDirectory, "symlink.tar.gz");
 	await mkdir(symlinkSource);
-	await mkdir(symlinkDestination);
+	await mkdir(symlinkDestination, { mode: 0o700 });
 	await writeFile(path.join(symlinkSource, "target"), "target\n");
 	await symlink("target", path.join(symlinkSource, "link"));
 	const symlinkPacked = run("tar", ["-C", symlinkSource, "-czf", symlinkArchive, "."]);
@@ -75,7 +75,7 @@ try {
 	const deepArchive = path.join(workDirectory, "deep.tar.gz");
 	const deepPath = path.join(deepSource, ...Array.from({ length: 65 }, (_, index) => `level-${index}`));
 	await mkdir(deepPath, { recursive: true });
-	await mkdir(deepDestination);
+	await mkdir(deepDestination, { mode: 0o700 });
 	await writeFile(path.join(deepPath, "payload"), "too deep\n");
 	const deepPacked = run("tar", ["-C", deepSource, "-czf", deepArchive, "."]);
 	assert.equal(deepPacked.status, 0, deepPacked.output);
@@ -85,12 +85,14 @@ try {
 	assert.deepEqual(await readdir(deepDestination), [], "Extractor must validate the full archive before writing files.");
 
 	const nonemptyDestination = path.join(workDirectory, "nonempty");
-	await mkdir(nonemptyDestination);
+	await mkdir(nonemptyDestination, { mode: 0o700 });
 	await writeFile(path.join(nonemptyDestination, "preserve"), "preserve\n");
 	const rejectedNonempty = run("python3", [extractor, archive, nonemptyDestination]);
 	assert.notEqual(rejectedNonempty.status, 0);
 	assert.match(rejectedNonempty.output, /must be empty/u);
 	assert.equal(await readFile(path.join(nonemptyDestination, "preserve"), "utf8"), "preserve\n");
+	const extractorRaces = run("python3", ["-B", "scripts/extractor-race-smoke.py"], { cwd: root });
+	assert.equal(extractorRaces.status, 0, extractorRaces.output);
 
 	const legacySource = path.join(workDirectory, "legacy-source");
 	const legacyRoot = path.join(workDirectory, "legacy-releases");
@@ -222,6 +224,11 @@ try {
 	const protectedDigest = promoterSource.indexOf("sha256sum -- \"$protected_archive\"");
 	const protectedExtraction = promoterSource.indexOf(
 		"\"$installed_extractor\" \"$protected_archive\" \"$staging\""
+	);
+	const ancestorGuard = promoterSource.indexOf("assert_protected_directory_chain \"$release_root\" \"Release root\"");
+	assert.ok(
+		ancestorGuard >= 0 && ancestorGuard < protectedCopy,
+		"Protected ancestors must be checked before root writes."
 	);
 	assert.ok(protectedCopy >= 0, "Promotion must create a root-only stable archive copy.");
 	assert.ok(protectedDigest > protectedCopy, "Promotion must hash the protected archive copy.");

@@ -26,6 +26,43 @@ if [[ ${EUID:-$(id -u)} -ne 0 ]]; then
 	echo "Run the installed promotion helper with root privileges." >&2
 	exit 1
 fi
+assert_protected_directory_chain() {
+	local target="$1" label="$2" current="/" remaining component owner mode
+	if [[ "$target" != /* || "$target" != "$(realpath -e -- "$target")" ]]; then
+		echo "$label must be an existing canonical absolute path." >&2
+		return 1
+	fi
+	remaining="${target#/}"
+	while :; do
+		if [[ ! -d "$current" || -L "$current" ]]; then
+			echo "$label has a missing, non-directory, or symbolic-link ancestor: $current" >&2
+			return 1
+		fi
+		IFS=: read -r owner mode <<< "$(stat -c '%u:%a' -- "$current")"
+		if [[ "$owner" != 0 || ! "$mode" =~ ^[0-7]{3,4}$ ]] || (( (8#$mode & 0022) != 0 )); then
+			echo "$label has a non-root-owned or writable ancestor: $current" >&2
+			return 1
+		fi
+		if [[ -z "$remaining" ]]; then
+			break
+		fi
+		component="${remaining%%/*}"
+		if [[ -z "$component" ]]; then
+			echo "$label must be an existing canonical absolute path." >&2
+			return 1
+		fi
+		current="${current%/}/$component"
+		if [[ "$remaining" == */* ]]; then
+			remaining="${remaining#*/}"
+		else
+			remaining=""
+		fi
+	done
+}
+assert_protected_directory_chain "$release_root" "Release root"
+assert_protected_directory_chain "$legacy_release_root" "Legacy release root"
+assert_protected_directory_chain "$(dirname -- "$current_link")" "Current release parent"
+assert_protected_directory_chain "$(dirname -- "$deploy_lock")" "Deployment lock parent"
 if [[ ! -f "$deploy_lock" || -L "$deploy_lock" || "$(stat -c '%u:%g:%a' -- "$deploy_lock")" != "0:0:600" ]]; then
 	echo "The deployment lock must be a root:root mode 0600 regular file." >&2
 	exit 1
@@ -89,7 +126,6 @@ if [[ ! -f "$archive" || -L "$archive" ]]; then
 	exit 1
 fi
 
-install -d -o root -g root -m 0755 -- "$release_root"
 release_root_real="$(realpath -e -- "$release_root")"
 legacy_release_root_real="$(realpath -e -- "$legacy_release_root")"
 candidate="$release_root_real/$expected_commit"
