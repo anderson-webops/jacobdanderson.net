@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { chmod, chown, mkdir, mkdtemp, rm, symlink } from "node:fs/promises";
+import { chmod, chown, mkdir, mkdtemp, rm, stat, symlink } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
@@ -62,6 +62,8 @@ try {
 	const newlineParent = path.join(workDirectory, "safe\n");
 	const newlineRelease = path.join(newlineParent, "releases");
 	await mkdir(newlineParent, { mode: 0o770 });
+	await chmod(newlineParent, 0o770);
+	assert.ok((await stat(newlineParent)).mode & 0o022);
 	await mkdir(newlineRelease, { mode: 0o755 });
 	const newlinePath = preflight(newlineRelease);
 	assert.notEqual(newlinePath.status, 0);
