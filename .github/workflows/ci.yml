@@ -177,6 +177,8 @@ jobs:
           npm run artifact:verify
           npm run artifact:smoke
           npm run smoke:promotion
+          npm run smoke:legacy-hardening
+          sudo env -u NODE_OPTIONS -u NODE_PATH "$(command -v node)" scripts/legacy-hardening-race-smoke.mjs
           npm audit --prefix .runtime-artifact/back-end --omit=dev
           npm run artifact:pack
           npm run artifact:archive-smoke

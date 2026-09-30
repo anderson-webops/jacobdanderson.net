@@ -20,6 +20,7 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const LEGACY_COMMIT = "d807a52a7b41ae7774cc528c82ab218fbf423475";
 const LEGACY_TAG = "v2.11.0";
@@ -258,17 +259,23 @@ async function normalize(root, directory = root) {
 
 async function assertProtectedDirectory(directory, label) {
 	if (typeof process.getuid !== "function" || process.getuid() !== 0) return;
-	const metadata = await lstat(directory);
-	if (
-		!metadata.isDirectory()
-		|| metadata.isSymbolicLink()
-		|| metadata.uid !== 0
-		|| metadata.gid !== 0
-		|| (metadata.mode & 0o022) !== 0
-	) fail(`${label} must be a root-owned, protected directory.`);
+	let current = path.resolve(directory);
+	while (true) {
+		const metadata = await lstat(current);
+		if (
+			!metadata.isDirectory()
+			|| metadata.isSymbolicLink()
+			|| metadata.uid !== 0
+			|| metadata.gid !== 0
+			|| (metadata.mode & 0o022) !== 0
+		) fail(`${label} must have root-owned, protected directory ancestors.`);
+		const parent = path.dirname(current);
+		if (parent === current) return;
+		current = parent;
+	}
 }
 
-async function assertProtectedSource(root, entries) {
+async function assertProtectedSourceDirectories(root, entries) {
 	if (typeof process.getuid !== "function" || process.getuid() !== 0) {
 		if (process.env.ALLOW_ROOTLESS_LEGACY_CAPTURE !== "true") {
 			fail("Legacy rollback verification requires root privileges.");
@@ -277,17 +284,65 @@ async function assertProtectedSource(root, entries) {
 	}
 	const rootMetadata = await lstat(root);
 	if (
-		rootMetadata.uid !== 0
+		!rootMetadata.isDirectory()
+		|| rootMetadata.isSymbolicLink()
+		|| rootMetadata.uid !== 0
 		|| rootMetadata.gid !== 0
 		|| (rootMetadata.mode & 0o222) !== 0
 	) fail("Active legacy runtime root is not immutable and root-owned.");
-	for (const entry of entries) {
+	for (const entry of entries.filter(item => item.type === "directory")) {
 		const metadata = await lstat(path.join(root, entry.path));
 		if (
-			metadata.uid !== 0
+			!metadata.isDirectory()
+			|| metadata.isSymbolicLink()
+			|| metadata.uid !== 0
 			|| metadata.gid !== 0
-			|| (entry.type !== "symlink" && (metadata.mode & 0o222) !== 0)
-		) fail(`Active legacy runtime entry is not immutable and root-owned: ${entry.path}`);
+			|| (metadata.mode & 0o222) !== 0
+		) fail(`Active legacy runtime directory is not protected and root-owned: ${entry.path}`);
+	}
+}
+
+export async function hardenSourceEntries(root, entries, ownerUid, ownerGid) {
+	const rootHandle = await open(
+		root,
+		fsConstants.O_RDONLY | fsConstants.O_DIRECTORY | fsConstants.O_NOFOLLOW
+	);
+	try {
+		const metadata = await rootHandle.stat();
+		if (!metadata.isDirectory()) fail("Legacy runtime root changed while its source was being made immutable.");
+		if (metadata.uid !== ownerUid || metadata.gid !== ownerGid) {
+			await rootHandle.chown(ownerUid, ownerGid);
+		}
+		await rootHandle.chmod(0o555);
+	}
+	finally {
+		await rootHandle.close();
+	}
+	const directories = entries
+		.filter(entry => entry.type === "directory")
+		.sort((left, right) => (
+			left.path.split("/").length - right.path.split("/").length
+			|| left.path.localeCompare(right.path)
+		));
+	for (const entry of directories) {
+		const absolutePath = path.join(root, entry.path);
+		const handle = await open(
+			absolutePath,
+			fsConstants.O_RDONLY | fsConstants.O_DIRECTORY | fsConstants.O_NOFOLLOW
+		);
+		try {
+			const metadata = await handle.stat();
+			if (!metadata.isDirectory()) {
+				fail(`Legacy runtime directory changed while its source was being made immutable: ${entry.path}`);
+			}
+			if (metadata.uid !== ownerUid || metadata.gid !== ownerGid) {
+				await handle.chown(ownerUid, ownerGid);
+			}
+			await handle.chmod(0o555);
+		}
+		finally {
+			await handle.close();
+		}
 	}
 }
 
@@ -298,61 +353,7 @@ async function hardenSource(root, entries) {
 		}
 		return;
 	}
-	const nonDirectories = entries.filter(entry => entry.type !== "directory");
-	const directories = entries
-		.filter(entry => entry.type === "directory")
-		.sort((left, right) => right.path.split("/").length - left.path.split("/").length);
-	for (const entry of nonDirectories) {
-		const absolutePath = path.join(root, entry.path);
-		if (entry.type === "symlink") {
-			const metadata = await lstat(absolutePath);
-			if (!metadata.isSymbolicLink() || await readlink(absolutePath) !== entry.target) {
-				fail(`Legacy runtime symbolic link changed while its source was being made immutable: ${entry.path}`);
-			}
-			await lchown(absolutePath, 0, 0);
-			continue;
-		}
-		const handle = await open(absolutePath, fsConstants.O_RDONLY | fsConstants.O_NOFOLLOW);
-		try {
-			const metadata = await handle.stat();
-			if (!metadata.isFile() || metadata.size !== entry.size) {
-				fail(`Legacy runtime file changed while its source was being made immutable: ${entry.path}`);
-			}
-			await handle.chown(0, 0);
-			await handle.chmod((entry.mode & 0o111) === 0 ? 0o444 : 0o555);
-		}
-		finally {
-			await handle.close();
-		}
-	}
-	for (const entry of directories) {
-		const absolutePath = path.join(root, entry.path);
-		const handle = await open(
-			absolutePath,
-			fsConstants.O_RDONLY | fsConstants.O_DIRECTORY | fsConstants.O_NOFOLLOW
-		);
-		try {
-			if (!(await handle.stat()).isDirectory()) {
-				fail(`Legacy runtime directory changed while its source was being made immutable: ${entry.path}`);
-			}
-			await handle.chown(0, 0);
-			await handle.chmod(0o555);
-		}
-		finally {
-			await handle.close();
-		}
-	}
-	const rootHandle = await open(
-		root,
-		fsConstants.O_RDONLY | fsConstants.O_DIRECTORY | fsConstants.O_NOFOLLOW
-	);
-	try {
-		await rootHandle.chown(0, 0);
-		await rootHandle.chmod(0o555);
-	}
-	finally {
-		await rootHandle.close();
-	}
+	await hardenSourceEntries(root, entries, 0, 0);
 }
 
 async function copySelected(source, destination, entries) {
@@ -457,7 +458,7 @@ async function compareSource(sourceArgument, sealedArgument, expectedCommit) {
 	await readIdentity(source);
 	await assertExpectedSourceManifests(source);
 	const sourceEntries = await selectedInventory(source);
-	await assertProtectedSource(source, sourceEntries);
+	await assertProtectedSourceDirectories(source, sourceEntries);
 	const sealedEntries = await inventory(sealed);
 	assertSameContent(
 		sourceEntries,
@@ -481,6 +482,7 @@ async function capture(sourceArgument, destinationRootArgument, expectedCommit) 
 	await assertExpectedSourceManifests(source);
 	const mutableInventory = await selectedInventory(source);
 	await hardenSource(source, mutableInventory);
+	await assertProtectedSourceDirectories(source, mutableInventory);
 	const sourceInventory = await selectedInventory(source);
 	assertSameContent(
 		mutableInventory,
@@ -543,21 +545,23 @@ async function capture(sourceArgument, destinationRootArgument, expectedCommit) 
 	}
 }
 
-const [operation, root, argument, expectedCommit] = process.argv.slice(2);
-if (operation === "verify" && root && argument && !expectedCommit) {
-	process.stdout.write(`${JSON.stringify(await verify(root, argument))}\n`);
-}
-else if (operation === "capture" && root && argument && expectedCommit) {
-	process.stdout.write(`${JSON.stringify(await capture(root, argument, expectedCommit))}\n`);
-}
-else if (operation === "compare-source" && root && argument && expectedCommit) {
-	process.stdout.write(`${JSON.stringify(await compareSource(root, argument, expectedCommit))}\n`);
-}
-else {
-	process.stderr.write(
-		"Usage: legacy-runtime-artifact.mjs verify <sealed-tree> <expected-commit>\n"
-		+ "   or: legacy-runtime-artifact.mjs compare-source <active-v2.11-tree> <sealed-tree> <expected-commit>\n"
-		+ "   or: legacy-runtime-artifact.mjs capture <active-v2.11-tree> <legacy-root> <expected-commit>\n"
-	);
-	process.exitCode = 2;
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+	const [operation, root, argument, expectedCommit] = process.argv.slice(2);
+	if (operation === "verify" && root && argument && !expectedCommit) {
+		process.stdout.write(`${JSON.stringify(await verify(root, argument))}\n`);
+	}
+	else if (operation === "capture" && root && argument && expectedCommit) {
+		process.stdout.write(`${JSON.stringify(await capture(root, argument, expectedCommit))}\n`);
+	}
+	else if (operation === "compare-source" && root && argument && expectedCommit) {
+		process.stdout.write(`${JSON.stringify(await compareSource(root, argument, expectedCommit))}\n`);
+	}
+	else {
+		process.stderr.write(
+			"Usage: legacy-runtime-artifact.mjs verify <sealed-tree> <expected-commit>\n"
+			+ "   or: legacy-runtime-artifact.mjs compare-source <active-v2.11-tree> <sealed-tree> <expected-commit>\n"
+			+ "   or: legacy-runtime-artifact.mjs capture <active-v2.11-tree> <legacy-root> <expected-commit>\n"
+		);
+		process.exitCode = 2;
+	}
 }
