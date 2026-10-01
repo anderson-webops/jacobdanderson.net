@@ -175,6 +175,8 @@ useHead(
 							{
 								defer: true,
 								src: "https://analytics.jacobdanderson.net/script.js",
+								crossorigin: "anonymous",
+								integrity: "sha384-mh9XAdTivWfu2HinUPE8sA7mFaGWqj2pWWOzI4rJLmMPHUO2/K7lyBvNsN4vJ5cI",
 								"data-website-id": "2458e9b0-8758-42da-bf9b-d03167f78954"
 							}
 						]
