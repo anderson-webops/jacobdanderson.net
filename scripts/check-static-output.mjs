@@ -73,9 +73,19 @@ requireMatch(
 	/<meta[^>]*(?:name="robots"[^>]*content="noindex,nofollow"|content="noindex,nofollow"[^>]*name="robots")[^>]*>/,
 	"noindex metadata missing"
 );
-if (readOutput("admin/index.html").includes("https://analytics.jacobdanderson.net/script.js")) {
-	console.error("Static output check failed for front-end/dist/admin/index.html: analytics must remain disabled.");
-	process.exit(1);
+for (const file of requiredFiles.filter(name => name.endsWith("index.html"))) {
+	const scriptTags = readOutput(file).match(/<script[^>]*>/gu) ?? [];
+	const externalScripts = scriptTags.filter(tag => /\ssrc="https?:\/\/[^"]+"/u.test(tag));
+	const adminPage = file === "admin/index.html";
+	const analyticsScript = externalScripts[0] ?? "";
+	const invalid = externalScripts.length !== (adminPage ? 0 : 1)
+		|| (!adminPage && (!analyticsScript.includes(" src=\"https://analytics.jacobdanderson.net/script.js\"")
+			|| !/\sintegrity="sha384-[A-Za-z0-9+/]{64}"/u.test(analyticsScript)
+			|| !/\scrossorigin="anonymous"/u.test(analyticsScript)));
+	if (invalid) {
+		console.error(`Static output check failed for front-end/dist/${file}: external scripts must be absent from admin or exactly one integrity-pinned analytics tracker on public pages.`);
+		process.exit(1);
+	}
 }
 
 const sitemap = readOutput("sitemap.xml");

@@ -20,6 +20,12 @@ Production Nginx authenticates `/admin` and mutations with Basic authentication,
 - the authenticated Basic-auth username as the bounded audit actor
 - an Nginx-generated request ID
 
+Public pages may load only the reviewed analytics tracker with SHA-384 subresource
+integrity and anonymous CORS; the admin page loads no external script. The admin
+path is not a separate browser origin, so excluding a script only from `/admin`
+does not protect an administrator who visits a public page. A changed tracker
+must fail closed until its exact bytes are reviewed and the pin is updated.
+
 The backend additionally requires an exact loopback peer, performs timing-safe key comparison, permits only catalog slugs, serializes mutation work, and writes both attempt and result audit events. Public database work has a fixed four-operation admission limit and administrative database work has a separate one-operation limit. Each slot remains leased until its protected database promise settles, even if the client disconnects. Excess work receives an immediate `503` rather than consuming an in-process queue.
 
 ## Database and runtime boundary

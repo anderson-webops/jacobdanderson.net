@@ -28,6 +28,16 @@ CI publishes both as one short-retention workflow artifact. A release-worthy tag
 
 After packing, `npm run artifact:archive-smoke` verifies the checksum, safely extracts the final archive into a new temporary directory, and repeats the complete runtime acceptance suite against those unpacked bytes. Release preparation fails unless both the pre-pack tree and the exact post-pack archive pass.
 
+The public pages load the analytics tracker with a SHA-384 integrity pin and
+anonymous CORS. This prevents a changed analytics response from executing with
+the portfolio origin's project-administration authority. If the analytics
+service changes `script.js`, browser tracking fails closed until a reviewed
+portfolio release updates the pin. Before such a release, compare the intended
+tracker bytes and response headers from the approved analytics deployment,
+recompute the SHA-384 digest, and verify the generated public pages contain
+the new `integrity` and `crossorigin` attributes while `/admin` remains free
+of analytics. Never remove the pin merely to restore tracking.
+
 ## One-time host installation
 
 From a reviewed source revision, the host operator installs the service unit and the root-owned promotion components:
