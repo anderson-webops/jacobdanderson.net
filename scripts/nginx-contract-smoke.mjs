@@ -29,6 +29,7 @@ const nginxVersion = versionMatch.slice(1).map(Number);
 const supportsHttp2Directive = nginxVersion[0] > 1
 	|| (nginxVersion[0] === 1 && nginxVersion[1] > 25)
 	|| (nginxVersion[0] === 1 && nginxVersion[1] === 25 && nginxVersion[2] >= 1);
+let trustedCertificate;
 
 async function availablePort() {
 	const server = net.createServer();
@@ -53,14 +54,16 @@ async function listen(server) {
 }
 
 function request(port, pathname, { body, headers = {}, method = "GET" } = {}) {
+	if (!trustedCertificate) throw new Error("The test certificate is not ready.");
 	return new Promise((resolve, reject) => {
 		const request = https.request({
+			ca: trustedCertificate,
 			headers: { Host: "jacobdanderson.net", ...headers },
 			host: "127.0.0.1",
 			method,
 			path: pathname,
 			port,
-			rejectUnauthorized: false,
+			servername: "jacobdanderson.net",
 			timeout: 5_000
 		}, (response) => {
 			const chunks = [];
@@ -161,11 +164,14 @@ try {
 		"1",
 		"-subj",
 		"/CN=jacobdanderson.net",
+		"-addext",
+		"subjectAltName=DNS:jacobdanderson.net",
 		"-keyout",
 		certificateKey,
 		"-out",
 		certificate
 	], { stdio: "ignore" });
+	trustedCertificate = await readFile(certificate);
 
 	let virtualHost = await readFile(
 		path.join(repositoryRoot, "deploy/nginx/jacobdanderson.conf.example"),
