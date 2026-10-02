@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { externalScriptsMatchPolicy } from "./static-script-policy.mjs";
 
 const distDir = fileURLToPath(new URL("../front-end/dist/", import.meta.url));
 
@@ -74,15 +75,8 @@ requireMatch(
 	"noindex metadata missing"
 );
 for (const file of requiredFiles.filter(name => name.endsWith("index.html"))) {
-	const scriptTags = readOutput(file).match(/<script[^>]*>/gu) ?? [];
-	const externalScripts = scriptTags.filter(tag => /\ssrc="https?:\/\/[^"]+"/u.test(tag));
 	const adminPage = file === "admin/index.html";
-	const analyticsScript = externalScripts[0] ?? "";
-	const invalid = externalScripts.length !== (adminPage ? 0 : 1)
-		|| (!adminPage && (!analyticsScript.includes(" src=\"https://analytics.jacobdanderson.net/script.js\"")
-			|| !/\sintegrity="sha384-[A-Za-z0-9+/]{64}"/u.test(analyticsScript)
-			|| !/\scrossorigin="anonymous"/u.test(analyticsScript)));
-	if (invalid) {
+	if (!externalScriptsMatchPolicy(readOutput(file), adminPage)) {
 		console.error(`Static output check failed for front-end/dist/${file}: external scripts must be absent from admin or exactly one integrity-pinned analytics tracker on public pages.`);
 		process.exit(1);
 	}
