@@ -29,10 +29,6 @@ const resumeRequest = computed(() => profile.value.profiles.find(item => item.hr
 						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
 					</div>
 					<div>
-						<span class="detail-label">Phone</span>
-						<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
-					</div>
-					<div>
 						<span class="detail-label">Location</span>
 						<span>{{ profile.location }}</span>
 					</div>

@@ -42,12 +42,6 @@ function printResume() {
 					</dd>
 				</div>
 				<div>
-					<dt>Phone</dt>
-					<dd>
-						<a :href="`tel:${profile.phone}`">{{ profile.phone }}</a>
-					</dd>
-				</div>
-				<div>
 					<dt>Location</dt>
 					<dd>{{ profile.location }}</dd>
 				</div>

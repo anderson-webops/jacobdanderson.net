@@ -7,7 +7,6 @@ export const useMainStore = defineStore("main", {
 			headline: "Patent Technical Specialist, Computer Engineer, and Educator",
 			location: "Atlanta Metropolitan Area",
 			email: "jacob@jacobdanderson.net",
-			phone: "",
 			lastUpdated: "August 2026",
 			summary:
 				"At Meunier Carlin & Curfman, I support patent attorneys with application preparation and technical analysis across electrical, computer, biomedical, and related technologies. My background spans embedded systems, research tooling, product development, software, and instruction while I pursue an M.S. in Computer Engineering at Georgia Tech.",
