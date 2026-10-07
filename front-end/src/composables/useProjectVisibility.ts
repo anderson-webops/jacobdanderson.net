@@ -67,8 +67,7 @@ export function useProjectVisibility() {
 			hasLoadedVisibility.value = true;
 			return true;
 		} catch {
-			errorMessage.value =
-				"Project visibility is unavailable. Nothing is shown until the settings can be loaded.";
+			errorMessage.value = "Couldn’t load the project list. Please try again.";
 			return false;
 		} finally {
 			isLoading.value = false;
@@ -97,7 +96,8 @@ export function useProjectVisibility() {
 			overrides.value = { ...overrides.value, [project.slug]: visible };
 			return true;
 		} catch {
-			errorMessage.value = "The visibility change was not saved. Confirm that protected admin access is enabled.";
+			errorMessage.value =
+				"Couldn’t confirm the visibility change. Reload the saved settings before trying again.";
 			return false;
 		}
 	}

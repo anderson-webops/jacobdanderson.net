@@ -81,6 +81,8 @@ describe("useMainStore", () => {
 
 		store.userProfile.projects.unshift({
 			name: "New Embedded Toolkit",
+			shortName: "Embedded Toolkit",
+			preview: "A new toolkit.",
 			timeframe: "2025",
 			description: "Placeholder project to verify getter reactivity.",
 			role: "Test entry",
@@ -90,5 +92,25 @@ describe("useMainStore", () => {
 
 		expect(store.featuredProjects[0].name).toBe("New Embedded Toolkit");
 		expect(store.featuredProjects).toHaveLength(2);
+	});
+
+	it("separates promotion history from work and leads projects with results", () => {
+		const store = useMainStore();
+		const currentRole = store.userProfile.experience[0]!;
+		expect(currentRole.progression).toContain("Summer Intern");
+		expect(currentRole.highlights.join(" ")).not.toContain("Summer Intern");
+		expect(store.userProfile.projects[0]!.results[0]).toMatch(/co-authored/i);
+		expect(
+			store.userProfile.projects.find(project => project.shortName === "Stride device concept")?.description
+		).toContain("concept");
+	});
+
+	it("keeps all programming and framework skills in explicit groups", () => {
+		const skills = useMainStore().userProfile.skills;
+		const grouped = skills.groups.flatMap(group => group.items);
+		for (const skill of [...skills.languages, ...skills.frameworks]) {
+			expect(grouped, skill).toContain(skill);
+		}
+		expect(new Set(grouped).size).toBe(grouped.length);
 	});
 });

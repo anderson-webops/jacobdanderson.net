@@ -1,21 +1,18 @@
 <template>
 	<div class="not-found-page">
 		<header class="page-intro">
-			<p class="eyebrow">Not Found</p>
-			<h1>That page is not on this site.</h1>
-			<p>
-				The link may be old, or the page may have moved during the portfolio cleanup. The main sections below
-				are the best starting points.
-			</p>
+			<h1>Page not found</h1>
+			<p>This link may have changed. Return home or explore another section.</p>
+			<div class="button-row">
+				<RouterLink class="button-primary" to="/">Return home</RouterLink>
+			</div>
 		</header>
 
 		<section class="not-found-card section-panel">
 			<div>
-				<span class="card-label">Primary routes</span>
-				<h2>Where to go next</h2>
+				<h2>Explore the site</h2>
 			</div>
 			<div class="route-list">
-				<RouterLink to="/">Home</RouterLink>
 				<RouterLink to="/projects">Projects</RouterLink>
 				<RouterLink to="/classes">Teaching</RouterLink>
 				<RouterLink to="/contact">Contact</RouterLink>

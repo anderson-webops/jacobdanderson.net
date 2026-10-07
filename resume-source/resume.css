@@ -9,7 +9,7 @@
 
 html {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 8.65pt;
+	font-size: 10pt;
 	line-height: 1.27;
 	color: #172b3b;
 }
@@ -53,13 +53,13 @@ h1 {
 
 .contact-line {
 	margin-top: 3pt;
-	font-size: 8.1pt;
+	font-size: 9pt;
 	color: #435969;
 }
 
 .summary {
 	margin-top: 6pt;
-	font-size: 8.8pt;
+	font-size: 10pt;
 	line-height: 1.32;
 }
 
@@ -70,7 +70,7 @@ h1 {
 h2 {
 	padding-bottom: 2pt;
 	border-bottom: 0.8pt solid #b9c7cf;
-	font-size: 9.2pt;
+	font-size: 10.5pt;
 	line-height: 1;
 	letter-spacing: 0.9pt;
 	text-transform: uppercase;
@@ -90,23 +90,28 @@ h2 {
 }
 
 .entry-head h3 {
-	font-size: 9.2pt;
+	font-size: 10pt;
 	line-height: 1.15;
 	font-weight: 700;
 }
 
 .date {
 	flex: none;
-	font-size: 8pt;
+	font-size: 9pt;
 	font-weight: 700;
 	color: #435969;
 }
 
 .organization {
 	margin-top: 0.8pt;
-	font-size: 8.2pt;
+	font-size: 9.5pt;
 	font-weight: 600;
 	color: #526a79;
+}
+
+.progression {
+	font-size: 9pt;
+	color: #435969;
 }
 
 ul {
@@ -137,7 +142,7 @@ li {
 
 .publication {
 	margin-top: 4.3pt;
-	font-size: 8.2pt;
+	font-size: 9.5pt;
 	line-height: 1.28;
 }
 
@@ -145,6 +150,6 @@ li {
 	margin-top: 5pt;
 	padding-top: 3.5pt;
 	border-top: 0.6pt solid #d4dde2;
-	font-size: 7.4pt;
+	font-size: 9pt;
 	color: #5b6f7b;
 }

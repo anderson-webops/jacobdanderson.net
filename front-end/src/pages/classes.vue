@@ -10,17 +10,15 @@ const profile = computed(() => store.userProfile);
 	<div class="classes-page">
 		<section class="hero">
 			<div class="hero-copy">
-				<p class="eyebrow">Private Instruction</p>
-				<h1>Private instruction.</h1>
+				<h1>Programming, STEM, math & Spanish lessons</h1>
 				<p>
-					One-on-one programming, STEM, and Spanish lessons for students from grade school through adulthood.
-					Sessions are built around concrete goals such as foundations, school support, project work, and
-					deeper technical practice.
+					One-on-one lessons for students from grade school through adulthood, built around schoolwork,
+					personal projects, and practical skills.
 				</p>
 
 				<div class="button-row">
 					<a class="button-primary" href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
-						Visit teaching site
+						Lesson details and scheduling
 					</a>
 					<a class="button-secondary" :href="`mailto:${profile.email}`">Ask a question</a>
 				</div>
@@ -39,8 +37,7 @@ const profile = computed(() => store.userProfile);
 
 		<section class="grid">
 			<article class="info-card section-panel">
-				<span class="card-label">Lesson format</span>
-				<h2>What ongoing lessons include</h2>
+				<h2>Lesson format</h2>
 				<ul>
 					<li>Weekly 50-minute sessions built around the student’s current goals.</li>
 					<li>Projects, exercises, or review work between meetings when it is useful.</li>
@@ -49,19 +46,18 @@ const profile = computed(() => store.userProfile);
 			</article>
 
 			<article class="info-card section-panel">
-				<span class="card-label">Subjects</span>
-				<h2>What I teach</h2>
+				<h2>Subjects</h2>
 				<ul>
 					<li>Programming fundamentals, web development, and game design.</li>
 					<li>Embedded systems, circuits, and microcontroller projects.</li>
+					<li>Math foundations and school support.</li>
 					<li>Spanish conversation and academic support.</li>
 				</ul>
 			</article>
 
 			<article class="info-card section-panel">
-				<span class="card-label">Getting started</span>
-				<h2>How onboarding works</h2>
-				<ul>
+				<h2>Getting started</h2>
+				<ol>
 					<li>
 						Reach out at
 						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a
@@ -69,18 +65,17 @@ const profile = computed(() => store.userProfile);
 					</li>
 					<li>Share the student’s goals, experience level, and schedule preferences.</li>
 					<li>We will set up a short consultation before the first lesson.</li>
-				</ul>
+				</ol>
 			</article>
 		</section>
 
 		<section class="teaching-fit section-panel">
 			<div>
-				<span class="card-label">Good fit</span>
-				<h2>Structured help without making the student dependent.</h2>
+				<h2>Build independent problem-solving skills</h2>
 			</div>
 			<p>
-				The goal is not to replace classroom work or parent support. I help students build enough confidence,
-				technical vocabulary, and repeatable practice habits that they can keep moving between lessons.
+				Guided practice, feedback, and projects help students build confidence and keep learning between
+				lessons.
 			</p>
 			<a class="section-link" href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
 				Review scheduling and tuition
@@ -117,7 +112,8 @@ const profile = computed(() => store.userProfile);
 
 .hero-copy p,
 .rate-card p,
-.info-card ul {
+.info-card ul,
+.info-card ol {
 	color: var(--color-text-muted);
 	line-height: 1.76;
 }
@@ -127,7 +123,7 @@ const profile = computed(() => store.userProfile);
 	padding: var(--panel-padding);
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 0.8rem;
 }
 
 .card-label {
@@ -168,7 +164,8 @@ const profile = computed(() => store.userProfile);
 	line-height: 1.2;
 }
 
-.info-card ul {
+.info-card ul,
+.info-card ol {
 	margin: 0;
 	padding-left: 1.1rem;
 	display: flex;
@@ -193,7 +190,7 @@ const profile = computed(() => store.userProfile);
 	font-size: 1.65rem;
 	line-height: 1.16;
 	margin-top: 0.45rem;
-	max-width: 18ch;
+	max-width: 24ch;
 }
 
 .teaching-fit p {

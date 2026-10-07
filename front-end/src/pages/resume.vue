@@ -64,68 +64,46 @@ function printResume() {
 
 		<section class="resume-section">
 			<div class="section-head">
-				<p class="eyebrow">Experience</p>
-				<h2>Patent, engineering, and research</h2>
+				<h2>Professional experience</h2>
 			</div>
 
 			<div class="resume-grid">
-				<article
+				<ExperienceEntry
 					v-for="item in professionalExperience"
 					:key="`${item.organization}-${item.title}`"
 					:class="{ 'current-role': item.category === 'patent' }"
-					class="resume-card section-panel"
-				>
-					<div class="card-top">
-						<span class="card-label">{{ item.organization }}</span>
-						<span class="timeframe">{{ item.timeframe }}</span>
-					</div>
-					<h3>{{ item.title }}</h3>
-					<p class="meta">{{ item.location }}</p>
-					<p class="summary">{{ item.summary }}</p>
-					<ul>
-						<li v-for="highlight in item.highlights" :key="highlight">{{ highlight }}</li>
-					</ul>
-				</article>
+					:item="item"
+					compact
+					reference
+				/>
 			</div>
 		</section>
 
 		<section class="resume-section">
 			<div class="section-head">
-				<p class="eyebrow">Additional Experience</p>
-				<h2>Instruction and leadership</h2>
+				<h2>Teaching & leadership</h2>
 			</div>
 
 			<div class="resume-grid">
-				<article
+				<ExperienceEntry
 					v-for="item in additionalExperience"
 					:key="`${item.organization}-${item.title}`"
-					class="resume-card section-panel"
-				>
-					<div class="card-top">
-						<span class="card-label">{{ item.organization }}</span>
-						<span class="timeframe">{{ item.timeframe }}</span>
-					</div>
-					<h3>{{ item.title }}</h3>
-					<p class="meta">{{ item.location }}</p>
-					<p class="summary">{{ item.summary }}</p>
-					<ul>
-						<li v-for="highlight in item.highlights" :key="highlight">{{ highlight }}</li>
-					</ul>
-				</article>
+					:item="item"
+					compact
+					reference
+				/>
 			</div>
 		</section>
 
 		<section class="resume-columns">
 			<article class="resume-card section-panel">
 				<div class="section-head">
-					<p class="eyebrow">Education</p>
-					<h2>Academic background</h2>
+					<h2>Education</h2>
 				</div>
 
 				<div class="stack">
 					<section v-for="item in profile.education" :key="item.program" class="stack-item">
 						<div class="card-top">
-							<span class="card-label">Program</span>
 							<span class="timeframe">{{ item.timeframe }}</span>
 						</div>
 						<h3>{{ item.program }}</h3>
@@ -139,8 +117,7 @@ function printResume() {
 
 			<article class="resume-card section-panel">
 				<div class="section-head">
-					<p class="eyebrow">Strengths</p>
-					<h2>Technical focus</h2>
+					<h2>Skills</h2>
 				</div>
 
 				<div class="stack">
@@ -151,10 +128,9 @@ function printResume() {
 						</ul>
 					</section>
 
-					<section class="stack-item">
-						<span class="card-label">Languages & Tools</span>
-						<p class="summary">{{ profile.skills.languages.slice(0, 8).join(", ") }}</p>
-						<p class="summary">{{ profile.skills.frameworks.join(", ") }}</p>
+					<section v-for="group in profile.skills.groups" :key="group.label" class="stack-item">
+						<span class="card-label">{{ group.label }}</span>
+						<p class="summary">{{ group.items.join(", ") }}</p>
 					</section>
 
 					<section class="stack-item">
@@ -273,13 +249,11 @@ function printResume() {
 }
 
 .resume-grid {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-template-columns: 1fr;
 }
 
 .current-role {
-	grid-column: 1 / -1;
-	border-color: rgba(33, 70, 97, 0.24);
-	box-shadow: 0 18px 44px rgba(22, 52, 75, 0.11);
+	border-top-color: var(--color-accent);
 }
 
 .resume-columns {
@@ -289,7 +263,7 @@ function printResume() {
 .resume-card {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 0.8rem;
 }
 
 .card-top {

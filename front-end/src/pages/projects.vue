@@ -9,19 +9,16 @@ const projects = computed(() => store.userProfile.projects);
 <template>
 	<div class="projects-page">
 		<header class="page-intro">
-			<p class="eyebrow">Projects</p>
 			<h1>Selected projects</h1>
 		</header>
 
 		<section class="grid">
 			<article v-for="(project, index) in projects" :key="index" class="project-card section-panel">
 				<div class="card-top">
-					<span class="card-label">Project</span>
 					<span class="timeframe">{{ project.timeframe }}</span>
 				</div>
-				<h2>{{ project.name }}</h2>
+				<h2>{{ project.shortName }}</h2>
 				<p class="description">{{ project.description }}</p>
-				<p class="role"><strong>Role:</strong> {{ project.role }}</p>
 				<ul>
 					<li v-for="(result, resultIndex) in project.results" :key="resultIndex">
 						{{ result }}
@@ -35,17 +32,10 @@ const projects = computed(() => store.userProfile.projects);
 			</article>
 		</section>
 
-		<section class="other-projects-callout section-panel">
-			<div>
-				<p class="card-label">Working index</p>
-				<h2>Looking for the less formal project list?</h2>
-			</div>
-			<p>
-				The broader index covers active experiments, prototypes, maintained tools, teaching platforms, and
-				completed technical work that does not belong in the selected portfolio above.
-			</p>
-			<RouterLink class="section-link" to="/other-projects">Browse other projects</RouterLink>
-		</section>
+		<footer class="other-projects-callout">
+			<RouterLink class="section-link" to="/other-projects">Other projects</RouterLink>
+			<p>Experiments, tools, and work in progress.</p>
+		</footer>
 	</div>
 </template>
 
@@ -66,7 +56,7 @@ const projects = computed(() => store.userProfile.projects);
 	padding: var(--panel-padding);
 	display: flex;
 	flex-direction: column;
-	gap: 0.95rem;
+	gap: 0.75rem;
 }
 
 .card-top {
@@ -127,11 +117,17 @@ const projects = computed(() => store.userProfile.projects);
 	text-decoration: none;
 }
 
+.artifact-links a:first-child {
+	text-decoration: underline;
+	text-underline-offset: 0.16em;
+}
+
 .other-projects-callout {
 	display: flex;
 	flex-direction: column;
-	gap: 0.85rem;
-	padding: var(--panel-padding);
+	gap: 0.4rem;
+	padding-top: 1rem;
+	border-top: 1px solid var(--color-border-strong);
 }
 
 .other-projects-callout h2 {

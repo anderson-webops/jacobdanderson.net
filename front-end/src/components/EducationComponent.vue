@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
+withDefaults(defineProps<{ compact?: boolean }>(), { compact: false });
 const store = useMainStore();
 const education = computed(() => store.userProfile.education);
 </script>
@@ -10,20 +11,18 @@ const education = computed(() => store.userProfile.education);
 	<section class="education">
 		<div class="section-head">
 			<div>
-				<p class="eyebrow">Education</p>
-				<h2>Academic background</h2>
+				<h2>Education</h2>
 			</div>
 		</div>
 
 		<div class="education-grid">
 			<article v-for="(item, index) in education" :key="index" class="education-card section-panel">
 				<div class="card-top">
-					<span class="card-label">Program</span>
 					<span class="timeframe">{{ item.timeframe }}</span>
 				</div>
 				<h3>{{ item.program }}</h3>
 				<p class="institution">{{ item.institution }}</p>
-				<ul>
+				<ul v-if="!compact">
 					<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
 						{{ highlight }}
 					</li>
@@ -60,9 +59,8 @@ const education = computed(() => store.userProfile.education);
 
 .card-top {
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
-	gap: 1rem;
+	gap: 0.45rem;
 }
 
 .card-label {

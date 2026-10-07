@@ -1,5 +1,17 @@
 import { defineStore } from "pinia";
 
+export interface ExperienceRecord {
+	category: "patent" | "engineering" | "instruction" | "leadership";
+	title: string;
+	organization: string;
+	timeframe: string;
+	location: string;
+	workFormat?: string;
+	progression?: string;
+	summary: string;
+	highlights: string[];
+}
+
 export const useMainStore = defineStore("main", {
 	state: () => ({
 		userProfile: {
@@ -9,7 +21,7 @@ export const useMainStore = defineStore("main", {
 			email: "jacob@jacobdanderson.net",
 			lastUpdated: "August 2026",
 			summary:
-				"At Meunier Carlin & Curfman, I support patent attorneys with application preparation and technical analysis across electrical, computer, biomedical, and related technologies. My background spans embedded systems, research tooling, product development, software, and instruction while I pursue an M.S. in Computer Engineering at Georgia Tech.",
+				"I support patent attorneys at Meunier Carlin & Curfman with technical analysis and application preparation under attorney supervision. My background is in computer engineering, embedded systems, and research.",
 			profiles: [
 				{
 					label: "LinkedIn",
@@ -68,7 +80,8 @@ export const useMainStore = defineStore("main", {
 					timeframe: "Aug 2025 – Expected May 2027",
 					highlights: [
 						"Graduate GPA 3.50 through Spring 2026.",
-						"Coursework in advanced programming, computer architecture, hardware security, communications, and network security."
+						"Completed coursework in advanced programming, computer architecture, and hardware security.",
+						"Fall 2026 coursework in communications and network security."
 					]
 				},
 				{
@@ -88,11 +101,11 @@ export const useMainStore = defineStore("main", {
 					organization: "Meunier Carlin & Curfman LLC",
 					timeframe: "Aug 2026 – Present",
 					location: "Atlanta Metropolitan Area",
+					progression: "Previously Summer Intern, Jun – Aug 2026.",
 					summary: "Technical analysis and patent application preparation under attorney supervision.",
 					highlights: [
-						"Analyze invention disclosures and inventor discussions involving electrical, computer, biomedical, and related technologies.",
-						"Assist with claims, technical descriptions, figures, application strategy, and technical and patent-related research.",
-						"Continued with the firm as a Patent Technical Specialist after serving as a Summer Intern from June through August 2026."
+						"Analyze invention disclosures and inventor discussions across electrical, computer, biomedical, and related technologies.",
+						"Assist attorneys with claims, technical descriptions, figures, application strategy, and research."
 					]
 				},
 				{
@@ -100,11 +113,12 @@ export const useMainStore = defineStore("main", {
 					title: "Programmer & Technical Operations",
 					organization: "AudioT",
 					timeframe: "May 2020 – Aug 2020; Mar 2026 – Present",
-					location: "Remote and field systems",
-					summary: "Edge-computing, remote audio-ingest, and field-readiness work for startup systems.",
+					location: "",
+					workFormat: "Remote and field systems",
+					summary: "Program and deploy devices for remote audio collection.",
 					highlights: [
 						"Programmed Raspberry Pi devices in Python and Bash and documented sensor-data collection for prototype iteration.",
-						"Configured Debian-based infrastructure for remote audio ingest, deployment tooling, and field-readiness validation."
+						"Configure Debian-based systems, deployment tools, and checks for remote audio collection in the field."
 					]
 				},
 				{
@@ -113,10 +127,11 @@ export const useMainStore = defineStore("main", {
 					organization: "Stride",
 					timeframe: "Sep 2025 – Aug 2026",
 					location: "Atlanta, GA",
-					summary: "Led technical execution for a rental-based backcountry search-and-rescue device concept.",
+					summary:
+						"Led prototype architecture for a rental-based backcountry search-and-rescue device concept.",
 					highlights: [
-						"Owned prototype development and product architecture for a device intended to reduce friction, cost, and time-to-help for backcountry visitors.",
-						"Developed concepts for SOS and non-emergency alerts, location reporting, and responder dispatch support."
+						"Defined the device architecture and directed prototype development.",
+						"Explored SOS and non-emergency alerts, location reporting, and responder support intended to shorten time-to-help."
 					]
 				},
 				{
@@ -128,9 +143,8 @@ export const useMainStore = defineStore("main", {
 					summary:
 						"Built sensing-hardware and analysis tooling for non-invasive glucose-monitoring research.",
 					highlights: [
-						"Integrated sensing hardware into a non-invasive glucose-monitoring prototype used in multidisciplinary lab testing.",
-						"Built MATLAB and Python pipelines for signal processing, calibration, and data analysis.",
-						"Produced analysis outputs the lab used to compare runs and refine the prototype between experiments."
+						"Built MATLAB and Python analysis pipelines to compare experiments and refine a research prototype.",
+						"Integrated sensing hardware and developed signal-processing and calibration workflows for lab testing."
 					]
 				},
 				{
@@ -141,9 +155,9 @@ export const useMainStore = defineStore("main", {
 					location: "Provo, UT",
 					summary: "Implemented simulation tooling for radiation-effects analysis in analog circuits.",
 					highlights: [
+						"Co-authored the ISCAS 2025 paper on the OSCRE radiation-effects simulation framework.",
 						"Implemented Xschem and Ngspice workflows within the OSCRE simulation framework.",
-						"Documented repeatable setup and analysis workflows for collaborators.",
-						"Contributed technical documentation and co-authored the ISCAS 2025 paper describing OSCRE and its applications."
+						"Documented repeatable setup and analysis workflows for collaborators."
 					]
 				},
 				{
@@ -154,9 +168,8 @@ export const useMainStore = defineStore("main", {
 					location: "Provo, UT",
 					summary: "Built an operator-facing telemetry workflow for an industrial drill monitoring capstone.",
 					highlights: [
-						"Integrated BLE updates between drill sensors and the supervisory server.",
-						"Implemented I2C sensor communication for temperature and pressure telemetry.",
-						"Delivered a working operator-facing monitoring demo for sponsor review."
+						"Delivered a working operator-facing monitoring demo for Epiroc sponsor review.",
+						"Integrated Bluetooth Low Energy (BLE) updates and I2C sensor communication for temperature and pressure telemetry."
 					]
 				},
 				{
@@ -193,68 +206,94 @@ export const useMainStore = defineStore("main", {
 						"Part-time baking, customer service, and shift leadership alongside school and technical work.",
 					highlights: []
 				}
-			],
+			] as ExperienceRecord[],
 			projects: [
 				{
 					name: "OSCRE Radiation-Effect Simulation Framework",
+					shortName: "OSCRE circuit simulation",
+					preview:
+						"Co-authored the ISCAS 2025 paper on a framework for studying radiation effects in analog circuits.",
 					timeframe: "2024 – 2025",
 					description:
-						"Open-source simulation workflow for modeling single-event effects in analog circuits.",
+						"The open-source OSCRE radiation-effects simulation framework models single-event effects in analog circuits.",
 					role: "Simulation workflow implementation, technical documentation, and publication support.",
 					results: [
-						"Implemented a repeatable Xschem and Ngspice workflow collaborators could install and reuse across institutions.",
-						"Documented setup and analysis steps so single-event-effects studies could start from a shared baseline.",
-						"Co-authored the ISCAS 2025 publication describing the framework and its applications."
+						"Co-authored the ISCAS 2025 paper describing the framework and its applications.",
+						"Implemented Xschem and Ngspice workflows and documented repeatable setup for collaborators."
 					],
 					links: [
 						{
-							label: "Publication record",
+							label: "Publication",
 							href: "https://dblp.org/rec/conf/iscas/LambertANAPGWC25"
 						},
 						{
-							label: "DOI",
+							label: "DOI record",
 							href: "https://doi.org/10.1109/ISCAS56072.2025.11043386"
 						}
 					]
 				},
 				{
 					name: "Industrial Drill Monitoring Platform",
+					shortName: "Industrial drill monitoring",
+					preview: "Delivered a working sensor-telemetry and monitoring demo for Epiroc sponsor review.",
 					timeframe: "2024",
-					description:
-						"Capstone platform delivering live industrial drill telemetry to Epiroc engineers through an operator-facing interface.",
+					description: "A BYU capstone monitoring platform for Epiroc engineers and drill operators.",
 					role: "BLE telemetry integration, sensor communication, and monitoring interface implementation.",
 					results: [
-						"Integrated temperature and pressure telemetry from drill hardware into the monitoring stack.",
-						"Delivered BLE-fed supervisory views for operator and engineering review during the sponsor demo."
+						"Delivered a working monitoring demo for Epiroc sponsor review.",
+						"Integrated temperature and pressure sensors with Bluetooth Low Energy (BLE) telemetry and an operator-facing interface."
 					],
 					links: []
 				},
 				{
 					name: "Non-Invasive Glucose Monitoring Research Tooling",
+					shortName: "Glucose-monitoring research",
+					preview:
+						"Built hardware and analysis tools for experiments with a non-invasive glucose-monitoring research prototype.",
 					timeframe: "2022 – 2024",
 					description: "Prototype sensing and analysis tooling for non-invasive glucose-monitoring research.",
 					role: "Sensor integration, signal processing pipelines, and calibration/data analysis.",
 					results: [
-						"Integrated sensing hardware into a multidisciplinary lab workflow for non-invasive glucose-monitoring experiments.",
-						"Built MATLAB and Python pipelines for calibration, signal processing, and experiment analysis.",
-						"Produced repeatable analysis outputs used to compare runs and refine the prototype."
+						"Built MATLAB and Python pipelines to compare experimental runs and refine the prototype.",
+						"Integrated sensing hardware and developed calibration and signal-processing workflows for lab experiments."
 					],
 					links: []
 				},
 				{
 					name: "Stride Search-and-Rescue Device Concept",
+					shortName: "Stride device concept",
+					preview: "Directed prototype architecture for a backcountry search-and-rescue device concept.",
 					timeframe: "2025 – 2026",
 					description:
-						"Rental-based backcountry device concept for SOS and non-emergency alerts, location reporting, and responder support.",
+						"A rental-based backcountry search-and-rescue device concept for location reporting and emergency alerts.",
 					role: "Co-founder, technical architecture, and prototype direction.",
 					results: [
-						"Defined end-to-end technical direction and prototype architecture.",
-						"Explored location and alert workflows intended to reduce time-to-help for backcountry visitors."
+						"As co-founder, defined technical direction and prototype architecture.",
+						"Explored SOS alerts, location reporting, and responder support intended to shorten time-to-help."
 					],
 					links: []
 				}
 			],
 			skills: {
+				groups: [
+					{ label: "Programming", items: ["Python", "C", "C++", "MATLAB", "Java", "Bash", "Swift"] },
+					{ label: "Hardware design", items: ["SystemVerilog", "Verilog", "VHDL"] },
+					{
+						label: "Web & data",
+						items: [
+							"TypeScript",
+							"JavaScript",
+							"HTML/CSS",
+							"Vue",
+							"Nuxt",
+							"Node.js",
+							"Express",
+							"Postgres",
+							"MongoDB"
+						]
+					},
+					{ label: "Systems & research tools", items: ["Linux", "Git", "Raspberry Pi", "Xschem", "Ngspice"] }
+				],
 				languages: [
 					"Python",
 					"C",

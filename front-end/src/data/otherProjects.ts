@@ -40,14 +40,14 @@ export const otherProjectCategories: OtherProjectCategory[] = [
 export const otherProjects: OtherProject[] = [
 	{
 		slug: "oscre",
-		name: "OSCRE Radiation-Effects Simulation Framework",
+		name: "OSCRE Circuit Simulation",
 		category: "Research & engineering",
 		timeframe: "2024 – 2025",
 		status: "Published",
 		statusTone: "published",
-		statusNote: "Research workflow and ISCAS 2025 publication completed.",
+		statusNote: "Co-author of the ISCAS 2025 paper.",
 		summary:
-			"Open-source Xschem and Ngspice workflow for repeatable circuit-level single-event-effects studies across collaborating institutions.",
+			"Open-source tools for studying radiation effects on circuits. I contributed Xschem and Ngspice simulation workflows, documentation, and collaboration support.",
 		tags: ["Circuit simulation", "Ngspice", "Research tooling"],
 		links: [
 			{ label: "Repository", href: "https://github.com/Jacoba1100254352/OSCRE" },
@@ -62,37 +62,37 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2024",
 		status: "Completed",
 		statusTone: "completed",
-		statusNote: "Delivered as a BYU capstone project for Epiroc.",
+		statusNote: "",
 		summary:
-			"BLE-connected monitoring interface that brought temperature and pressure telemetry from industrial drill hardware into operator and engineering views.",
+			"A BYU capstone demo for Epiroc that brought temperature and pressure readings from industrial drill hardware into a monitoring interface using Bluetooth Low Energy.",
 		tags: ["BLE", "Telemetry", "Embedded systems"],
 		links: [],
 		defaultVisible: true
 	},
 	{
 		slug: "glucose-monitoring-research",
-		name: "Non-Invasive Glucose Monitoring Research Tooling",
+		name: "Glucose-Monitoring Research",
 		category: "Research & engineering",
 		timeframe: "2022 – 2024",
 		status: "Completed",
 		statusTone: "completed",
-		statusNote: "Research contribution completed before graduation.",
+		statusNote: "Research prototype, not a clinical product.",
 		summary:
-			"Sensor integration, calibration, signal-processing, and analysis pipelines for a multidisciplinary non-invasive glucose-monitoring research program.",
+			"Hardware, calibration, and data-analysis tools for non-invasive glucose-monitoring research at BYU. My work connected sensing hardware with MATLAB and Python processing pipelines.",
 		tags: ["Sensors", "MATLAB", "Python"],
 		links: [{ label: "Calibration tooling", href: "https://github.com/Jacoba1100254352/Calibration-Programs" }],
 		defaultVisible: true
 	},
 	{
 		slug: "graphsketcher-desktop",
-		name: "GraphSketcher Desktop Ports",
+		name: "GraphSketcher for Windows and Linux",
 		category: "Research & engineering",
 		timeframe: "2026 – Present",
 		status: "Early preview",
 		statusTone: "preview",
-		statusNote: "Useful public previews are available while feature-parity work continues.",
+		statusNote: "Some features from the original app are still being brought over.",
 		summary:
-			"Independent Windows and Linux ports of the direct-manipulation GraphSketcher app, rebuilt with a portable C# core and Avalonia UI.",
+			"Windows and Linux versions of GraphSketcher, an app for drawing and adjusting graphs directly. Rebuilt with a shared C# core and Avalonia interface.",
 		tags: ["C#", "Avalonia", "Data visualization"],
 		links: [
 			{ label: "Windows", href: "https://github.com/Jacoba1100254352/GraphSketcher.Windows" },
@@ -107,9 +107,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Maintained",
 		statusTone: "maintained",
-		statusNote: "Modernized package and compatibility work remains maintained.",
+		statusNote: "",
 		summary:
-			"Unified Python package and command-line interface for legacy PySynth engines, with compatibility layers, MIDI and ABC input, and current Python support.",
+			"A Python package for generating audio from musical notes. It brings earlier PySynth engines together, supports MIDI and ABC input, and updates compatibility with Python.",
 		tags: ["Python", "Audio", "Packaging"],
 		links: [{ label: "Repository", href: "https://github.com/Jacoba1100254352/PySynth-Unified" }],
 		defaultVisible: true
@@ -121,9 +121,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025",
 		status: "Completed",
 		statusTone: "completed",
-		statusNote: "Completed computer-security coursework artifacts.",
+		statusNote: "Coursework, not a production security product.",
 		summary:
-			"C modules for setting bounded HTTP headers and recording selected request fingerprints within an Apache classroom environment.",
+			"Computer-security coursework implementing Apache modules in C. The modules set HTTP headers and log selected request characteristics in a classroom server environment.",
 		tags: ["C", "Apache", "Web security"],
 		links: [
 			{ label: "Headers module", href: "https://github.com/byu-ecen427-classroom/mod_http_headers" },
@@ -136,14 +136,14 @@ export const otherProjects: OtherProject[] = [
 	},
 	{
 		slug: "ece-6100-course-companion",
-		name: "Advanced Computer Architecture Course Companion",
+		name: "Computer Architecture Course Companion",
 		category: "Research & engineering",
 		timeframe: "2026",
 		status: "In progress",
 		statusTone: "active",
-		statusNote: "Draft LaTeX course companion and study material.",
+		statusNote: "Draft study material.",
 		summary:
-			"Structured notes and explanatory material developed alongside Georgia Tech advanced computer architecture coursework.",
+			"A course companion developed alongside Georgia Tech advanced computer architecture coursework, organizing technical explanations and study notes into a structured LaTeX document.",
 		tags: ["Computer architecture", "LaTeX", "Technical writing"],
 		links: [{ label: "Repository", href: "https://github.com/Jacoba1100254352/ECE-6100-textbook" }],
 		defaultVisible: true
@@ -155,9 +155,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2026 – Present",
 		status: "Released",
 		statusTone: "live",
-		statusNote: "Public educational release with one complete drafting challenge.",
+		statusNote: "Educational practice, not legal advice.",
 		summary:
-			"Educational patent-claim drafting game covering disclosure review, claim structure, examination, amendment, design-around analysis, and debriefing.",
+			"A patent-claim drafting game that takes learners from an invention disclosure through drafting, examination, and amendment, with feedback on claim structure and design-around risks.",
 		tags: ["Legal education", "Patent drafting", "React"],
 		links: [
 			{ label: "Open ScopeCraft", href: "https://patentpractice.jacobdanderson.net" },
@@ -172,9 +172,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2026",
 		status: "Prototype",
 		statusTone: "prototype",
-		statusNote: "Playable version 0.2 browser prototype.",
+		statusNote: "Playable browser prototype.",
 		summary:
-			"Competitive Civil Procedure card-game prototype with tutorial and professor modes, doctrine tests, printable cards, and reviewed source artifacts.",
+			"A competitive card game for learning Civil Procedure. Includes guided play, a teaching mode, doctrine checks, and printable cards for classroom use.",
 		tags: ["Legal education", "Game design", "JavaScript"],
 		links: [{ label: "Repository", href: "https://github.com/Jacoba1100254352/Civ-Pro-Game" }],
 		defaultVisible: true
@@ -186,9 +186,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2026 – Present",
 		status: "Active research",
 		statusTone: "active",
-		statusNote: "Simulator, reproducible reports, and manuscript remain under active development.",
+		statusNote: "Synthetic model comparisons, not forecasts of real legislative outcomes.",
 		summary:
-			"Java comparative institutional-design simulator for stress-testing legislative mechanism bundles under shared synthetic worlds.",
+			"A Java research simulator comparing legislative rules under the same simulated conditions, to study how combinations of institutional choices affect modeled outcomes.",
 		tags: ["Java", "Simulation", "Institutional design"],
 		links: [
 			{
@@ -205,9 +205,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2026 – Present",
 		status: "Active research",
 		statusTone: "active",
-		statusNote: "Scenario, sensitivity, and paired-campaign work is active.",
+		statusNote: "Comparative research model, not a policy forecast.",
 		summary:
-			"Dependency-free Java model for comparing constitutional-review designs across access, cost, compliance, rights pressure, and veto-relocation tradeoffs.",
+			"A Java research model comparing constitutional-review systems. It explores tradeoffs in access, cost, compliance, rights protection, and where decisions can be blocked.",
 		tags: ["Java", "Constitutional design", "Reproducible research"],
 		links: [
 			{
@@ -224,9 +224,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2026 – Present",
 		status: "Active research",
 		statusTone: "active",
-		statusNote: "Calibration, validation, and manuscript workflows remain active.",
+		statusNote: "Research model; results depend on its assumptions and validation.",
 		summary:
-			"Simulation of lobbying, campaign finance, regulatory capture, and anti-capture reforms across legislative and administrative arenas.",
+			"A research simulator examining lobbying, campaign finance, and regulatory capture, including how proposed reforms affect modeled legislative and administrative decisions under different assumptions.",
 		tags: ["Java", "Public policy", "Calibration"],
 		links: [{ label: "Repository", href: "https://github.com/Jacoba1100254352/lobby-capture-simulator" }],
 		defaultVisible: true
@@ -236,11 +236,11 @@ export const otherProjects: OtherProject[] = [
 		name: "Ballot Clarity",
 		category: "Legal & civic tools",
 		timeframe: "2026 – Present",
-		status: "MVP",
+		status: "Early version",
 		statusTone: "prototype",
 		statusNote: "Fulton County is the first reviewed launch jurisdiction.",
 		summary:
-			"Nonpartisan civic-information platform for address-based lookup, representative context, official election resources, and source-transparent local guides.",
+			"A nonpartisan site helping residents find representatives and official election resources by address, with local guides that identify the sources behind their information.",
 		tags: ["Civic information", "Nuxt", "Source review"],
 		links: [
 			{ label: "Live site", href: "https://ballotclarity.org" },
@@ -255,9 +255,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Live",
 		statusTone: "live",
-		statusNote: "Public evidence-literacy site with ongoing source and content work.",
+		statusNote: "",
 		summary:
-			"Public-interest site for examining whether scientific claims reflect broad agreement, active debate, weak evidence, or misleading headlines.",
+			"A public-interest site for examining scientific claims and their supporting evidence, distinguishing broad agreement from active debate, weak evidence, and misleading headlines.",
 		tags: ["Evidence literacy", "Science communication", "Nuxt"],
 		links: [
 			{ label: "Live site", href: "https://isthereconsensus.org" },
@@ -272,23 +272,23 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Maintained",
 		statusTone: "maintained",
-		statusNote: "Reproducible strategy sweeps and validation tooling are maintained.",
+		statusNote: "Comparisons apply to the tested strategies and rules.",
 		summary:
-			"Java simulator for comparing Incan Gold strategies with common seed schedules, confidence intervals, player-count sweeps, and finalist validation.",
+			"A Java simulator comparing Incan Gold strategies across player counts. Repeated trials, shared random seeds, and confidence intervals help separate performance differences from chance.",
 		tags: ["Java", "Monte Carlo simulation", "Game strategy"],
 		links: [{ label: "Repository", href: "https://github.com/Jacoba1100254352/Incan-Gold-Strategy-Tester" }],
 		defaultVisible: true
 	},
 	{
 		slug: "zilch-game-family",
-		name: "Zilch Game Family",
+		name: "Zilch Dice Games",
 		category: "Software & games",
 		timeframe: "2018 – Present",
 		status: "Playable",
 		statusTone: "maintained",
-		statusNote: "Visual Java implementation and earlier C++ variants remain available.",
+		statusNote: "",
 		summary:
-			"Multiple implementations and strategy experiments for the Zilch dice game, including a LibGDX interface, configurable rules, and optional stealing.",
+			"Java and C++ versions of the Zilch dice game, with a visual interface, configurable rules, optional stealing, and experiments comparing computer-player strategies.",
 		tags: ["Java", "C++", "LibGDX"],
 		links: [
 			{ label: "Zilch Basic", href: "https://github.com/Jacoba1100254352/Zilch-Basic" },
@@ -307,9 +307,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2026",
 		status: "Playable",
 		statusTone: "maintained",
-		statusNote: "Gameplay and visual refinement reached a stable public state.",
+		statusNote: "",
 		summary:
-			"Swift implementation of Boggle with a native macOS interface, reproducible word validation, and iterative gameplay refinement.",
+			"A native macOS Boggle game built in Swift, with a word-validation system and a desktop interface refined through repeated gameplay and visual checks.",
 		tags: ["Swift", "macOS", "Game development"],
 		links: [{ label: "Repository", href: "https://github.com/Jacoba1100254352/Boggle" }],
 		defaultVisible: true
@@ -319,11 +319,11 @@ export const otherProjects: OtherProject[] = [
 		name: "CoFoundry",
 		category: "Public web platforms",
 		timeframe: "2025 – Present",
-		status: "MVP",
+		status: "Early version",
 		statusTone: "prototype",
-		statusNote: "Production-minded prototype with mock and provider-ready paths.",
+		statusNote: "Prototype; some workflows use demonstration data.",
 		summary:
-			"Founder and collaborator matching platform with venture workspaces, structured proposals, agreements, team decisions, and optional governed investment review.",
+			"A platform concept for matching founders and collaborators, then helping teams organize a venture through shared workspaces, proposals, agreements, and team decisions.",
 		tags: ["Nuxt", "Product design", "Supabase-ready"],
 		links: [{ label: "Live prototype", href: "https://cofoundry.jacobdanderson.net" }],
 		defaultVisible: true
@@ -335,9 +335,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Public beta",
 		statusTone: "live",
-		statusNote: "Live community board with ongoing moderation and provider work.",
+		statusNote: "",
 		summary:
-			"Community board for service requests, borrowing, lending, replies, location-aware discovery, and curated service-directory resources.",
+			"A community board for requesting services, borrowing and lending items, and finding local resources. Members can browse nearby requests and reply to one another.",
 		tags: ["Community platform", "Nuxt", "Express"],
 		links: [
 			{ label: "Live site", href: "https://np-servicerequest.org" },
@@ -352,9 +352,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Pilot",
 		statusTone: "prototype",
-		statusNote: "Tutor and participant workflow remains a bounded pilot.",
+		statusNote: "Limited pilot, not a broadly launched service.",
 		summary:
-			"Role-aware volunteer tutoring platform with participant assignment, tutor approval, and carefully bounded administrator workflows.",
+			"A volunteer tutoring platform that helps organizers approve tutors, assign participants, and coordinate lessons, with separate tools for tutors, participants, and administrators.",
 		tags: ["Vue", "MongoDB", "Volunteer coordination"],
 		links: [
 			{ label: "Project site", href: "https://operationopportunity.jacobdanderson.net" },
@@ -367,14 +367,14 @@ export const otherProjects: OtherProject[] = [
 	},
 	{
 		slug: "retroverse",
-		name: "Retro Zetro Comics and the Retroverse",
+		name: "Retro Zetro Comics",
 		category: "Public web platforms",
 		timeframe: "2025 – Present",
 		status: "Live",
 		statusTone: "live",
-		statusNote: "Production site with an owner-managed content system.",
+		statusNote: "",
 		summary:
-			"Comics and world-building platform with story arcs, characters, artwork, media management, contact delivery, and a protected owner console.",
+			"A comics and world-building site for exploring the Retroverse through stories, characters, and artwork, with tools for its owner to publish and manage content.",
 		tags: ["Vue", "MongoDB", "Content management"],
 		links: [
 			{ label: "Live site", href: "https://retrozetrocomics.com" },
@@ -389,9 +389,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Live catalog",
 		statusTone: "live",
-		statusNote: "Public catalog is live; online ordering remains intentionally disabled.",
+		statusNote: "Online ordering is not enabled.",
 		summary:
-			"Spanish-language agricultural product catalog with device-local visit planning, WhatsApp availability inquiries, and a guarded future ordering path.",
+			"A Spanish-language agricultural product catalog where visitors can browse items, plan a visit, and ask about availability through WhatsApp before contacting the business.",
 		tags: ["Vue", "Product catalog", "Spanish"],
 		links: [{ label: "Live site", href: "https://agroindustriatorca.com" }],
 		defaultVisible: true
@@ -403,9 +403,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Live",
 		statusTone: "live",
-		statusNote: "Static studio site with an owner-editable content workflow.",
+		statusNote: "",
 		summary:
-			"Accessible violin-studio website with lesson information, a privacy-aware request form, and a nontechnical content-editing path for the owner.",
+			"A violin-studio website with lesson information and an inquiry form, designed for accessible browsing and straightforward content updates by the studio owner without coding.",
 		tags: ["Nuxt", "Accessibility", "Client website"],
 		links: [
 			{ label: "Live site", href: "https://mariettaviolinwithcarla.com" },
@@ -420,9 +420,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Live",
 		statusTone: "live",
-		statusNote: "Public history site with a bounded contact service.",
+		statusNote: "",
 		summary:
-			"Static public-history experience backed by a small, hardened contact API and a direct atomic release process.",
+			"A public-history website presenting information about the Restoration, with a contact form and a lightweight publishing setup designed to keep the site reliable and maintainable.",
 		tags: ["Vue", "Public history", "Web operations"],
 		links: [
 			{ label: "Live site", href: "https://therestoration.jacobdanderson.net" },
@@ -440,9 +440,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2023 – Present",
 		status: "Live",
 		statusTone: "live",
-		statusNote: "Current professional portfolio and deployment system.",
+		statusNote: "",
 		summary:
-			"The site you are viewing, including source-backed professional content, downloadable resumes, release identity, accessibility checks, and direct deployment safeguards.",
+			"This portfolio brings together my professional experience, research, projects, and teaching, with a downloadable résumé and accessibility checks to support clear, reliable browsing.",
 		tags: ["Vue", "Vite SSG", "Portfolio"],
 		links: [
 			{ label: "Home", href: "https://jacobdanderson.net" },
@@ -452,14 +452,14 @@ export const otherProjects: OtherProject[] = [
 	},
 	{
 		slug: "webops-template",
-		name: "Vitesse Nuxt Web Platform Template",
+		name: "Web Platform Template",
 		category: "Public web platforms",
 		timeframe: "2024 – Present",
 		status: "Maintained",
 		statusTone: "maintained",
-		statusNote: "Shared foundation for several public web projects.",
+		statusNote: "",
 		summary:
-			"Reusable Nuxt and Express monorepo foundation with workspace tooling, deployment conventions, validation scripts, and security-conscious defaults.",
+			"A reusable Nuxt and Express starting point for web projects, bringing together development tools, validation scripts, deployment conventions, and security-conscious defaults in one workspace.",
 		tags: ["Nuxt", "Express", "Developer tooling"],
 		links: [{ label: "Repository", href: "https://github.com/anderson-webops/vitesse-nuxt-template" }],
 		defaultVisible: true
@@ -471,9 +471,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Active",
 		statusTone: "active",
-		statusNote: "Live teaching, scheduling, curriculum, and student-project platform.",
+		statusNote: "",
 		summary:
-			"Public teaching site and supporting course platform for private programming, STEM, math, and Spanish instruction.",
+			"My private teaching site and course platform for programming, STEM, math, and Spanish lessons, bringing together lesson information, scheduling, curriculum, and student projects.",
 		tags: ["Teaching", "Vue", "Curriculum"],
 		links: [
 			{ label: "Teaching site", href: "https://classes.jacobdanderson.net" },
@@ -488,9 +488,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Active",
 		statusTone: "active",
-		statusNote: "Course families are maintained as a shared public organization.",
+		statusNote: "",
 		summary:
-			"Source organization for programming and systems courses spanning Python, Java, C, C++, web development, security, algorithms, AI, and game development.",
+			"A shared public library of programming and systems course materials, covering Python, Java, C, C++, web development, security, algorithms, AI, and game development.",
 		tags: ["Curriculum", "Programming", "Open course materials"],
 		links: [
 			{ label: "GitHub organization", href: "https://github.com/instruction-material" },
@@ -508,9 +508,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2026 – Present",
 		status: "Live",
 		statusTone: "live",
-		statusNote: "Public computer-science and math classrooms are live.",
+		statusNote: "",
 		summary:
-			"Simplified grade-school course network with anonymous browsing, a browser Python IDE, classroom games, Graph Sketcher, and a fifteen-course math sequence.",
+			"Computer-science and math classrooms for grade-school learners, with public course browsing, a browser-based Python editor, classroom games, and graphing tools to support hands-on practice.",
 		tags: ["K-12 education", "Browser IDE", "Graphing"],
 		links: [
 			{ label: "Teaching home", href: "https://avasan.org" },
@@ -526,9 +526,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – Present",
 		status: "Active",
 		statusTone: "active",
-		statusNote: "Ongoing technical operations and product support.",
+		statusNote: "Technical operations role: 2020 and 2026–present; project dates shown separately.",
 		summary:
-			"Audio capture, transcription, synchronization, website migration, and field-operations support for a storytelling and recording venture.",
+			"Technical support for an audio-recording venture, including capture devices, transcription, data synchronization, website migration, and field operations that connect recordings with the software workflow.",
 		tags: ["Audio systems", "Operations", "Web migration"],
 		links: [{ label: "AudioT", href: "https://audiot.ai" }],
 		defaultVisible: true
@@ -540,9 +540,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2025 – 2026",
 		status: "Prototype",
 		statusTone: "prototype",
-		statusNote: "Prototype-stage product and operations work.",
+		statusNote: "Prototype-stage concept, not a deployed emergency service.",
 		summary:
-			"Rental-based backcountry safety concept combining SOS and non-emergency alerts, location reporting, family coordination, and responder support.",
+			"A rental-based backcountry safety device concept for emergency and non-emergency alerts, location reporting, family coordination, and responder support, developed through product architecture and prototyping.",
 		tags: ["Satellite communication", "Product architecture", "Safety"],
 		links: [
 			{ label: "Project site", href: "https://stridewithus.co" },

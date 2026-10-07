@@ -4,77 +4,33 @@ import { useMainStore } from "~/stores";
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
-const resumeRequest = computed(() => profile.value.profiles.find(item => item.href === "/resume")!);
+const teachingProfile = computed(() => profile.value.profiles.find(item => item.label === "Teaching site")!);
 </script>
 
 <template>
 	<div class="contact-page">
 		<header class="page-intro">
-			<p class="eyebrow">Contact</p>
 			<h1>Contact Jacob</h1>
-			<p>
-				For professional networking, engineering or research conversations, and private lessons, email is the
-				fastest way to reach me. I usually respond within two business days.
-			</p>
+			<p>Email me about professional connections, engineering or research, or private lessons.</p>
 		</header>
-
-		<section class="contact-grid">
-			<article class="contact-card section-panel">
-				<span class="card-label">Direct contact</span>
-				<h2>Email and location</h2>
-
-				<div class="detail-grid">
-					<div>
-						<span class="detail-label">Email</span>
-						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
-					</div>
-					<div>
-						<span class="detail-label">Location</span>
-						<span>{{ profile.location }}</span>
-					</div>
-				</div>
-
-				<div class="button-row">
-					<a class="button-primary" :href="`mailto:${profile.email}`">Email Jacob</a>
-					<RouterLink class="button-secondary" :to="resumeRequest.href">View résumé</RouterLink>
-				</div>
-			</article>
-
-			<article class="contact-card section-panel">
-				<span class="card-label">Professional & technical</span>
-				<h2>What to include in an inquiry</h2>
-				<ul>
-					<li>The professional, product, system, or research context you are working in.</li>
-					<li>The technical scope, relevant background, and question you would like to discuss.</li>
-					<li>Timing, stakeholders, and any constraints that matter early.</li>
-				</ul>
-			</article>
-
-			<article class="contact-card section-panel">
-				<span class="card-label">Teaching</span>
-				<h2>What helps on the teaching side</h2>
-				<ul>
-					<li>Share the student’s goals, subject area, and rough experience level.</li>
-					<li>Include preferred schedule windows and whether you want ongoing or short-term support.</li>
-					<li>
-						For scheduling and lesson logistics, you can also use the
-						<a href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">teaching site</a>.
-					</li>
-				</ul>
-			</article>
-		</section>
-
-		<section class="contact-note section-panel">
-			<div>
-				<span class="card-label">Professional boundary</span>
-				<h2>Patent work stays with the firm.</h2>
+		<section class="contact-card section-panel" aria-label="Contact details">
+			<a class="email-address" :href="`mailto:${profile.email}`">{{ profile.email }}</a>
+			<p>{{ profile.location }} · I usually respond within two business days.</p>
+			<div class="button-row">
+				<a class="button-primary" :href="`mailto:${profile.email}`">Email Jacob</a>
 			</div>
-			<p>
-				This site presents my background and is not an offer of legal or patent services. My patent-related work
-				is performed through Meunier Carlin & Curfman under attorney supervision.
-			</p>
-			<a class="button-primary" :href="`mailto:${profile.email}`">Send a concise note</a>
+			<a class="section-link" :href="teachingProfile.href" rel="noopener" target="_blank">
+				Lesson details and scheduling
+			</a>
 		</section>
+		<p class="contact-guidance">
+			Tell me what you’d like to discuss. For lessons, sharing the subject, goals, and availability helps us get
+			started.
+		</p>
+		<p class="professional-boundary">
+			My patent-related work is performed through Meunier Carlin & Curfman under attorney supervision. This
+			personal site is not an offer of legal or patent services.
+		</p>
 	</div>
 </template>
 
@@ -82,112 +38,43 @@ const resumeRequest = computed(() => profile.value.profiles.find(item => item.hr
 .contact-page {
 	display: flex;
 	flex-direction: column;
-	gap: 1.8rem;
-}
-
-.contact-page .page-intro {
-	max-width: min(620px, 100%);
-}
-
-.contact-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1.1rem;
+	gap: 1.4rem;
+	max-width: 720px;
 }
 
 .contact-card {
 	padding: var(--panel-padding-roomy);
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	align-items: flex-start;
+	gap: 0.85rem;
 }
 
-.card-label,
-.detail-label {
-	color: var(--color-highlight);
-	font-size: 0.76rem;
+.email-address {
+	color: var(--color-accent);
+	font-size: 1.15rem;
 	font-weight: 700;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-}
-
-.contact-card h2 {
-	font-size: 1.42rem;
-	line-height: 1.2;
-}
-
-.detail-grid {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 1rem;
-}
-
-.detail-grid div {
-	display: flex;
-	flex-direction: column;
-	gap: 0.3rem;
-	min-width: 0;
-}
-
-.detail-grid a,
-.detail-grid span:last-child,
-.contact-card ul {
-	color: var(--color-text-muted);
-	line-height: 1.72;
-	text-decoration: none;
-}
-
-.detail-grid a,
-.detail-grid span:last-child {
-	display: block;
-	font-weight: 600;
 	overflow-wrap: anywhere;
 }
 
-.contact-card ul {
-	margin: 0;
-	padding-left: 1.1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.6rem;
-}
-
-.contact-card ul a {
-	color: var(--color-accent);
-	text-decoration: underline;
-	text-underline-offset: 0.16em;
-}
-
-.contact-note {
-	display: grid;
-	grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.2fr) auto;
-	gap: 1.2rem;
-	align-items: center;
-	padding: var(--panel-padding-roomy);
-}
-
-.contact-note h2 {
-	font-size: 1.65rem;
-	line-height: 1.16;
-	margin-top: 0.45rem;
-}
-
-.contact-note p {
+.contact-card p,
+.contact-guidance,
+.professional-boundary {
 	color: var(--color-text-muted);
 	line-height: 1.72;
+	max-width: var(--text-measure);
 }
 
-@media (max-width: 960px) {
-	.contact-grid,
-	.contact-note {
-		grid-template-columns: 1fr;
-	}
+.professional-boundary {
+	border-top: 1px solid var(--color-border-strong);
+	padding-top: 1rem;
+	font-size: 0.92rem;
 }
 
-@media (max-width: 640px) {
-	.contact-card,
-	.contact-note {
+@media (max-width: 720px) {
+	.contact-card {
 		padding: var(--panel-padding);
+		align-items: stretch;
 	}
 }
 </style>
@@ -196,5 +83,5 @@ const resumeRequest = computed(() => profile.value.profiles.find(item => item.hr
 meta:
     layout: default
     title: Contact | Jacob Anderson
-    description: Contact Jacob Anderson for professional networking, engineering and research conversations, or private instruction.
+    description: Email Jacob Anderson about professional connections, engineering and research, or private lessons.
 </route>

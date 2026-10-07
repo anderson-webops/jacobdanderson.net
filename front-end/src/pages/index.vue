@@ -2,388 +2,184 @@
 import { computed } from "vue";
 import { useMainStore } from "~/stores";
 
-defineOptions({
-	name: "IndexPage"
-});
+defineOptions({ name: "IndexPage" });
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
-const featuredExperience = computed(() => store.featuredProfessionalExperience);
-const instructionExperience = computed(() => store.instructionExperience[0]);
 const featuredProjects = computed(() => store.featuredProjects);
-const heroHeadline = "Patent Technical Specialist";
-const heroHeadlineLines = ["Patent", "Technical", "Specialist"];
+const currentRole = computed(() => profile.value.experience.find(item => item.category === "patent")!);
 const linkedinProfile = computed(() => profile.value.profiles.find(item => item.label === "LinkedIn")!);
 const githubProfile = computed(() => profile.value.profiles.find(item => item.label === "GitHub")!);
-const teachingProfile = computed(() => profile.value.profiles.find(item => item.label === "Teaching site")!);
-const featuredPublication = computed(() => profile.value.publications[0]);
-const patentPractice = computed(() => profile.value.practices.patent);
-const engineeringPractice = computed(() => profile.value.practices.engineering);
-const teachingPractice = computed(() => profile.value.practices.teaching);
 </script>
 
 <template>
 	<div class="landing">
 		<section class="hero">
 			<div class="hero-copy">
-				<p class="eyebrow">Professional Portfolio</p>
-				<h1 :aria-label="heroHeadline">
-					<span v-for="line in heroHeadlineLines" :key="line" aria-hidden="true">{{ line }}</span>
-				</h1>
-				<p class="lede">{{ profile.summary }}</p>
-
+				<p class="eyebrow">Jacob Anderson</p>
+				<h1>{{ currentRole.title }}</h1>
+				<p class="firm">{{ currentRole.organization }}</p>
+				<p class="lede">
+					I support patent attorneys with technical analysis and application preparation under attorney
+					supervision. My background is in computer engineering, embedded systems, and research.
+				</p>
+				<p class="hero-meta">{{ profile.location }} · {{ currentRole.timeframe }}</p>
 				<div class="button-row">
-					<RouterLink class="button-primary" to="/experience">View professional experience</RouterLink>
+					<RouterLink class="button-primary" to="/experience">Professional experience</RouterLink>
 					<RouterLink class="button-secondary" to="/resume">View résumé</RouterLink>
 				</div>
-
-				<div class="proof-strip">
-					<a :href="linkedinProfile.href" rel="noopener" target="_blank">View LinkedIn</a>
-					<a :href="githubProfile.href" rel="noopener" target="_blank">View GitHub</a>
-					<a :href="featuredPublication.href" rel="noopener" target="_blank">View OSCRE publication</a>
+				<div class="profile-links">
+					<a :href="linkedinProfile.href" rel="noopener" target="_blank">LinkedIn</a>
+					<a :href="githubProfile.href" rel="noopener" target="_blank">GitHub</a>
 				</div>
 			</div>
-
-			<aside class="hero-aside section-panel">
-				<div class="aside-block">
-					<span class="aside-label">{{ patentPractice.label }}</span>
-					<h2>{{ patentPractice.title }}</h2>
-					<p>{{ patentPractice.summary }}</p>
-					<span class="aside-meta">{{ patentPractice.details }}</span>
-					<RouterLink class="section-link" to="/experience">Review current role</RouterLink>
-				</div>
-
-				<div class="aside-divider" />
-
-				<div class="aside-block">
-					<span class="aside-label">{{ engineeringPractice.label }}</span>
-					<h2>{{ engineeringPractice.title }}</h2>
-					<p>{{ engineeringPractice.summary }}</p>
-					<span class="aside-meta">{{ engineeringPractice.details }}</span>
-					<RouterLink class="section-link" to="/projects">Review technical work</RouterLink>
-				</div>
+			<aside class="background-note section-panel" aria-labelledby="background-heading">
+				<h2 id="background-heading">Engineering background</h2>
+				<p>
+					My work spans circuit simulation, sensing hardware, device deployment, and software. I’m pursuing an
+					M.S. in Computer Engineering at Georgia Tech, with expected completion in May 2027.
+				</p>
+				<p>
+					Alongside MCC, I work on technical operations at AudioT. Earlier work includes university research,
+					an Epiroc capstone, and co-founding the Stride device concept.
+				</p>
 			</aside>
 		</section>
 
-		<section class="pathway-section section-panel" aria-labelledby="pathway-heading">
-			<div class="pathway-copy">
-				<p class="eyebrow">Start Here</p>
-				<h2 id="pathway-heading">One professional story, three areas of practice.</h2>
-				<p>
-					Start with current patent work, then review the engineering experience and teaching practice that
-					inform it.
-				</p>
-			</div>
-
-			<div class="pathway-list" aria-label="Primary site paths">
-				<RouterLink to="/experience">
-					<strong>Patent & technical experience</strong>
-					<span>MCC role, technical analysis, engineering work, and prior positions.</span>
-				</RouterLink>
-				<RouterLink to="/projects">
-					<strong>Engineering & research</strong>
-					<span>Simulation, sensing, telemetry, embedded systems, and product work.</span>
-				</RouterLink>
-				<RouterLink to="/classes">
-					<strong>Teaching practice</strong>
-					<span>Subjects, lesson format, tuition, and how to start private instruction.</span>
-				</RouterLink>
-			</div>
-		</section>
-
-		<section class="featured-section">
+		<section class="featured-section" aria-labelledby="projects-heading">
 			<div class="section-top">
-				<div>
-					<p class="eyebrow">Professional Experience</p>
-					<h2>Patent, engineering, and product work</h2>
-				</div>
-				<RouterLink class="section-link" to="/experience">View full experience</RouterLink>
+				<h2 id="projects-heading">Selected engineering projects</h2>
+				<RouterLink class="section-link" to="/projects">All selected projects</RouterLink>
 			</div>
-
-			<div class="experience-grid">
-				<article v-for="(item, index) in featuredExperience" :key="index" class="feature-card section-panel">
-					<div class="feature-top">
-						<span class="feature-kicker">{{ item.organization }}</span>
-						<span class="feature-time">{{ item.timeframe }}</span>
-					</div>
-					<h3>{{ item.title }}</h3>
-					<p class="feature-summary">{{ item.summary }}</p>
-					<ul class="feature-list">
-						<li v-for="(highlight, highlightIndex) in item.highlights.slice(0, 2)" :key="highlightIndex">
-							{{ highlight }}
-						</li>
-					</ul>
-				</article>
-			</div>
-		</section>
-
-		<section class="featured-section">
-			<div class="section-top">
-				<div>
-					<p class="eyebrow">Selected Projects</p>
-					<h2>Flagship builds and proof points</h2>
-				</div>
-				<RouterLink class="section-link" to="/projects">Browse all projects</RouterLink>
-			</div>
-
 			<div class="project-grid">
-				<article v-for="(project, index) in featuredProjects" :key="index" class="feature-card section-panel">
-					<div class="feature-top">
-						<span class="feature-kicker">Project</span>
-						<span class="feature-time">{{ project.timeframe }}</span>
-					</div>
-					<h3>{{ project.name }}</h3>
-					<p class="feature-description">{{ project.description }}</p>
-					<p class="feature-role"><strong>Role:</strong> {{ project.role }}</p>
-					<ul class="feature-list">
-						<li v-for="(result, resultIndex) in project.results.slice(0, 2)" :key="resultIndex">
-							{{ result }}
-						</li>
-					</ul>
-					<div v-if="project.links.length" class="artifact-links">
-						<a
-							v-for="link in project.links"
-							:key="link.href"
-							:href="link.href"
-							rel="noopener"
-							target="_blank"
-						>
-							{{ link.label }}
-						</a>
-					</div>
+				<article v-for="project in featuredProjects" :key="project.name" class="feature-card section-panel">
+					<span class="feature-time">{{ project.timeframe }}</span>
+					<h3>{{ project.shortName }}</h3>
+					<p>{{ project.preview }}</p>
+					<p class="contribution">{{ project.results[1] }}</p>
+					<a
+						v-if="project.links[0]"
+						class="section-link"
+						:href="project.links[0].href"
+						rel="noopener"
+						target="_blank"
+					>
+						{{ project.links[0].label }}
+					</a>
 				</article>
 			</div>
 		</section>
 
-		<section class="instruction-section section-panel">
-			<div class="instruction-copy">
-				<p class="eyebrow">Teaching</p>
-				<h2>Independent instruction built on four years of teaching.</h2>
+		<section class="instruction-section section-panel" aria-labelledby="teaching-heading">
+			<div>
+				<h2 id="teaching-heading">Private lessons</h2>
 				<p>
-					I teach one-on-one lessons in programming, STEM, math, and Spanish through Classes with Jacob. That
-					work builds on my prior instruction and instructor coaching at Juni Learning.
+					I teach programming, STEM, math, and Spanish through Classes with Jacob, building on four years of
+					instruction and instructor coaching at Juni Learning.
 				</p>
 			</div>
-
-			<div class="instruction-card">
-				<span class="instruction-label">{{ instructionExperience.organization }}</span>
-				<h3>{{ instructionExperience.title }}</h3>
-				<p>{{ teachingPractice.summary }} Standard lessons run 50 minutes.</p>
-				<a class="section-link" :href="teachingProfile.href" rel="noopener" target="_blank"
-					>Visit teaching site</a
-				>
-			</div>
+			<RouterLink class="section-link" to="/classes">Explore lessons</RouterLink>
 		</section>
 	</div>
 </template>
 
 <style scoped>
-.landing {
+.landing,
+.hero-copy,
+.featured-section {
 	display: flex;
 	flex-direction: column;
+}
+
+.landing {
 	gap: 2.45rem;
-	padding-bottom: 0.75rem;
 }
 
 .hero {
 	display: grid;
-	grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.8fr);
+	grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.8fr);
 	gap: 1.7rem;
 	align-items: start;
 }
 
 .hero-copy {
-	display: flex;
-	flex-direction: column;
-	gap: 1.3rem;
-	padding-top: 0.2rem;
+	gap: 1rem;
+	min-width: 0;
 }
 
 .hero-copy h1 {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 0.06em;
-	font-size: 4.4rem;
-	line-height: 1;
-	letter-spacing: 0;
-	max-width: none;
+	font-size: clamp(2.75rem, 5.5vw, 4.4rem);
+	line-height: 1.04;
+	max-width: 14ch;
 }
 
-.hero-copy h1 span {
-	display: block;
-	white-space: nowrap;
+.firm {
+	color: var(--color-accent);
+	font-size: 1.15rem;
+	font-weight: 700;
 }
 
 .lede {
 	max-width: var(--text-measure);
 	color: var(--color-text-muted);
 	font-size: 1.08rem;
-	line-height: 1.82;
+	line-height: 1.78;
 }
 
-.proof-strip {
+.hero-meta,
+.feature-time {
+	color: var(--color-text-muted);
+	font-size: 0.92rem;
+}
+
+.profile-links {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.75rem 1.2rem;
 }
 
-.proof-strip a {
+.profile-links a {
 	color: var(--color-accent);
-	font-size: 0.92rem;
 	font-weight: 700;
 	text-decoration: none;
 }
 
-.hero-aside {
-	padding: var(--panel-padding-roomy);
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-}
-
-.aside-block {
+.background-note,
+.feature-card {
+	padding: var(--panel-padding);
 	display: flex;
 	flex-direction: column;
 	gap: 0.8rem;
 }
 
-.aside-label,
-.feature-kicker,
-.instruction-label,
-.capability-label {
-	color: var(--color-highlight);
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-}
-
-.aside-block h2 {
-	font-size: 1.55rem;
-	line-height: 1.18;
-}
-
-.aside-block p {
-	color: var(--color-text-muted);
-	line-height: 1.72;
-}
-
-.aside-block a {
-	color: var(--color-accent);
-	font-weight: 700;
-	text-decoration: none;
-}
-
-.aside-meta {
-	color: var(--color-accent);
-	font-weight: 700;
-}
-
-.aside-divider {
-	height: 1px;
-	background: var(--color-border);
-}
-
-.pathway-section {
-	display: grid;
-	grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-	gap: 1.4rem;
-	align-items: center;
-	padding: var(--panel-padding-roomy);
-}
-
-.pathway-copy {
-	display: flex;
-	flex-direction: column;
-	gap: 0.85rem;
-}
-
-.pathway-copy h2 {
-	font-size: 2rem;
-	line-height: 1.12;
-	max-width: 16ch;
-}
-
-.pathway-copy p {
-	color: var(--color-text-muted);
-	line-height: 1.72;
-}
-
-.pathway-list {
-	display: grid;
-	gap: 0.72rem;
-}
-
-.pathway-list a {
-	display: grid;
-	gap: 0.25rem;
-	padding: 1rem;
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-md);
-	background: var(--color-surface);
-	text-decoration: none;
-}
-
-.pathway-list a:hover {
-	border-color: var(--color-border-strong);
-	box-shadow: var(--shadow-card);
-	transform: translateY(-1px);
-}
-
-.pathway-list strong {
-	color: var(--color-text);
-}
-
-.pathway-list span {
-	color: var(--color-text-muted);
-	line-height: 1.58;
-}
-
-.experience-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1.1rem;
-}
-
-.feature-card {
-	padding: var(--panel-padding);
-	display: flex;
-	flex-direction: column;
-	gap: 0.95rem;
-}
-
-.feature-card h3,
-.instruction-card h3 {
+.background-note h2,
+.feature-card h3 {
 	font-size: 1.42rem;
 	line-height: 1.2;
 }
 
-.feature-description,
-.feature-summary,
-.feature-list,
-.feature-role,
-.instruction-card p {
+.background-note p,
+.feature-card p,
+.instruction-section p {
 	color: var(--color-text-muted);
 	line-height: 1.72;
 }
 
 .featured-section {
-	display: flex;
-	flex-direction: column;
 	gap: 1.2rem;
 }
 
 .section-top {
 	display: flex;
-	align-items: end;
+	align-items: baseline;
 	justify-content: space-between;
 	gap: 1rem;
 }
 
-.section-top h2 {
+.section-top h2,
+.instruction-section h2 {
 	font-size: 2rem;
-	margin-top: 0.55rem;
+	line-height: 1.2;
 }
 
 .project-grid {
@@ -392,124 +188,40 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 	gap: 1.1rem;
 }
 
-.feature-top {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 0.8rem;
-}
-
-.feature-time {
-	color: var(--color-accent);
-	font-size: 0.92rem;
-	font-weight: 700;
-}
-
-.feature-list {
-	margin: 0;
-	padding-left: 1.1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.55rem;
-}
-
-.feature-role {
-	margin: 0;
-}
-
-.artifact-links {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.75rem;
-}
-
-.artifact-links a {
-	color: var(--color-accent);
-	font-size: 0.92rem;
-	font-weight: 700;
-	text-decoration: none;
-}
-
 .instruction-section {
-	display: grid;
-	grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	gap: 1.4rem;
-	padding: var(--panel-padding-roomy);
+	padding: var(--panel-padding);
 }
 
-.instruction-copy {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
+.instruction-section p {
+	max-width: var(--text-measure);
+	margin-top: 0.65rem;
 }
 
-.instruction-copy h2 {
-	font-size: 2rem;
-	line-height: 1.15;
-	max-width: 15ch;
-}
-
-.instruction-copy p {
-	color: var(--color-text-muted);
-	line-height: 1.75;
-}
-
-.instruction-card {
-	padding: var(--panel-padding-compact);
-	border-radius: var(--radius-md);
-	background: var(--color-surface);
-	border: 1px solid var(--color-border);
-	display: flex;
-	flex-direction: column;
-	gap: 0.85rem;
+.instruction-section > a {
+	flex-shrink: 0;
 }
 
 @media (max-width: 960px) {
 	.hero,
-	.pathway-section,
-	.project-grid,
-	.experience-grid,
-	.instruction-section {
+	.project-grid {
 		grid-template-columns: 1fr;
-	}
-
-	.hero-copy h1,
-	.instruction-copy h2 {
-		max-width: 9ch;
-	}
-
-	.hero-copy h1 {
-		gap: 0.07em;
-		font-size: 3.55rem;
-		max-width: none;
 	}
 }
 
 @media (max-width: 720px) {
-	.hero-copy {
-		gap: 1.2rem;
-	}
-
-	.hero-copy h1 {
-		gap: 0.08em;
-		font-size: 2.75rem;
-		line-height: 1.02;
-	}
-
-	.section-top {
+	.section-top,
+	.instruction-section {
 		flex-direction: column;
 		align-items: flex-start;
 	}
 
-	.hero-aside,
-	.pathway-section,
-	.feature-card,
-	.instruction-section {
-		padding: var(--panel-padding);
-	}
-
-	.instruction-card {
-		padding: var(--panel-padding-compact);
+	.section-top h2,
+	.instruction-section h2 {
+		font-size: 1.75rem;
 	}
 }
 </style>
@@ -518,5 +230,5 @@ const teachingPractice = computed(() => profile.value.practices.teaching);
 meta:
     layout: default
     title: Jacob Anderson
-    description: Professional portfolio for Jacob Anderson covering patent work at Meunier Carlin & Curfman, computer engineering, research, publications, and private instruction.
+    description: Jacob Anderson is a Patent Technical Specialist at Meunier Carlin & Curfman, with a background in computer engineering, research, and teaching.
 </route>

@@ -28,12 +28,13 @@ onMounted(() => void loadVisibility());
 <template>
 	<div class="other-projects-page">
 		<header class="page-intro">
-			<p class="eyebrow">Working index</p>
 			<h1>Other projects</h1>
 			<p>
-				A broader, less formal inventory of substantial research, software, teaching, civic, web, and product
-				work. Status labels are high-level snapshots reviewed in August 2026, not promises about future
-				releases.
+				A less formal look at my research, software, teaching, and product work. Filter by category to explore.
+			</p>
+			<p class="status-context">
+				Status snapshots: August 2026. Labels describe development stage, availability, or maintenance, not
+				future release promises.
 			</p>
 		</header>
 
@@ -85,7 +86,7 @@ onMounted(() => void loadVisibility());
 					<span class="timeframe">{{ project.timeframe }}</span>
 				</div>
 				<p class="summary">{{ project.summary }}</p>
-				<p class="status-note"><strong>Status:</strong> {{ project.statusNote }}</p>
+				<p v-if="project.statusNote" class="status-note">{{ project.statusNote }}</p>
 				<ul class="tag-list" aria-label="Project technologies and topics">
 					<li v-for="tag in project.tags" :key="tag" class="tag">{{ tag }}</li>
 				</ul>
@@ -103,14 +104,9 @@ onMounted(() => void loadVisibility());
 		</section>
 
 		<footer class="page-note section-panel">
-			<div>
-				<p class="category">Source notes</p>
-				<h2>Public evidence, summarized carefully</h2>
-			</div>
 			<p>
-				This index draws from public repositories, released sites, and the professional project record. Support
-				repositories, course forks, private implementation details, and routine maintenance work are grouped or
-				omitted when separate cards would overstate their significance.
+				Based on public repositories, released sites, and my professional project record. Related repositories
+				are grouped; routine maintenance and private details are omitted.
 			</p>
 			<a class="section-link" href="https://github.com/Jacoba1100254352" rel="noopener" target="_blank">
 				Browse the public GitHub profile
@@ -154,6 +150,10 @@ onMounted(() => void loadVisibility());
 	font-size: 0.92rem;
 }
 
+.status-context {
+	font-size: 0.9rem;
+}
+
 .loading-state {
 	color: var(--color-text-muted);
 	padding: var(--panel-padding);
@@ -180,7 +180,7 @@ onMounted(() => void loadVisibility());
 .project-card {
 	display: flex;
 	flex-direction: column;
-	gap: 0.9rem;
+	gap: 0.7rem;
 	padding: var(--panel-padding);
 }
 

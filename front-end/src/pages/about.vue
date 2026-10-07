@@ -8,108 +8,44 @@ const profile = computed(() => store.userProfile);
 
 <template>
 	<div class="about-page">
-		<section class="about-intro">
-			<p class="eyebrow">About</p>
-
-			<div class="about-layout">
-				<div class="about-copy">
-					<header class="page-intro">
-						<h1>Patent work grounded in engineering practice.</h1>
-						<p>
-							At Meunier Carlin & Curfman, I support patent attorneys by analyzing technical material and
-							assisting with patent application preparation. That work draws on experience with embedded
-							systems, simulation, sensing, software, product development, and technical instruction.
-						</p>
-					</header>
-
-					<div class="snapshot-card section-panel">
-						<div class="snapshot-top">
-							<span class="card-label">Current work</span>
-							<span class="snapshot-date">Updated {{ profile.lastUpdated }}</span>
-						</div>
-
-						<div class="snapshot-practice snapshot-primary">
-							<span class="card-label">Patent & technical</span>
-							<h2>{{ profile.practices.patent.title }}</h2>
-							<p class="snapshot-copy">{{ profile.practices.patent.summary }}</p>
-						</div>
-
-						<div class="snapshot-practice">
-							<span class="card-label">Engineering background</span>
-							<h2>{{ profile.practices.engineering.title }}</h2>
-							<p class="snapshot-copy">{{ profile.practices.engineering.summary }}</p>
-						</div>
-
-						<div class="snapshot-practice">
-							<span class="card-label">Teaching</span>
-							<h2>{{ profile.practices.teaching.title }}</h2>
-							<p class="snapshot-copy">{{ profile.practices.teaching.summary }}</p>
-						</div>
-					</div>
-				</div>
-
-				<img
-					class="portrait-image"
-					src="/images/jacob-anderson.jpg"
-					alt="Portrait of Jacob Anderson"
-					fetchpriority="high"
-					height="1200"
-					width="1200"
-				/>
-			</div>
-		</section>
-
-		<section class="support-grid">
-			<article class="support-card section-panel">
-				<span class="card-label">Current professional focus</span>
-				<h2>Technical depth for patent preparation</h2>
-				<ul>
-					<li>Analyze invention disclosures and technical discussions across multiple technology areas.</li>
-					<li>Assist with claims, technical descriptions, figures, strategy, and research.</li>
-					<li>Perform patent-related work through MCC under attorney supervision.</li>
-				</ul>
-			</article>
-
-			<article class="support-card section-panel">
-				<span class="card-label">Engineering proof</span>
-				<h2>Research and technical outcomes</h2>
-				<ul>
-					<li>Co-authored the ISCAS 2025 paper on the OSCRE radiation-effects simulation framework.</li>
-					<li>Delivered a working industrial drill monitoring demo for Epiroc sponsor review.</li>
-					<li>Built hardware and analysis tooling for non-invasive glucose-monitoring experiments.</li>
-				</ul>
-			</article>
-
-			<article class="support-card section-panel">
-				<span class="card-label">Teaching in practice</span>
-				<h2>What students and families can expect</h2>
-				<ul>
-					<li>Private lessons in programming, STEM, and Spanish.</li>
-					<li>50-minute sessions with a consultation before the first lesson.</li>
-					<li>Follow-up, project review, and next steps after sessions when useful.</li>
-					<li>Prior instructor coaching and curriculum support through Juni Learning.</li>
-				</ul>
-			</article>
-
-			<article class="support-card section-panel">
-				<span class="card-label">Public references</span>
-				<h2>Where to verify and reach out</h2>
-				<div class="profile-list">
+		<section class="about-layout">
+			<header class="page-intro">
+				<h1>About Jacob</h1>
+				<p>
+					I’m a computer engineer and Patent Technical Specialist at Meunier Carlin & Curfman in the Atlanta
+					area. I support patent attorneys with technical analysis and application preparation under attorney
+					supervision.
+				</p>
+			</header>
+			<img
+				class="portrait-image"
+				src="/images/jacob-anderson.jpg"
+				alt="Portrait of Jacob Anderson"
+				fetchpriority="high"
+				height="1200"
+				width="1200"
+			/>
+			<div class="about-copy">
+				<p>
+					My engineering work has involved circuit simulation, sensing hardware, embedded systems, and
+					software. At BYU, I contributed to glucose-monitoring research and the OSCRE radiation-effects
+					simulation framework, co-authoring its ISCAS 2025 paper. I also helped deliver an industrial drill
+					monitoring demo for Epiroc.
+				</p>
+				<p>
+					Outside my firm role, I work on technical operations at AudioT and teach through Classes with Jacob.
+					My teaching builds on four years of instruction and instructor coaching at Juni Learning. Earlier
+					product work includes co-founding the Stride search-and-rescue device concept.
+				</p>
+				<div class="profile-links">
 					<template v-for="item in profile.profiles" :key="item.href">
-						<RouterLink v-if="item.href.startsWith('/')" :to="item.href">
-							<strong>{{ item.label }}</strong>
-							<span>{{ item.description }}</span>
-						</RouterLink>
-						<a v-else :href="item.href" rel="noopener" target="_blank">
-							<strong>{{ item.label }}</strong>
-							<span>{{ item.description }}</span>
-						</a>
+						<RouterLink v-if="item.href.startsWith('/')" :to="item.href">{{ item.label }}</RouterLink>
+						<a v-else :href="item.href" rel="noopener" target="_blank">{{ item.label }}</a>
 					</template>
 				</div>
-			</article>
+			</div>
 		</section>
-
-		<EducationComponent />
+		<EducationComponent compact />
 	</div>
 </template>
 
@@ -120,84 +56,34 @@ const profile = computed(() => store.userProfile);
 	gap: 2.35rem;
 }
 
-.about-intro {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
 .about-layout {
 	display: grid;
-	grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.82fr);
-	gap: 1.7rem;
-	align-items: center;
+	grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.82fr);
+	grid-template-areas: "intro portrait" "story portrait";
+	gap: 1rem 1.7rem;
+	align-items: start;
+}
+
+.page-intro {
+	grid-area: intro;
 }
 
 .about-copy {
+	grid-area: story;
 	display: flex;
 	flex-direction: column;
-	gap: 1.35rem;
+	gap: 1rem;
 	min-width: 0;
 }
 
-.about-intro .page-intro {
-	max-width: min(680px, 100%);
-}
-
-.snapshot-card,
-.support-card {
-	padding: var(--panel-padding-roomy);
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
-.snapshot-top {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 1rem;
-}
-
-.card-label {
-	color: var(--color-highlight);
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-}
-
-.snapshot-date {
-	color: var(--color-text-muted);
-	font-size: 0.92rem;
-}
-
-.snapshot-practice {
-	display: flex;
-	flex-direction: column;
-	gap: 0.4rem;
-}
-
-.snapshot-primary {
-	padding-bottom: 1rem;
-	border-bottom: 1px solid var(--color-border);
-}
-
-.snapshot-practice h2 {
-	font-size: 1.42rem;
-	line-height: 1.2;
-}
-
-.snapshot-copy,
-.support-card p,
-.support-card ul,
-.profile-list a span {
+.about-copy > p {
 	color: var(--color-text-muted);
 	line-height: 1.75;
-	text-decoration: none;
+	max-width: var(--text-measure);
 }
 
 .portrait-image {
+	grid-area: portrait;
 	width: 100%;
 	aspect-ratio: 4 / 5;
 	height: auto;
@@ -208,68 +94,27 @@ const profile = computed(() => store.userProfile);
 	box-shadow: var(--shadow-card);
 }
 
-.support-grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1.1rem;
-}
-
-.support-card h2 {
-	font-size: 1.42rem;
-	line-height: 1.2;
-}
-
-.support-card ul {
-	margin: 0;
-	padding-left: 1.1rem;
+.profile-links {
 	display: flex;
-	flex-direction: column;
-	gap: 0.55rem;
+	flex-wrap: wrap;
+	gap: 0.6rem 1.2rem;
 }
 
-.profile-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0.85rem;
-}
-
-.profile-list a {
-	display: flex;
-	flex-direction: column;
-	gap: 0.18rem;
-	text-decoration: none;
-}
-
-.profile-list a strong {
-	color: var(--color-text);
-}
-
-.support-card > a {
+.profile-links a {
 	color: var(--color-accent);
 	font-weight: 700;
 	text-decoration: none;
 }
 
 @media (max-width: 960px) {
-	.about-layout,
-	.support-grid {
+	.about-layout {
 		grid-template-columns: 1fr;
+		grid-template-areas: "intro" "portrait" "story";
 	}
 
 	.portrait-image {
-		max-width: 520px;
-	}
-}
-
-@media (max-width: 720px) {
-	.snapshot-top {
-		flex-direction: column;
-		align-items: flex-start;
-	}
-
-	.snapshot-card,
-	.support-card {
-		padding: var(--panel-padding);
+		max-width: 360px;
+		aspect-ratio: 1;
 	}
 }
 </style>
@@ -278,5 +123,5 @@ const profile = computed(() => store.userProfile);
 meta:
     layout: default
     title: About | Jacob Anderson
-    description: Background on Jacob Anderson's patent work at Meunier Carlin & Curfman, engineering experience, education, publications, and teaching practice.
+    description: Jacob Anderson's computer engineering background, patent technical work at MCC, research, education, and teaching.
 </route>

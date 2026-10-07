@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import http from "node:http";
@@ -29,7 +30,8 @@ const routes = [
 	"/experience",
 	"/resume",
 	"/classes",
-	"/contact"
+	"/contact",
+	"/page-not-found-check"
 ];
 const colorSchemes = (process.env.A11Y_COLOR_SCHEMES || "light,dark")
 	.split(",")
@@ -273,6 +275,49 @@ async function analyzePage(browser, route, scheme) {
 	};
 }
 
+async function checkReadingLayout(browser, route) {
+	const page = await browser.newPage();
+	try {
+		for (const width of [320, 390, 768, 1280]) {
+			await page.setViewport({ width, height: 900, deviceScaleFactor: 1 });
+			await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle0" });
+			const metrics = await page.evaluate(() => ({
+				width: document.documentElement.clientWidth,
+				scrollWidth: document.documentElement.scrollWidth,
+				headings: document.querySelectorAll("main h1").length,
+				// Count rendered text, excluding hidden navigation and script content.
+				// eslint-disable-next-line unicorn/prefer-dom-node-text-content
+				words: document.querySelector("main").innerText.trim().split(/\s+/).length,
+				height: document.querySelector("main").getBoundingClientRect().height
+			}));
+			assert.equal(metrics.headings, 1, `${route} must have one main heading`);
+			assert.ok(metrics.scrollWidth <= metrics.width + 1, `${route} overflows at ${width}px`);
+			console.log(`reading layout ok: ${route} at ${width}px (${metrics.words} words; ${Math.round(metrics.height)}px main)`);
+
+			if (width === 320) {
+				await page.addStyleTag({ content: `
+					* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }
+					p { margin-bottom: 2em !important; }
+				` });
+				const spacing = await page.evaluate(() => ({
+					overflows: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+					offenders: [...document.querySelectorAll("main h1, main a, main button, main .price")]
+						.filter(element => element.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+						.map(element => element.textContent.trim())
+				}));
+				assert.equal(spacing.overflows, false, `${route} overflows with reader text spacing: ${spacing.offenders.join(", ")}`);
+			}
+		}
+		// A 1280px browser at 200% zoom presents a 640 CSS-pixel layout viewport.
+		await page.setViewport({ width: 640, height: 450, deviceScaleFactor: 2 });
+		await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle0" });
+		assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), `${route} fails 200% reflow`);
+	}
+	finally {
+		await page.close();
+	}
+}
+
 const apiServer = createMockApiServer();
 const frontendProcess = startFrontend();
 let browser;
@@ -297,6 +342,7 @@ try {
 			}
 			console.log(`a11y ok: ${result.url} [${scheme}]`);
 		}
+		await checkReadingLayout(browser, route);
 	}
 
 	if (failures.length) {

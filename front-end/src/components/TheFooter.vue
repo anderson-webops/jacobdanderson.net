@@ -19,8 +19,8 @@ const internalLinks = [
 		<div class="footer-shell section-panel">
 			<div class="footer-top">
 				<p class="footer-note">
-					Patent technical work, computer engineering, research, and private instruction based in
-					{{ profile.location }}. Patent work is performed through MCC under attorney supervision.
+					{{ profile.name }} · {{ profile.location }}.<br />
+					Patent work is performed through Meunier Carlin & Curfman under attorney supervision.
 				</p>
 				<nav aria-label="Footer" class="footer-nav">
 					<RouterLink v-for="link in internalLinks" :key="link.to" :to="link.to">
@@ -129,6 +129,11 @@ const internalLinks = [
 
 	.footer-note {
 		font-size: 0.98rem;
+	}
+
+	.footer-links a:last-child {
+		grid-column: 1 / -1;
+		overflow-wrap: anywhere;
 	}
 
 	.footer-bottom {

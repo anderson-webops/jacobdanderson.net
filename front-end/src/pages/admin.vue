@@ -29,12 +29,8 @@ onMounted(() => {
 <template>
 	<div class="admin-page">
 		<header class="page-intro">
-			<p class="eyebrow">Protected controls</p>
 			<h1>Other-project visibility</h1>
-			<p>
-				Show or hide individual cards on the unlisted Other Projects page. This page has no application login
-				form; production access is enforced by the web server before the page or mutation API is reached.
-			</p>
+			<p>Choose which cards appear on Other Projects. Use each eye toggle to show or hide a card.</p>
 		</header>
 
 		<div class="admin-actions">
@@ -44,10 +40,23 @@ onMounted(() => {
 
 		<p v-if="isLoading" class="notice" role="status">Loading saved visibility settings…</p>
 		<div v-else-if="!hasLoadedVisibility" class="notice notice-error" role="alert">
-			<p>{{ errorMessage || "Saved visibility settings have not loaded." }}</p>
+			<p>Couldn’t load the saved settings. Please try again before changing visibility.</p>
 			<button class="retry-button" type="button" @click="loadVisibility">Try again</button>
 		</div>
 		<p v-if="statusMessage" class="notice notice-success" role="status">{{ statusMessage }}</p>
+		<div v-if="hasLoadedVisibility && errorMessage" class="notice notice-error" role="alert">
+			<p>{{ errorMessage }}</p>
+			<button
+				class="retry-button"
+				type="button"
+				@click="
+					statusMessage = '';
+					loadVisibility();
+				"
+			>
+				Reload settings
+			</button>
+		</div>
 
 		<section v-if="hasLoadedVisibility" class="control-list" aria-label="Project visibility controls">
 			<article v-for="project in otherProjects" :key="project.slug" class="control-row section-panel">
@@ -61,7 +70,7 @@ onMounted(() => {
 					:aria-pressed="isProjectVisible(project)"
 					class="visibility-button"
 					:class="{ 'is-hidden': !isProjectVisible(project) }"
-					:disabled="isLoading || Boolean(pendingSlug)"
+					:disabled="isLoading || Boolean(pendingSlug) || Boolean(errorMessage)"
 					type="button"
 					@click="toggleVisibility(project)"
 				>
@@ -210,7 +219,8 @@ onMounted(() => {
 
 @media (max-width: 640px) {
 	.admin-actions,
-	.control-row {
+	.control-row,
+	.notice {
 		align-items: flex-start;
 		flex-direction: column;
 	}

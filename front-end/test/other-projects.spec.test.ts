@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { PROJECT_SLUGS } from "../../back-end/src/projectCatalog";
 import { otherProjectCategories, otherProjects } from "../src/data/otherProjects";
 
 describe("other project inventory", () => {
@@ -30,5 +31,14 @@ describe("other project inventory", () => {
 
 		expect(stride?.timeframe).toBe("2025 – 2026");
 		expect(copy).not.toMatch(/limbo|silent contacts|hear back|restart|paused/i);
+	});
+
+	it("retains backend identifiers and keeps summaries easy to scan", () => {
+		expect(otherProjects.map(project => project.slug)).toEqual([...PROJECT_SLUGS]);
+		for (const project of otherProjects) {
+			expect(project.summary.split(/\s+/).length, project.slug).toBeLessThanOrEqual(35);
+			expect(project.statusNote.split(/\s+/).length, project.slug).toBeLessThanOrEqual(20);
+		}
+		expect(otherProjects.some(project => project.status === "MVP")).toBe(false);
 	});
 });

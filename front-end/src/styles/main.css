@@ -94,6 +94,11 @@ img {
 	max-width: 100%;
 }
 
+main,
+.site-footer {
+	overflow-wrap: anywhere;
+}
+
 button,
 input,
 select,
@@ -192,6 +197,8 @@ p {
 	border-radius: 999px;
 	font-weight: 700;
 	text-decoration: none;
+	text-align: center;
+	min-width: 0;
 }
 
 .button-primary {
