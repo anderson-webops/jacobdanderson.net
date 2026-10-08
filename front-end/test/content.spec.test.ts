@@ -38,9 +38,19 @@ describe("focused public content", () => {
 		const wrapper = mount(Home, { global });
 		expect(wrapper.get("h1").text()).toBe("Patent Technical Specialist");
 		expect(wrapper.text()).toContain("under attorney supervision");
-		expect(wrapper.text()).toContain("expected completion in May 2027");
+		expect(wrapper.text()).toContain("Expected completion in May 2027");
 		expect(wrapper.text()).not.toContain("Start here");
 		expect(wrapper.findAll(".experience-entry")).toHaveLength(0);
+		expect(wrapper.findAll(".background-note dl div")).toHaveLength(2);
+		expect(wrapper.findAll(".feature-card p")).toHaveLength(2);
+		wrapper.unmount();
+	});
+
+	it("keeps elementary language proficiency separate from working proficiency", () => {
+		const wrapper = mount(Resume, { global });
+		expect(wrapper.get(".working-languages").text()).toContain("Spanish (professional working)");
+		expect(wrapper.get(".working-languages").text()).not.toContain("elementary");
+		expect(wrapper.get(".elementary-languages").text()).toBe("French (elementary), Russian (elementary)");
 		wrapper.unmount();
 	});
 

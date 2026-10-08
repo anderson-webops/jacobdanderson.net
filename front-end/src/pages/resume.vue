@@ -5,6 +5,12 @@ import { useMainStore } from "~/stores";
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
 const profileLinks = computed(() => profile.value.profiles.filter(item => item.href !== "/resume"));
+const workingLanguages = computed(() =>
+	profile.value.skills.languagesSpoken.filter(item => !item.includes("(elementary)"))
+);
+const elementaryLanguages = computed(() =>
+	profile.value.skills.languagesSpoken.filter(item => item.includes("(elementary)"))
+);
 const professionalExperience = computed(() =>
 	store.userProfile.experience.filter(item => item.category === "patent" || item.category === "engineering")
 );
@@ -135,7 +141,10 @@ function printResume() {
 
 					<section class="stack-item">
 						<span class="card-label">Languages Spoken</span>
-						<p class="summary">{{ profile.skills.languagesSpoken.join(", ") }}</p>
+						<p class="summary working-languages">{{ workingLanguages.join(", ") }}</p>
+						<p v-if="elementaryLanguages.length" class="elementary-languages">
+							{{ elementaryLanguages.join(", ") }}
+						</p>
 					</section>
 				</div>
 			</article>
@@ -189,9 +198,14 @@ function printResume() {
 .meta,
 .summary,
 .resume-contact dd,
-.resume-card ul {
+.resume-card ul,
+.elementary-languages {
 	color: var(--color-text-muted);
 	line-height: 1.72;
+}
+
+.elementary-languages {
+	font-size: 0.92rem;
 }
 
 .resume-contact {
@@ -334,15 +348,74 @@ function printResume() {
 
 @media print {
 	.resume-page {
-		gap: 1rem;
+		display: block;
 	}
 
 	.resume-hero,
 	.resume-card {
-		padding: 1rem;
-		border-color: rgba(21, 34, 51, 0.12);
+		padding: 0;
+		border: 0;
+		background: white;
 		box-shadow: none;
 		break-inside: avoid;
+	}
+
+	.resume-hero,
+	.resume-section,
+	.resume-card {
+		margin-bottom: 1rem;
+	}
+
+	.resume-hero,
+	.resume-copy,
+	.stack,
+	.stack-item,
+	.resume-card {
+		gap: 0.45rem;
+	}
+
+	.resume-copy h1 {
+		font-size: 2rem;
+	}
+
+	.section-head h2 {
+		font-size: 1.4rem;
+	}
+
+	.resume-card h3 {
+		font-size: 1.1rem;
+	}
+
+	.resume-card {
+		break-inside: auto;
+	}
+
+	.stack-item {
+		break-inside: avoid;
+	}
+
+	.resume-page :deep(p),
+	.resume-page :deep(ul) {
+		line-height: 1.4;
+	}
+
+	.resume-grid,
+	.resume-columns {
+		display: block;
+	}
+
+	.resume-page :deep(.compact-entry) {
+		padding: 0.65rem 0;
+		gap: 0.4rem;
+	}
+
+	.resume-page :deep(.entry-heading) {
+		gap: 0.2rem;
+	}
+
+	.resume-page :deep(.entry-heading h3) {
+		font-size: 1.1rem;
+		text-wrap: wrap;
 	}
 
 	.resume-actions {

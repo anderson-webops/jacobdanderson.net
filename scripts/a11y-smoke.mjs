@@ -318,6 +318,61 @@ async function checkReadingLayout(browser, route) {
 	}
 }
 
+async function checkKeyboard(browser, route) {
+	const page = await browser.newPage();
+	try {
+		await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle0" });
+		const count = await page.evaluate(() => [...document.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")]
+			.filter(element => element.tabIndex >= 0 && !element.disabled && element.getClientRects().length && getComputedStyle(element).visibility !== "hidden")
+			.length);
+		const reached = new Set();
+		for (let index = 0; index < count; index++) {
+			await page.keyboard.press("Tab");
+			const focus = await page.evaluate(() => {
+				const element = document.activeElement;
+				return {
+					index: [...document.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")].indexOf(element),
+					outline: getComputedStyle(element).outlineStyle,
+					label: element.getAttribute("aria-label") || element.textContent.trim()
+				};
+			});
+			assert.ok(focus.index >= 0, `${route} loses keyboard focus`);
+			assert.notEqual(focus.outline, "none", `${route} has no visible focus on ${focus.label}`);
+			reached.add(focus.index);
+		}
+		assert.equal(reached.size, count, `${route} has unreachable or repeated keyboard controls`);
+		console.log(`keyboard ok: ${route} (${count} controls)`);
+	}
+	finally {
+		await page.close();
+	}
+}
+
+async function checkResumePrint(browser) {
+	const page = await browser.newPage();
+	try {
+		await page.goto(`${baseUrl}/resume`, { waitUntil: "networkidle0" });
+		await page.emulateMediaType("print");
+		const printState = await page.evaluate(() => ({
+			hidden: [".site-header", ".footer", ".skip-link", ".resume-actions"]
+				.every(selector => getComputedStyle(document.querySelector(selector)).display === "none"),
+			role: document.querySelector(".current-role h3").textContent,
+			width: document.documentElement.scrollWidth,
+			viewport: document.documentElement.clientWidth
+		}));
+		assert.equal(printState.hidden, true, "Printed résumé includes navigation or action controls");
+		assert.equal(printState.role, "Patent Technical Specialist");
+		assert.ok(printState.width <= printState.viewport + 1, "Printed résumé overflows horizontally");
+		if (process.env.A11Y_PRINT_OUTPUT) {
+			await page.pdf({ path: process.env.A11Y_PRINT_OUTPUT, preferCSSPageSize: true, printBackground: true });
+		}
+		console.log("résumé print styles ok");
+	}
+	finally {
+		await page.close();
+	}
+}
+
 const apiServer = createMockApiServer();
 const frontendProcess = startFrontend();
 let browser;
@@ -331,6 +386,7 @@ try {
 		headless: "new",
 		args: ["--no-sandbox", "--disable-dev-shm-usage"]
 	});
+	await checkResumePrint(browser);
 
 	const failures = [];
 	for (const route of routes) {
@@ -343,6 +399,7 @@ try {
 			console.log(`a11y ok: ${result.url} [${scheme}]`);
 		}
 		await checkReadingLayout(browser, route);
+		await checkKeyboard(browser, route);
 	}
 
 	if (failures.length) {

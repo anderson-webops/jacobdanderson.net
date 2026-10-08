@@ -35,14 +35,16 @@ const githubProfile = computed(() => profile.value.profiles.find(item => item.la
 			</div>
 			<aside class="background-note section-panel" aria-labelledby="background-heading">
 				<h2 id="background-heading">Engineering background</h2>
-				<p>
-					My work spans circuit simulation, sensing hardware, device deployment, and software. I’m pursuing an
-					M.S. in Computer Engineering at Georgia Tech, with expected completion in May 2027.
-				</p>
-				<p>
-					Alongside MCC, I work on technical operations at AudioT. Earlier work includes university research,
-					an Epiroc capstone, and co-founding the Stride device concept.
-				</p>
+				<dl>
+					<div>
+						<dt>Graduate study</dt>
+						<dd>M.S. in Computer Engineering, Georgia Tech<br />Expected completion in May 2027</dd>
+					</div>
+					<div>
+						<dt>Concurrent work</dt>
+						<dd>Technical operations at AudioT</dd>
+					</div>
+				</dl>
 			</aside>
 		</section>
 
@@ -56,7 +58,6 @@ const githubProfile = computed(() => profile.value.profiles.find(item => item.la
 					<span class="feature-time">{{ project.timeframe }}</span>
 					<h3>{{ project.shortName }}</h3>
 					<p>{{ project.preview }}</p>
-					<p class="contribution">{{ project.results[1] }}</p>
 					<a
 						v-if="project.links[0]"
 						class="section-link"
@@ -158,11 +159,25 @@ const githubProfile = computed(() => profile.value.profiles.find(item => item.la
 	line-height: 1.2;
 }
 
-.background-note p,
+.background-note dd,
 .feature-card p,
 .instruction-section p {
 	color: var(--color-text-muted);
 	line-height: 1.72;
+}
+
+.background-note dl {
+	display: grid;
+	gap: 1rem;
+	margin: 0;
+}
+
+.background-note dt {
+	font-weight: 700;
+}
+
+.background-note dd {
+	margin: 0.25rem 0 0;
 }
 
 .featured-section {

@@ -2,6 +2,11 @@
 @import "./defaultStyles.css";
 @import "./markdown.css";
 
+@page {
+	size: letter;
+	margin: 0.65in;
+}
+
 :root {
 	color-scheme: light;
 	--color-background: #f1ebe1;
@@ -95,7 +100,7 @@ img {
 }
 
 main,
-.site-footer {
+.footer {
 	overflow-wrap: anywhere;
 }
 
@@ -270,7 +275,42 @@ p {
 	box-sizing: border-box;
 }
 
-@media (max-width: 768px) {
+@media print {
+	html,
+	body,
+	.site-shell {
+		background: white;
+	}
+
+	html,
+	body {
+		font-size: 11pt;
+	}
+
+	.site-header,
+	.footer,
+	.skip-link {
+		display: none;
+	}
+
+	.site-shell {
+		display: block;
+		min-height: 0;
+	}
+
+	.site-main {
+		width: 100%;
+		padding: 0;
+	}
+
+	h1,
+	h2,
+	h3 {
+		break-after: avoid;
+	}
+}
+
+@media screen and (max-width: 768px) {
 	.page-intro h1 {
 		font-size: 2.35rem;
 	}

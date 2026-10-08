@@ -45,9 +45,9 @@ export const otherProjects: OtherProject[] = [
 		timeframe: "2024 – 2025",
 		status: "Published",
 		statusTone: "published",
-		statusNote: "Co-author of the ISCAS 2025 paper.",
+		statusNote: "",
 		summary:
-			"Open-source tools for studying radiation effects on circuits. I contributed Xschem and Ngspice simulation workflows, documentation, and collaboration support.",
+			"I co-authored the ISCAS 2025 paper on OSCRE, an open-source framework for studying radiation effects on circuits, and contributed simulation workflows and documentation.",
 		tags: ["Circuit simulation", "Ngspice", "Research tooling"],
 		links: [
 			{ label: "Repository", href: "https://github.com/Jacoba1100254352/OSCRE" },
@@ -143,7 +143,7 @@ export const otherProjects: OtherProject[] = [
 		statusTone: "active",
 		statusNote: "Draft study material.",
 		summary:
-			"A course companion developed alongside Georgia Tech advanced computer architecture coursework, organizing technical explanations and study notes into a structured LaTeX document.",
+			"A study guide developed alongside Georgia Tech advanced computer architecture coursework, organizing technical explanations and course notes for review and reference.",
 		tags: ["Computer architecture", "LaTeX", "Technical writing"],
 		links: [{ label: "Repository", href: "https://github.com/Jacoba1100254352/ECE-6100-textbook" }],
 		defaultVisible: true
@@ -422,7 +422,7 @@ export const otherProjects: OtherProject[] = [
 		statusTone: "live",
 		statusNote: "",
 		summary:
-			"A public-history website presenting information about the Restoration, with a contact form and a lightweight publishing setup designed to keep the site reliable and maintainable.",
+			"A public-history website presenting information about the Restoration and providing a contact form for visitors.",
 		tags: ["Vue", "Public history", "Web operations"],
 		links: [
 			{ label: "Live site", href: "https://therestoration.jacobdanderson.net" },

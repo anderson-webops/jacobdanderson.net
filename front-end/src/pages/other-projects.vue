@@ -33,8 +33,7 @@ onMounted(() => void loadVisibility());
 				A less formal look at my research, software, teaching, and product work. Filter by category to explore.
 			</p>
 			<p class="status-context">
-				Status snapshots: August 2026. Labels describe development stage, availability, or maintenance, not
-				future release promises.
+				Status last reviewed: August 2026. Labels describe development stage, availability, or maintenance.
 			</p>
 		</header>
 
