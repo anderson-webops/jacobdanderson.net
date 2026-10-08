@@ -419,5 +419,8 @@ try {
 finally {
 	if (browser) await browser.close();
 	await stopChildProcess(frontendProcess);
+	// A detached development sidecar can retain these pipes after Vite exits.
+	frontendProcess.stdout?.destroy();
+	frontendProcess.stderr?.destroy();
 	await closeServer(apiServer);
 }
