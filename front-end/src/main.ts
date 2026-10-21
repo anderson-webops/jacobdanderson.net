@@ -17,7 +17,8 @@ export const createApp = ViteSSG(
 		base: import.meta.env.BASE_URL,
 		scrollBehavior(to, _from, savedPosition) {
 			if (savedPosition) return savedPosition;
-			if (to.hash) return { el: to.hash };
+			// Offset clears the sticky header.
+			if (to.hash) return { el: to.hash, top: 88 };
 
 			return { left: 0, top: 0 };
 		}
