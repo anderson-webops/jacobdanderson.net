@@ -8,25 +8,23 @@ const education = computed(() => store.userProfile.education);
 </script>
 
 <template>
-	<section class="education">
+	<section class="education" aria-labelledby="education-heading">
 		<div class="section-head">
-			<div>
-				<h2>Education</h2>
-			</div>
+			<h2 id="education-heading">Education</h2>
 		</div>
 
-		<div class="education-grid">
-			<article v-for="(item, index) in education" :key="index" class="education-card section-panel">
-				<div class="card-top">
-					<span class="timeframe">{{ item.timeframe }}</span>
+		<div class="education-list">
+			<article v-for="(item, index) in education" :key="index" class="education-card">
+				<p class="timeframe">{{ item.timeframe }}</p>
+				<div class="education-body">
+					<h3>{{ item.program }}</h3>
+					<p class="institution">{{ item.institution }}</p>
+					<ul v-if="!compact" class="bullet-list">
+						<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
+							{{ highlight }}
+						</li>
+					</ul>
 				</div>
-				<h3>{{ item.program }}</h3>
-				<p class="institution">{{ item.institution }}</p>
-				<ul v-if="!compact">
-					<li v-for="(highlight, highlightIndex) in item.highlights" :key="highlightIndex">
-						{{ highlight }}
-					</li>
-				</ul>
 			</article>
 		</div>
 	</section>
@@ -36,88 +34,51 @@ const education = computed(() => store.userProfile.education);
 .education {
 	display: flex;
 	flex-direction: column;
-	gap: 1.2rem;
 }
 
-.section-head h2 {
-	font-size: 2rem;
-	margin-top: 0.55rem;
-}
-
-.education-grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1.1rem;
+.education-list {
+	display: flex;
+	flex-direction: column;
 }
 
 .education-card {
-	padding: var(--panel-padding);
-	display: flex;
-	flex-direction: column;
-	gap: 0.95rem;
-}
-
-.card-top {
-	display: flex;
-	align-items: center;
-	gap: 0.45rem;
-}
-
-.card-label {
-	color: var(--color-highlight);
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
+	display: grid;
+	grid-template-columns: var(--date-column) minmax(0, 1fr);
+	gap: 0.35rem 2rem;
+	padding: 1.4rem 0;
+	border-bottom: 1px solid var(--color-border);
 }
 
 .timeframe {
-	color: var(--color-accent);
-	font-size: 0.92rem;
-	font-weight: 700;
+	padding-top: 0.15rem;
+	color: var(--color-text-subtle);
+	font-size: 0.875rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.education-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	min-width: 0;
 }
 
 .education-card h3 {
-	font-size: 1.38rem;
-	line-height: 1.2;
-}
-
-.institution,
-.education-card ul {
-	color: var(--color-text-muted);
-	line-height: 1.72;
+	font-size: 1.1rem;
+	line-height: 1.35;
 }
 
 .institution {
-	font-weight: 600;
+	color: var(--color-text-muted);
 }
 
-.education-card ul {
-	margin: 0;
-	padding-left: 1.1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.55rem;
-}
-
-@media (max-width: 860px) {
-	.education-grid {
-		grid-template-columns: 1fr;
-	}
+.education-card .bullet-list {
+	margin-top: 0.5rem;
 }
 
 @media (max-width: 640px) {
-	.section-head h2 {
-		font-size: 1.75rem;
-	}
-
 	.education-card {
-		padding: var(--panel-padding);
-	}
-
-	.card-top {
-		flex-direction: column;
-		align-items: flex-start;
+		grid-template-columns: 1fr;
 	}
 }
 </style>

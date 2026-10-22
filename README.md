@@ -27,6 +27,6 @@ npm run artifact:verify
 RUNTIME_ARTIFACT_MONGO_URI=mongodb://127.0.0.1:27017 npm run artifact:smoke
 ```
 
-Use Node `24.18.1` and npm `12.0.2`. The root lockfile governs the monorepo build. `back-end/package-lock.json` separately governs the exact standalone production install copied into the runtime artifact.
+Use Node `24.18.1` and npm `12.0.2`. The supported MongoDB server is `9.0.4`, the version CI runs the artifact acceptance against; the `mongodb` driver `7.6.0` supports MongoDB 4.4 through 9.0. The root lockfile governs the monorepo build. `back-end/package-lock.json` separately governs the exact standalone production install copied into the runtime artifact.
 
 The public site has no application account, session, role, promotion, or demotion system. Project administration is a narrow host-authenticated operation, not a general application login.
