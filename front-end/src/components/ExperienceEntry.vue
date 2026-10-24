@@ -15,6 +15,11 @@ const props = withDefaults(
 
 const place = computed(() => props.item.location || props.item.workFormat);
 const showSummary = computed(() => props.collapsible || props.reference || !props.item.highlights.length);
+// Saying how much is inside lets readers decide whether to open it.
+const highlightLabel = computed(() => {
+	const count = props.item.highlights.length;
+	return `Show ${count} ${count === 1 ? "highlight" : "highlights"}`;
+});
 </script>
 
 <template>
@@ -31,7 +36,8 @@ const showSummary = computed(() => props.collapsible || props.reference || !prop
 			<p v-if="showSummary" class="entry-summary">{{ item.summary }}</p>
 			<details v-if="collapsible && item.highlights.length" class="disclosure" :open="open">
 				<summary tabindex="0">
-					<span class="when-closed">Show highlights</span><span class="when-open">Hide highlights</span>
+					<span class="when-closed">{{ highlightLabel }}</span
+					><span class="when-open">Hide highlights</span>
 				</summary>
 				<ul class="bullet-list">
 					<li v-for="highlight in item.highlights" :key="highlight">{{ highlight }}</li>

@@ -322,8 +322,9 @@ async function checkKeyboard(browser, route) {
 	const page = await browser.newPage();
 	try {
 		await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle0" });
+		// checkVisibility() also excludes content inside closed <details>, which keeps layout boxes but is skipped by Tab.
 		const count = await page.evaluate(() => [...document.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")]
-			.filter(element => element.tabIndex >= 0 && !element.disabled && element.getClientRects().length && getComputedStyle(element).visibility !== "hidden")
+			.filter(element => element.tabIndex >= 0 && !element.disabled && element.checkVisibility() && getComputedStyle(element).visibility !== "hidden")
 			.length);
 		const reached = new Set();
 		for (let index = 0; index < count; index++) {

@@ -37,29 +37,40 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", openLinkedProject
 				<div class="project-body">
 					<h2>{{ project.shortName }}</h2>
 					<p class="description">{{ project.description }}</p>
-					<details class="disclosure">
-						<summary tabindex="0">
-							<span class="when-closed">Role & results</span><span class="when-open">Hide details</span>
-						</summary>
-						<div class="details-body">
-							<p class="role"><span class="label">Role</span> {{ project.role }}</p>
-							<ul class="bullet-list">
-								<li v-for="(result, resultIndex) in project.results" :key="resultIndex">
-									{{ result }}
-								</li>
-							</ul>
-						</div>
-					</details>
-					<div v-if="project.links.length" class="artifact-links">
+					<p class="key-result">{{ project.results[0] }}</p>
+					<div class="project-actions">
 						<a
-							v-for="link in project.links"
-							:key="link.href"
-							:href="link.href"
+							v-if="project.links[0]"
+							class="primary-link"
+							:href="project.links[0].href"
 							rel="noopener"
 							target="_blank"
 						>
-							{{ link.label }}
+							{{ project.links[0].label }}
 						</a>
+						<details class="disclosure">
+							<summary tabindex="0">
+								<span class="when-closed">Role & more results</span
+								><span class="when-open">Hide details</span>
+							</summary>
+							<div class="details-body">
+								<p class="role"><span class="label">Role</span> {{ project.role }}</p>
+								<ul v-if="project.results.length > 1" class="bullet-list">
+									<li v-for="result in project.results.slice(1)" :key="result">{{ result }}</li>
+								</ul>
+								<p v-if="project.links.length > 1" class="more-links">
+									<a
+										v-for="link in project.links.slice(1)"
+										:key="link.href"
+										:href="link.href"
+										rel="noopener"
+										target="_blank"
+									>
+										{{ link.label }}
+									</a>
+								</p>
+							</div>
+						</details>
 					</div>
 				</div>
 			</article>
@@ -142,28 +153,46 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", openLinkedProject
 	margin-right: 0.4rem;
 }
 
-.artifact-links {
+.key-result {
+	max-width: var(--text-measure);
+	padding-left: 0.9rem;
+	border-left: 2px solid var(--color-accent);
+	font-weight: 550;
+}
+
+/* One disclosure and at most one visible link keep each card to a single choice. */
+.project-actions {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.5rem;
+	align-items: flex-start;
+	gap: 0.75rem 1.5rem;
 }
 
-.artifact-links a {
-	display: inline-flex;
-	align-items: center;
-	min-height: 2.25rem;
-	padding: 0 0.85rem;
-	border: 1px solid var(--color-border-strong);
-	border-radius: 999px;
-	color: var(--color-text);
-	font-size: 0.875rem;
-	font-weight: 600;
-	text-decoration: none;
+.project-actions .disclosure {
+	flex: 0 1 auto;
+	min-width: 0;
 }
 
-.artifact-links a:hover {
-	border-color: var(--color-accent);
+.project-actions .disclosure[open] {
+	flex-basis: 100%;
+}
+
+.primary-link {
 	color: var(--color-accent);
+	font-size: 0.92rem;
+	font-weight: 650;
+}
+
+.more-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 1rem;
+}
+
+.more-links a {
+	color: var(--color-accent);
+	font-size: 0.92rem;
+	font-weight: 600;
 }
 
 .other-projects-callout {

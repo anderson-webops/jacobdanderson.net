@@ -9,8 +9,6 @@ const store = useMainStore();
 const profile = computed(() => store.userProfile);
 const featuredProjects = computed(() => store.featuredProjects);
 const currentRole = computed(() => profile.value.experience.find(item => item.category === "patent")!);
-const linkedinProfile = computed(() => profile.value.profiles.find(item => item.label === "LinkedIn")!);
-const githubProfile = computed(() => profile.value.profiles.find(item => item.label === "GitHub")!);
 </script>
 
 <template>
@@ -28,10 +26,6 @@ const githubProfile = computed(() => profile.value.profiles.find(item => item.la
 					<RouterLink class="button-primary" to="/resume">View résumé</RouterLink>
 					<RouterLink class="button-secondary" to="/experience">Experience</RouterLink>
 				</div>
-				<p class="profile-links">
-					<a :href="linkedinProfile.href" rel="noopener" target="_blank">LinkedIn</a>
-					<a :href="githubProfile.href" rel="noopener" target="_blank">GitHub</a>
-				</p>
 			</div>
 			<img
 				class="hero-portrait"
@@ -156,18 +150,6 @@ const githubProfile = computed(() => profile.value.profiles.find(item => item.la
 
 .hero-copy .button-row {
 	margin-top: 0.5rem;
-}
-
-.profile-links {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem 1.25rem;
-	font-size: 0.95rem;
-}
-
-.profile-links a {
-	color: var(--color-text-muted);
-	font-weight: 600;
 }
 
 .hero-portrait {

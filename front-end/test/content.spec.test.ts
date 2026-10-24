@@ -68,6 +68,30 @@ describe("focused public content", () => {
 		wrapper.unmount();
 	});
 
+	it("keeps each project's key result visible with at most one open action besides details", () => {
+		const wrapper = mount(Projects, { global });
+		for (const card of wrapper.findAll(".project-card")) {
+			expect(card.find(".key-result").exists()).toBe(true);
+			expect(card.find("details .key-result").exists()).toBe(false);
+			expect(card.findAll(".project-actions > a").length).toBeLessThanOrEqual(1);
+		}
+		expect(wrapper.get("#oscre-circuit-simulation details").text()).toContain("DOI record");
+		wrapper.unmount();
+	});
+
+	it("limits the Home hero to one primary and one secondary action", () => {
+		const wrapper = mount(Home, { global });
+		expect(wrapper.findAll(".hero a")).toHaveLength(2);
+		expect(wrapper.findAll(".hero .button-primary")).toHaveLength(1);
+		wrapper.unmount();
+	});
+
+	it("tells readers how many highlights a collapsed role holds", () => {
+		const wrapper = mount(Experience, { global });
+		expect(wrapper.get(".current-entry summary .when-closed").text()).toBe("Show 2 highlights");
+		wrapper.unmount();
+	});
+
 	it("keeps elementary language proficiency separate from working proficiency", () => {
 		const wrapper = mount(Resume, { global });
 		expect(wrapper.get(".working-languages").text()).toContain("Spanish (professional working)");
