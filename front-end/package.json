@@ -27,13 +27,13 @@
 		"lint-fix": "eslint \"src/**/*.{js,ts,vue}\" --fix"
 	},
 	"dependencies": {
-		"@unhead/vue": "^2.1.17",
-		"@unocss/reset": "^66.10.5",
-		"pinia": "^4.0.3",
+		"@unhead/vue": "^3.4.3",
+		"@unocss/reset": "^66.11.0",
+		"pinia": "^4.1.0",
 		"vite-plugin-pages": "^0.33.3",
-		"vite-plugin-vue-layouts-next": "^3.1.0",
-		"vue": "^3.5.43",
-		"vue-router": "^5.3.1"
+		"vite-plugin-vue-layouts-next": "^3.3.1",
+		"vue": "^3.5.44",
+		"vue-router": "^5.4.0"
 	},
 	"devDependencies": {
 		"@types/node": "^24.13.6",
