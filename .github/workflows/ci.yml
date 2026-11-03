@@ -80,6 +80,8 @@ jobs:
           npm audit --workspaces=false
           npm audit --workspaces=false --omit=dev
           npm audit --workspaces=false signatures
+          cd ..
+          npm ls --all --parseable > /dev/null
 
   accessibility:
     runs-on: ubuntu-latest

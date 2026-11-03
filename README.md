@@ -70,3 +70,10 @@ optional service worker, container deployment and external starter branding are
 not application features. Pinia state is serialized or hydrated from the explicit
 SSG request context, with independent-request regression coverage. Generated
 routes use Vue Router 5; the superseded pages plugin is no longer installed.
+
+The dependency graph also verifies JS-YAML 5 through the actual lint consumer,
+KaTeX 0.19 through the Markdown math extension, and the formatter's updated worker
+pool with a single-thread CLI fixture. Unused legacy overrides are retired rather
+than installing unused packages. Linux binding declarations match actual resolved
+native consumers; stale or unconsumed declarations fail validation. CI verifies
+that the combined workspace graph stays valid after standalone backend checks.

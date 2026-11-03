@@ -21,8 +21,7 @@
 		"fsevents@2.3.3": true,
 		"mongodb": false,
 		"puppeteer@25.16.0": true,
-		"simple-git-hooks@2.14.0": true,
-		"unrs-resolver@1.12.2": true
+		"simple-git-hooks@2.14.0": true
 	},
 	"scripts": {
 		"artifact:archive-smoke": "node scripts/runtime-archive-smoke.mjs",
@@ -36,7 +35,7 @@
 		"server:once": "npm run -w back-end server:once",
 		"serve": "npm run -w front-end serve",
 		"test": "npm run -w front-end test:unit -- --run && npm run -w back-end test && npm run test:static",
-		"test:static": "node --test scripts/static-script-policy.test.mjs scripts/layouts-brace-expansion.test.mjs scripts/tracker-integrity.test.mjs scripts/verify-upstream.test.mjs",
+		"test:static": "node --test scripts/static-script-policy.test.mjs scripts/layouts-brace-expansion.test.mjs scripts/tracker-integrity.test.mjs scripts/verify-upstream.test.mjs scripts/verify-native-lock.test.mjs scripts/transitive-compatibility.test.mjs",
 		"verify:static": "node scripts/check-static-output.mjs",
 		"verify:tracker": "node scripts/tracker-integrity.mjs",
 		"verify:upstream": "node scripts/verify-upstream.mjs",
@@ -92,32 +91,10 @@
 		"{eslint.config.js,scripts/*.{js,mjs,ts}}": "eslint --fix"
 	},
 	"overrides": {
-		"defu": "6.1.6",
-		"picomatch@^4": "4.0.4",
-		"anymatch@3.1.3": {
-			"picomatch": "2.3.2"
-		},
-		"micromatch@4.0.8": {
-			"picomatch": "2.3.2"
-		},
-		"readdirp@3.6.0": {
-			"picomatch": "2.3.2"
-		},
-		"vite": "^8.3.0",
-		"vue-router": "^5.3.1",
-		"follow-redirects": "1.16.0",
 		"brace-expansion": "5.0.12",
 		"glob": "14.0.3",
-		"katex": "0.18.2",
+		"katex": "0.19.1",
 		"minimatch": "11.0.4",
-		"tinypool": "2.1.2",
-		"fast-uri": "3.1.6",
-		"js-yaml": "4.3.2",
-		"postcss": "8.5.26",
-		"shell-quote": "1.10.0",
-		"svgo": "4.1.0",
-		"tar": "7.5.22",
-		"valibot": "1.4.2",
-		"js-beautify": "2.0.3"
+		"tinypool": "2.2.0"
 	}
 }
