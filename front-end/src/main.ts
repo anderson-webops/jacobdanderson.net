@@ -4,6 +4,7 @@ import { ViteSSG } from "vite-ssg";
 
 import { routes } from "vue-router/auto-routes";
 import App from "./App.vue";
+import { installSsgHeadBridge } from "./utils/ssgHead";
 // Assuming you have styles defined in these files
 import "@unocss/reset/tailwind.css";
 import "./styles/main.css";
@@ -24,10 +25,12 @@ export const createApp = ViteSSG(
 		}
 	},
 	ctx => {
+		installSsgHeadBridge(ctx);
 		Object.values(
 			import.meta.glob<{
 				install: UserModule;
 			}>("./modules/*.ts", { eager: true })
 		).forEach(i => i.install?.(ctx));
-	}
+	},
+	{ useHead: false }
 );

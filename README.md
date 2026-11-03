@@ -32,4 +32,11 @@ Use Node `26.13.0` and npm `12.2.1`. The supported MongoDB server is `9.0.4`, th
 
 The locked install verifies and patches the exact `vite-plugin-vue-layouts-next` 3.3.1 import for audited `brace-expansion` 5.0.12. Unexpected upstream bytes stop the install for review.
 
+The frontend installs Unhead 3 independently of ViteSSG's legacy head renderer.
+Each server route gets a fresh head; `onPageRendered` serializes its metadata
+through Unhead's document transformer. ViteSSG's `useHead` stays disabled, so its
+internal Unhead 2 never receives an incompatible instance. Regression tests cover
+metadata deduplication, route isolation, preserved document content and reactive
+browser updates.
+
 The public site has no application account, session, role, promotion, or demotion system. Project administration is a narrow host-authenticated operation, not a general application login.
