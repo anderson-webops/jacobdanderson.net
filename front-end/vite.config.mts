@@ -13,6 +13,7 @@ import Layouts from "vite-plugin-vue-layouts-next";
 import generateSitemap from "vite-ssg-sitemap";
 import { VueRouterAutoImports } from "vue-router/unplugin";
 import VueRouter from "vue-router/vite";
+import { renderSsgDocumentHead } from "./src/utils/ssgHead.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -92,6 +93,9 @@ export default defineConfig(({ command }) => ({
 		formatting: "minify",
 		beastiesOptions: {
 			reduceInlineStyles: false
+		},
+		onPageRendered(_route, html, context) {
+			return renderSsgDocumentHead(html, context);
 		},
 		onFinished() {
 			generateSitemap({
