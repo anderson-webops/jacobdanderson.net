@@ -135,6 +135,7 @@ await Promise.all([
 const backendPackage = JSON.parse(await readFile(path.join(root, "back-end/package.json"), "utf8"));
 backendPackage.allowScripts = {
 	"esbuild@0.28.2": false,
+	"fsevents@2.3.3": false,
 	"mongodb": false
 };
 await writeFile(

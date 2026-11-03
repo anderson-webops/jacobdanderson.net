@@ -30,8 +30,8 @@ if [[ -n "$(git -C "$candidate" status --porcelain)" ]]; then
 	echo "Candidate checkout must be clean before release artifact preparation." >&2
 	exit 1
 fi
-if [[ "$(node --version)" != "v24.18.1" || "$(npm --version)" != "12.0.2" ]]; then
-	echo "Preparation requires Node 24.18.1 and npm 12.0.2." >&2
+if [[ "$(node --version)" != "v26.13.0" || "$(npm --version)" != "12.2.1" ]]; then
+	echo "Preparation requires Node 26.13.0 and npm 12.2.1." >&2
 	exit 1
 fi
 if [[ -z "${RUNTIME_ARTIFACT_MONGO_URI:-}" ]]; then

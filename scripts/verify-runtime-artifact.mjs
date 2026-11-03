@@ -76,8 +76,11 @@ const expectedCommit = process.env.RUNTIME_ARTIFACT_EXPECT_COMMIT;
 if (expectedCommit && !manifest.source.commit.startsWith(expectedCommit)) {
 	throw new Error(`Runtime artifact source ${manifest.source.commit} does not match ${expectedCommit}.`);
 }
-if (manifest.toolchain?.node !== "v24.18.1" || manifest.toolchain?.npm !== "12.0.2") {
-	throw new Error("Runtime artifact was not built with the pinned Node 24.18.1 and npm 12.0.2 toolchain.");
+const currentToolchain = manifest.toolchain?.node === "v26.13.0" && manifest.toolchain?.npm === "12.2.1";
+const retainedToolchain = process.env.RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24 === "true"
+	&& manifest.toolchain?.node === "v24.18.1" && manifest.toolchain?.npm === "12.0.2";
+if (!currentToolchain && !retainedToolchain) {
+	throw new Error("Runtime artifact toolchain is neither the pinned Node 26.13.0/npm 12.2.1 release nor an explicitly permitted retained Node 24.18.1/npm 12.0.2 rollback.");
 }
 if (JSON.stringify(manifest.requiredPaths) !== JSON.stringify(independentRequiredPaths)) {
 	throw new Error("Runtime artifact required-path contract does not match the independent verifier.");
@@ -126,6 +129,7 @@ if (JSON.stringify(dependencies) !== JSON.stringify(manifest.productionDependenc
 }
 if (
 	backendPackage.allowScripts?.["esbuild@0.28.2"] !== false
+	|| (currentToolchain && backendPackage.allowScripts?.["fsevents@2.3.3"] !== false)
 	|| backendPackage.allowScripts?.mongodb !== false
 	|| backendLock.packages?.[""]?.name !== backendPackage.name
 ) {

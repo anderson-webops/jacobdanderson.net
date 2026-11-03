@@ -45,7 +45,7 @@ Treat this as a standing instruction for this site.
 
 ## Toolchain and dependency rules
 
-- Use Node `24.18.1` and npm `12.0.2`.
+- Use Node `26.13.0` and npm `12.2.1` for the current source and release; the one-time v2.11.0 legacy-capture helper retains its historical Node 24 check.
 - The root `package-lock.json` is authoritative for development and builds. `back-end/package-lock.json` is authoritative for the standalone production dependency tree.
 - Keep optional Linux ARM64/x64 glibc and musl bindings aligned with the exact resolved esbuild, OXC parser/formatter, Rolldown, Rollup, Unrs, and Lightning CSS versions.
 - Before dependency delivery, run a clean locked install, full and production audits, registry signatures, native/platform checks, lint, types, tests, accessibility, build, and runtime artifact acceptance.

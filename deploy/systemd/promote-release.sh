@@ -94,8 +94,8 @@ if [[ ! -f "$installed_legacy_verifier" || -L "$installed_legacy_verifier" || "$
 	echo "The root-installed legacy verifier must be a root:root mode 0644 regular file." >&2
 	exit 1
 fi
-if [[ ! -x /usr/bin/node || "$(/usr/bin/node --version)" != "v24.18.1" ]]; then
-	echo "Promotion requires Node 24.18.1 at /usr/bin/node." >&2
+if [[ ! -x /usr/bin/node || "$(/usr/bin/node --version)" != "v26.13.0" ]]; then
+	echo "Promotion requires Node 26.13.0 at /usr/bin/node." >&2
 	exit 1
 fi
 
@@ -188,13 +188,13 @@ verify_legacy_tree() {
 	/usr/bin/node "$installed_legacy_verifier" verify "$tree" "$expected_current" >/dev/null
 }
 
-RUNTIME_ARTIFACT_EXPECT_COMMIT="$expected_commit" RUNTIME_ARTIFACT_REQUIRE_CLEAN=true \
+RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24=false RUNTIME_ARTIFACT_EXPECT_COMMIT="$expected_commit" RUNTIME_ARTIFACT_REQUIRE_CLEAN=true \
 	/usr/bin/node "$installed_verifier" "$staging"
 assert_trusted_tree "$staging" "Extracted runtime artifact"
 
 if [[ -e "$candidate" ]]; then
 	assert_trusted_tree "$candidate" "Existing release"
-	RUNTIME_ARTIFACT_EXPECT_COMMIT="$expected_commit" RUNTIME_ARTIFACT_REQUIRE_CLEAN=true \
+	RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24=false RUNTIME_ARTIFACT_EXPECT_COMMIT="$expected_commit" RUNTIME_ARTIFACT_REQUIRE_CLEAN=true \
 		/usr/bin/node "$installed_verifier" "$candidate"
 	if ! cmp -s -- "$staging/.runtime-manifest.json" "$candidate/.runtime-manifest.json"; then
 		echo "Existing release for this commit has different immutable contents." >&2
@@ -227,7 +227,7 @@ case "$previous_target/" in
 					exit 1
 				fi
 				assert_trusted_tree "$previous_target" "Current rollback target"
-				RUNTIME_ARTIFACT_EXPECT_COMMIT="$expected_current" RUNTIME_ARTIFACT_REQUIRE_CLEAN=true \
+				RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24=true RUNTIME_ARTIFACT_EXPECT_COMMIT="$expected_current" RUNTIME_ARTIFACT_REQUIRE_CLEAN=true \
 					/usr/bin/node "$installed_verifier" "$previous_target"
 			else
 				if [[ -z "$sealed_legacy_argument" ]]; then

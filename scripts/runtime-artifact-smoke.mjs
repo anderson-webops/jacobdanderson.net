@@ -150,9 +150,11 @@ try {
 	const manifest = JSON.parse(await readFile(path.join(artifactRoot, ".runtime-manifest.json"), "utf8"));
 	const expectedCommit = process.env.RUNTIME_ARTIFACT_EXPECT_COMMIT || manifest.source.commit;
 	const requireClean = process.env.RUNTIME_ARTIFACT_REQUIRE_CLEAN || "false";
+	const allowRetainedNode24 = process.env.RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24 === "true" ? "true" : "false";
 	const verification = runSync(process.execPath, [verifier, artifactRoot], {
 		cwd: acceptanceRoot,
 		env: cleanEnvironment({
+			RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24: allowRetainedNode24,
 			RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit,
 			RUNTIME_ARTIFACT_REQUIRE_CLEAN: requireClean
 		})
@@ -336,7 +338,10 @@ try {
 	await mkdir(unexpectedDirectory);
 	const unmanifestedDirectory = runSync(process.execPath, [verifier, artifactRoot], {
 		cwd: acceptanceRoot,
-		env: cleanEnvironment({ RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit })
+		env: cleanEnvironment({
+			RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24: allowRetainedNode24,
+			RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit
+		})
 	});
 	assert.notEqual(unmanifestedDirectory.status, 0);
 	assert.match(unmanifestedDirectory.output, /directory inventory mismatch/iu);
@@ -345,7 +350,10 @@ try {
 	await rm(path.join(artifactRoot, "back-end/dist/projectCatalog.js"));
 	const missingModule = runSync(process.execPath, [verifier, artifactRoot], {
 		cwd: acceptanceRoot,
-		env: cleanEnvironment({ RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit })
+		env: cleanEnvironment({
+			RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24: allowRetainedNode24,
+			RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit
+		})
 	});
 	assert.notEqual(missingModule.status, 0);
 	assert.match(missingModule.output, /inventory or hash mismatch.*projectCatalog\.js/iu);

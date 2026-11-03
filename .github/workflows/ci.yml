@@ -16,8 +16,8 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NODE_VERSION: 24.18.1
-  NPM_VERSION: 12.0.2
+  NODE_VERSION: 26.13.0
+  NPM_VERSION: 12.2.1
   PUPPETEER_SKIP_DOWNLOAD: true
 
 jobs:
@@ -183,6 +183,23 @@ jobs:
           npm audit --prefix .runtime-artifact/back-end --omit=dev
           npm run artifact:pack
           npm run artifact:archive-smoke
+      - name: Rehearse retained Node 24 artifact under Node 26
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNTIME_ARTIFACT_MONGO_URI: mongodb://127.0.0.1:27017
+          RUNTIME_ARTIFACT_REQUIRE_MONGO: true
+        run: |
+          prior_root="$RUNNER_TEMP/portfolio-v2.14.0-retained"
+          mkdir -p "$prior_root/extracted"
+          gh release download v2.14.0 -R "$GITHUB_REPOSITORY" -D "$prior_root" -p jacobdanderson.net-runtime.tar.gz
+          printf '%s  %s\n' 'e25c739132c2e2b5ada2f4d0a4cb988cad7862d99428e71fc17b99aa0bca1929' "$prior_root/jacobdanderson.net-runtime.tar.gz" | sha256sum --check
+          python3 -B deploy/systemd/extract-runtime-artifact.py "$prior_root/jacobdanderson.net-runtime.tar.gz" "$prior_root/extracted"
+          if RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24=false RUNTIME_ARTIFACT_EXPECT_COMMIT=c30a8664619fe000567a425be161e76db9f15353 RUNTIME_ARTIFACT_REQUIRE_CLEAN=true node scripts/verify-runtime-artifact.mjs "$prior_root/extracted" >/dev/null 2>&1; then
+            echo 'Retained Node 24 artifact was accepted as a new candidate.' >&2
+            exit 1
+          fi
+          RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24=true RUNTIME_ARTIFACT_EXPECT_COMMIT=c30a8664619fe000567a425be161e76db9f15353 RUNTIME_ARTIFACT_REQUIRE_CLEAN=true node scripts/verify-runtime-artifact.mjs "$prior_root/extracted"
+          RUNTIME_ARTIFACT_ROOT="$prior_root/extracted" RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24=true RUNTIME_ARTIFACT_EXPECT_COMMIT=c30a8664619fe000567a425be161e76db9f15353 RUNTIME_ARTIFACT_REQUIRE_CLEAN=true npm run artifact:smoke
       - name: Upload reviewed runtime archive
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

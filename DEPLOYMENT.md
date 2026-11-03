@@ -4,10 +4,19 @@ The public site is a Vite SSG bundle served by host Nginx. The optional Express 
 
 ## Pinned toolchain and artifact
 
-- Node `24.18.1`
-- npm `12.0.2`
+- Node `26.13.0`
+- npm `12.2.1`
 - source/build lock: `package-lock.json`
 - standalone backend runtime lock: `back-end/package-lock.json`
+
+The Node 26 transition retains the exact v2.14.0 Node 24 artifact at commit
+`c30a8664619fe000567a425be161e76db9f15353` (archive SHA-256
+`e25c739132c2e2b5ada2f4d0a4cb988cad7862d99428e71fc17b99aa0bca1929`).
+CI verifies its unchanged bytes and replays its runtime checks under Node 26.
+The installed promoter accepts a Node 24 manifest only when verifying the
+caller-identified retained rollback target, never as a new candidate. The
+protected operator still confirms the actual serving commit, Node 26 host
+readiness, and a recoverable prior-runtime/data path before activation.
 
 `npm run artifact:build` creates `.runtime-artifact/` containing only:
 
