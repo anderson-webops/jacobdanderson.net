@@ -20,7 +20,7 @@
 		"esbuild@0.28.2": true,
 		"fsevents@2.3.3": true,
 		"mongodb": false,
-		"puppeteer@25.11.0": true,
+		"puppeteer@25.16.0": true,
 		"simple-git-hooks@2.14.0": true,
 		"unrs-resolver@1.12.2": true
 	},
@@ -36,7 +36,7 @@
 		"server:once": "npm run -w back-end server:once",
 		"serve": "npm run -w front-end serve",
 		"test": "npm run -w front-end test:unit -- --run && npm run -w back-end test && npm run test:static",
-		"test:static": "node --test scripts/static-script-policy.test.mjs",
+		"test:static": "node --test scripts/static-script-policy.test.mjs scripts/layouts-brace-expansion.test.mjs",
 		"verify:static": "node scripts/check-static-output.mjs",
 		"verify:native-lock": "node scripts/verify-native-lock.mjs",
 		"verify:platform-install": "node scripts/verify-platform-install.mjs",
@@ -46,7 +46,7 @@
 		"smoke:promotion": "node scripts/promotion-contract-smoke.mjs",
 		"smoke:legacy-hardening": "node scripts/legacy-hardening-race-smoke.mjs",
 		"smoke:live": "node scripts/live-site-smoke.mjs",
-		"postinstall": "simple-git-hooks",
+		"postinstall": "node scripts/patch-layouts-brace-expansion.mjs && simple-git-hooks",
 		"lint-server": "npm run -w back-end lint-fix && npm run -w back-end server",
 		"lint-serve": "npm run -w front-end lint-fix && npm run -w front-end serve",
 		"lint": "npm run lint:root && npm run -w front-end lint && npm run -w back-end lint",
@@ -58,10 +58,10 @@
 		"a11y": "node scripts/a11y-smoke.mjs"
 	},
 	"dependencies": {
-		"parse5": "8.0.1"
+		"parse5": "8.1.0"
 	},
 	"devDependencies": {
-		"@antfu/eslint-config": "^9.5.1",
+		"@antfu/eslint-config": "^10.0.0",
 		"@typescript-eslint/eslint-plugin": "^8.70.1",
 		"@typescript-eslint/parser": "^8.70.1",
 		"@unocss/eslint-plugin": "^66.10.5",
@@ -104,6 +104,10 @@
 		"vue-router": "^5.3.1",
 		"follow-redirects": "1.16.0",
 		"brace-expansion": "5.0.12",
+		"glob": "14.0.3",
+		"katex": "0.18.2",
+		"minimatch": "11.0.4",
+		"tinypool": "2.1.2",
 		"fast-uri": "3.1.6",
 		"js-yaml": "4.3.2",
 		"postcss": "8.5.26",

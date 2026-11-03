@@ -20,6 +20,7 @@ export default antfu(
 		rules: {
 			"no-console": "off",
 			"antfu/if-newline": "off",
+			"antfu/reasonable-newline": "off",
 			"style/comma-dangle": "off",
 			"test/no-import-node-test": "off"
 		}
