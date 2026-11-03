@@ -4,6 +4,8 @@ import { ViteSSG } from "vite-ssg";
 
 import { routes } from "vue-router/auto-routes";
 import App from "./App.vue";
+import { installAnalyticsPrivacy } from "./config/analytics";
+import { installAnalyticsPageviews } from "./utils/analytics";
 import { installSsgHeadBridge } from "./utils/ssgHead";
 // Assuming you have styles defined in these files
 import "@unocss/reset/tailwind.css";
@@ -25,6 +27,10 @@ export const createApp = ViteSSG(
 		}
 	},
 	ctx => {
+		if (ctx.isClient) {
+			installAnalyticsPrivacy(window);
+			ctx.app.onUnmount(installAnalyticsPageviews(ctx.router, window));
+		}
 		installSsgHeadBridge(ctx);
 		Object.values(
 			import.meta.glob<{

@@ -73,6 +73,13 @@ jobs:
       - run: npm audit --omit=dev
       - run: npm audit signatures
       - run: npm run verify:native-lock
+      - name: Audit standalone backend dependency graph
+        run: |
+          cd back-end
+          npm ci --workspaces=false --include=optional --strict-allow-scripts
+          npm audit --workspaces=false
+          npm audit --workspaces=false --omit=dev
+          npm audit --workspaces=false signatures
 
   accessibility:
     runs-on: ubuntu-latest
@@ -101,6 +108,7 @@ jobs:
         env:
           SOURCE_COMMIT: ${{ github.sha }}
         run: npm run build
+      - run: npm run smoke:hydrated-head
       - name: Validate production-only runtime
         run: |
           npm ci --omit=dev --include=optional --ignore-scripts

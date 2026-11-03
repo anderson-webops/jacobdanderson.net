@@ -13,9 +13,11 @@ import Layouts from "vite-plugin-vue-layouts-next";
 import generateSitemap from "vite-ssg-sitemap";
 import { VueRouterAutoImports } from "vue-router/unplugin";
 import VueRouter from "vue-router/vite";
+import { createCriticalCssRenderer } from "./scripts/critical-css.mts";
 import { renderSsgDocumentHead } from "./src/utils/ssgHead.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const renderCriticalCss = createCriticalCssRenderer(path.join(__dirname, "dist"));
 
 export default defineConfig(({ command }) => ({
 	resolve: {
@@ -91,11 +93,9 @@ export default defineConfig(({ command }) => ({
 		dirStyle: "nested",
 		script: "async",
 		formatting: "minify",
-		beastiesOptions: {
-			reduceInlineStyles: false
-		},
+		beastiesOptions: false,
 		onPageRendered(_route, html, context) {
-			return renderSsgDocumentHead(html, context);
+			return renderCriticalCss(renderSsgDocumentHead(html, context));
 		},
 		onFinished() {
 			generateSitemap({

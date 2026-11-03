@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { TRACKER_FILTER, TRACKER_INTEGRITY, TRACKER_KEY } from "../front-end/src/config/analytics.ts";
 import { externalScriptsMatchPolicy } from "./static-script-policy.mjs";
 
-const integrity = `sha384-${"a".repeat(64)}`;
-const analytics = `<script src="https://analytics.jacobdanderson.net/script.js" integrity="${integrity}" crossorigin="anonymous"></script>`;
+const integrity = TRACKER_INTEGRITY;
+const analytics = `<script src="https://analytics.jacobdanderson.net/script.js" integrity="${integrity}" crossorigin="anonymous" data-hid="${TRACKER_KEY}" data-before-send="${TRACKER_FILTER}" data-auto-track="false"></script>`;
 const local = "<script type=\"module\" src=\"/assets/app.js\"></script>";
 
 test("allows the single integrity-pinned tracker on public pages and no external script on admin", () => {
@@ -28,4 +29,7 @@ test("rejects missing integrity, unapproved tracker origins, and duplicate track
 	assert.equal(externalScriptsMatchPolicy(local + analytics.replace(/ integrity="[^"]+"/u, ""), false), false);
 	assert.equal(externalScriptsMatchPolicy(local + analytics.replace("analytics.jacobdanderson.net", "evil.example"), false), false);
 	assert.equal(externalScriptsMatchPolicy(local + analytics + analytics, false), false);
+	assert.equal(externalScriptsMatchPolicy(local + analytics.replace(integrity, `sha384-${"a".repeat(64)}`), false), false);
+	assert.equal(externalScriptsMatchPolicy(local + analytics.replace("data-auto-track=\"false\"", "data-auto-track=\"true\""), false), false);
+	assert.equal(externalScriptsMatchPolicy(local + analytics.replace(` data-before-send="${TRACKER_FILTER}"`, ""), false), false);
 });
