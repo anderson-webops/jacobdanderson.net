@@ -150,6 +150,7 @@ try {
 	await mkdir(path.join(staticRoot, "admin"), { recursive: true });
 	await mkdir(path.join(acmeRoot, ".well-known", "acme-challenge"), { recursive: true });
 	await writeFile(path.join(staticRoot, "index.html"), "ok\n");
+	await writeFile(path.join(staticRoot, "deployment.json"), "{\"commit\":\"synthetic\",\"ref\":\"v2.14.2\"}\n");
 	await writeFile(path.join(staticRoot, "admin", "index.html"), "admin\n");
 	await writeFile(path.join(acmeRoot, ".well-known", "acme-challenge", "contract-token"), "challenge-ok\n");
 	await writeFile(passwordFile, "jacob:{PLAIN}test-password\n");
@@ -226,6 +227,16 @@ http {
 	const redirect = await httpRequest(httpPort, "/projects?from=http");
 	assert.equal(redirect.status, 301);
 	assert.equal(redirect.headers.location, "https://jacobdanderson.net/projects?from=http");
+
+	const canonicalRelease = await request(httpsPort, "/deployment.json");
+	assert.equal(canonicalRelease.status, 200);
+	assert.deepEqual(JSON.parse(canonicalRelease.body), { commit: "synthetic", ref: "v2.14.2" });
+	const releaseAlias = await request(httpsPort, "/release.json");
+	assert.equal(releaseAlias.status, 307);
+	assert.equal(releaseAlias.headers.location, "/deployment.json");
+	assert.equal(releaseAlias.headers["cache-control"], "no-store");
+	assert.equal((await request(httpsPort, "/release.json", { method: "HEAD" })).status, 307);
+	assert.equal((await request(httpsPort, "/release.json", { method: "POST" })).status, 405);
 
 	for (const pathname of ["/healthz", "/readyz", "/api/healthz", "/api/readyz"]) {
 		const response = await request(httpsPort, pathname, {
