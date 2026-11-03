@@ -233,7 +233,9 @@ http {
 	assert.deepEqual(JSON.parse(canonicalRelease.body), { commit: "synthetic", ref: "v2.14.2" });
 	const releaseAlias = await request(httpsPort, "/release.json");
 	assert.equal(releaseAlias.status, 307);
-	assert.equal(releaseAlias.headers.location, "/deployment.json");
+	const releaseDestination = new URL(releaseAlias.headers.location, `https://jacobdanderson.net:${httpsPort}`);
+	assert.equal(releaseDestination.origin, `https://jacobdanderson.net:${httpsPort}`);
+	assert.equal(releaseDestination.pathname, "/deployment.json");
 	assert.equal(releaseAlias.headers["cache-control"], "no-store");
 	assert.equal((await request(httpsPort, "/release.json", { method: "HEAD" })).status, 307);
 	assert.equal((await request(httpsPort, "/release.json", { method: "POST" })).status, 405);
