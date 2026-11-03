@@ -93,6 +93,7 @@ The edge contract:
 - delays Basic-auth failures
 - injects `$remote_user` and `$request_id` only for authorized mutations
 - serves static files from `/srv/jacobdanderson.net/current/front-end/dist`
+- redirects `/release.json` to the canonical no-store `/deployment.json` identity across promotion and rollback
 
 Validate the complete effective graph before reload:
 
