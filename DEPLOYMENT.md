@@ -4,10 +4,19 @@ The public site is a Vite SSG bundle served by host Nginx. The optional Express 
 
 ## Pinned toolchain and artifact
 
-- Node `24.18.1`
-- npm `12.0.2`
+- Node `26.13.0`
+- npm `12.2.1`
 - source/build lock: `package-lock.json`
 - standalone backend runtime lock: `back-end/package-lock.json`
+
+The Node 26 transition retains the exact v2.14.0 Node 24 artifact at commit
+`c30a8664619fe000567a425be161e76db9f15353` (archive SHA-256
+`e25c739132c2e2b5ada2f4d0a4cb988cad7862d99428e71fc17b99aa0bca1929`).
+CI verifies its unchanged bytes and replays its runtime checks under Node 26.
+The installed promoter accepts a Node 24 manifest only when verifying the
+caller-identified retained rollback target, never as a new candidate. The
+protected operator still confirms the actual serving commit, Node 26 host
+readiness, and a recoverable prior-runtime/data path before activation.
 
 `npm run artifact:build` creates `.runtime-artifact/` containing only:
 
@@ -84,6 +93,7 @@ The edge contract:
 - delays Basic-auth failures
 - injects `$remote_user` and `$request_id` only for authorized mutations
 - serves static files from `/srv/jacobdanderson.net/current/front-end/dist`
+- redirects `/release.json` to the canonical no-store `/deployment.json` identity across promotion and rollback
 
 Validate the complete effective graph before reload:
 
@@ -124,4 +134,4 @@ The helper holds the exclusive deployment lock for the complete transaction. It 
 
 Rollback is allowed only to a previously verified, root-owned, non-writable artifact release or the exact separately sealed v2.11.0 rollback tree. The promoter refuses a caller-supplied current identity mismatch, an unsealed checkout, a different legacy version, or a legacy capture whose public and prepared deployment identities differ.
 
-MongoDB data and audit records remain external state and are not synchronized during promotion or rollback. The v2.12-series compatibility change retains the established unique `slug_1` index by name and specification. Startup creates the new audit indexes only after that compatibility gate succeeds. No migration ledger edit, index drop, index rename, deduplication, or record rewrite is part of this release contract.
+MongoDB data and audit records remain external state and are not synchronized during promotion or rollback. The supported server is MongoDB `9.0.4`; upgrade the database host to that release (following MongoDB's own upgrade path and feature-compatibility-version steps) separately from artifact promotion. The v2.12-series compatibility change retains the established unique `slug_1` index by name and specification. Startup creates the new audit indexes only after that compatibility gate succeeds. No migration ledger edit, index drop, index rename, deduplication, or record rewrite is part of this release contract.

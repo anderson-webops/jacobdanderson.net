@@ -38,11 +38,33 @@ describe("focused public content", () => {
 		const wrapper = mount(Home, { global });
 		expect(wrapper.get("h1").text()).toBe("Patent Technical Specialist");
 		expect(wrapper.text()).toContain("under attorney supervision");
-		expect(wrapper.text()).toContain("Expected completion in May 2027");
+		expect(wrapper.text()).toContain("Expected May 2027");
 		expect(wrapper.text()).not.toContain("Start here");
 		expect(wrapper.findAll(".experience-entry")).toHaveLength(0);
-		expect(wrapper.findAll(".background-note dl div")).toHaveLength(2);
-		expect(wrapper.findAll(".feature-card p")).toHaveLength(2);
+		expect(wrapper.findAll(".glance dl > div")).toHaveLength(3);
+		expect(wrapper.findAll(".feature-card")).toHaveLength(2);
+		expect(wrapper.get(".feature-card a").attributes("href")).toBe("/projects#oscre-circuit-simulation");
+		wrapper.unmount();
+	});
+
+	it("keeps role highlights one click away, with the current role open", () => {
+		const wrapper = mount(Experience, { global });
+		const disclosures = wrapper.findAll(".experience-entry details");
+		expect(disclosures.length).toBeGreaterThan(1);
+		expect(wrapper.get(".current-entry details").attributes("open")).toBeDefined();
+		expect(disclosures.filter(details => details.attributes("open") !== undefined)).toHaveLength(1);
+		expect(wrapper.findAll("summary").every(summary => summary.attributes("tabindex") === "0")).toBe(true);
+		wrapper.unmount();
+	});
+
+	it("gives each selected project a stable anchor for deep links", () => {
+		const wrapper = mount(Projects, { global });
+		expect(wrapper.findAll(".project-card").map(card => card.attributes("id"))).toEqual([
+			"oscre-circuit-simulation",
+			"industrial-drill-monitoring",
+			"glucose-monitoring-research",
+			"stride-device-concept"
+		]);
 		wrapper.unmount();
 	});
 

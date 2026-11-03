@@ -1,7 +1,7 @@
 import { parse } from "parse5";
+import { TRACKER_FILTER, TRACKER_INTEGRITY, TRACKER_KEY, TRACKER_URL } from "../front-end/src/config/analytics.ts";
 
 const siteOrigin = "https://jacobdanderson.net";
-const analyticsUrl = "https://analytics.jacobdanderson.net/script.js";
 
 export function externalScriptsMatchPolicy(html, adminPage) {
 	const pending = [parse(html)];
@@ -29,7 +29,10 @@ export function externalScriptsMatchPolicy(html, adminPage) {
 	if (adminPage) return externalScripts.length === 0;
 	if (externalScripts.length !== 1) return false;
 	const attributes = externalScripts[0];
-	return attributes.get("src") === analyticsUrl
-		&& /^sha384-[A-Za-z0-9+/]{64}$/u.test(attributes.get("integrity") ?? "")
+	return attributes.get("src") === TRACKER_URL
+		&& attributes.get("integrity") === TRACKER_INTEGRITY
+		&& attributes.get("data-hid") === TRACKER_KEY
+		&& attributes.get("data-before-send") === TRACKER_FILTER
+		&& attributes.get("data-auto-track") === "false"
 		&& attributes.get("crossorigin") === "anonymous";
 }

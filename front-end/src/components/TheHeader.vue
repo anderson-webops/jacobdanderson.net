@@ -6,7 +6,6 @@ const isExpanded = ref(false);
 const route = useRoute();
 
 const links = [
-	{ name: "Home", path: "/" },
 	{ name: "About", path: "/about" },
 	{ name: "Experience", path: "/experience" },
 	{ name: "Projects", path: "/projects" },
@@ -17,8 +16,6 @@ const links = [
 const activePath = computed(() => route.path);
 
 function isLinkActive(path: string) {
-	if (path === "/") return activePath.value === "/";
-
 	return activePath.value.startsWith(path);
 }
 
@@ -39,17 +36,18 @@ watch(
 </script>
 
 <template>
-	<header class="site-header">
+	<header class="site-header" @keydown.esc="closeMenu">
 		<div class="shell">
 			<nav aria-label="Primary" class="nav">
 				<RouterLink class="brand" to="/" @click="closeMenu">
-					<div class="brand-mark" aria-hidden="true">
-						<img src="/images/original-logos/logo-bo-light.png" alt="" height="688" width="686" />
-					</div>
-					<div class="brand-copy">
-						<span class="brand-name">Jacob Anderson</span>
-						<span class="brand-meta">Patent • Engineering • Teaching</span>
-					</div>
+					<img
+						class="brand-mark"
+						src="/images/original-logos/logo-bo-light.png"
+						alt=""
+						height="688"
+						width="686"
+					/>
+					<span class="brand-name">Jacob Anderson</span>
 				</RouterLink>
 
 				<button
@@ -78,6 +76,14 @@ watch(
 							</RouterLink>
 						</li>
 					</ul>
+					<RouterLink
+						:aria-current="isLinkActive('/resume') ? 'page' : undefined"
+						class="resume-link"
+						to="/resume"
+						@click="closeMenu"
+					>
+						Résumé
+					</RouterLink>
 				</div>
 			</nav>
 		</div>
@@ -86,7 +92,13 @@ watch(
 
 <style scoped>
 .site-header {
-	padding: 1rem 0 0;
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	background: var(--color-header);
+	border-bottom: 1px solid var(--color-border);
+	backdrop-filter: saturate(1.4) blur(12px);
+	-webkit-backdrop-filter: saturate(1.4) blur(12px);
 }
 
 .shell {
@@ -95,99 +107,101 @@ watch(
 }
 
 .nav {
-	display: grid;
-	grid-template-columns: auto 1fr;
+	display: flex;
 	align-items: center;
-	gap: 0.85rem 1.2rem;
-	padding: 0.85rem 1rem;
-	border: 1px solid var(--color-border);
-	background: rgba(255, 253, 250, 0.92);
-	border-radius: var(--radius-xl);
-	box-shadow: var(--shadow-card);
+	justify-content: space-between;
+	gap: 1rem;
+	min-height: 4rem;
 }
 
 .brand {
 	display: flex;
 	align-items: center;
-	gap: 0.72rem;
+	gap: 0.65rem;
 	min-width: 0;
 	text-decoration: none;
 }
 
 .brand-mark {
-	width: 2.65rem;
-	height: 2.65rem;
-	border-radius: 15px;
-	overflow: hidden;
-	background: var(--color-surface);
-	box-shadow: 0 8px 18px rgba(22, 52, 75, 0.14);
-}
-
-.brand-mark img {
-	width: 100%;
-	height: 100%;
+	width: 2.1rem;
+	height: 2.1rem;
+	border-radius: 10px;
 	object-fit: cover;
-}
-
-.brand-copy {
-	display: flex;
-	flex-direction: column;
-	gap: 0.14rem;
-	min-width: 0;
+	background: #ffffff;
 }
 
 .brand-name {
 	color: var(--color-text);
-	font-size: 0.98rem;
-	font-weight: 800;
-	letter-spacing: 0.01em;
-}
-
-.brand-meta {
-	color: var(--color-text-muted);
-	font-size: 0.68rem;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
+	font-size: 1rem;
+	font-weight: 700;
+	letter-spacing: 0.005em;
 	white-space: nowrap;
 }
 
 .nav-panel {
 	display: flex;
 	align-items: center;
-	justify-content: flex-end;
+	gap: 0.75rem;
 	min-width: 0;
 }
 
 .links {
 	display: flex;
-	flex-wrap: wrap;
 	align-items: center;
-	justify-content: flex-end;
-	gap: 0.2rem;
+	gap: 0.15rem;
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
 .links a {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	padding: 0.56rem 0.82rem;
-	border-radius: 12px;
+	padding: 0.5rem 0.7rem;
+	border-radius: 8px;
 	color: var(--color-text-muted);
-	font-weight: 600;
+	font-size: 0.95rem;
+	font-weight: 550;
 	text-decoration: none;
 }
 
 .links a:hover {
-	background: var(--color-accent-soft);
-	color: var(--color-accent-strong);
+	color: var(--color-text);
 }
 
 .links a.active {
-	background: rgba(33, 70, 97, 0.1);
-	color: var(--color-accent-strong);
+	color: var(--color-text);
+}
+
+.links a.active::after {
+	content: "";
+	position: absolute;
+	left: 0.7rem;
+	right: 0.7rem;
+	bottom: 0.2rem;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--color-accent);
+}
+
+.resume-link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 2.3rem;
+	padding: 0 1rem;
+	border: 1px solid var(--color-border-strong);
+	border-radius: 999px;
+	color: var(--color-text);
+	font-size: 0.92rem;
+	font-weight: 650;
+	text-decoration: none;
+}
+
+.resume-link:hover,
+.resume-link[aria-current="page"] {
+	border-color: var(--color-accent);
+	color: var(--color-accent);
 }
 
 .hamburger {
@@ -195,12 +209,12 @@ watch(
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
-	gap: 0.32rem;
-	width: 2.7rem;
-	height: 2.7rem;
+	gap: 0.3rem;
+	width: 2.75rem;
+	height: 2.75rem;
 	border: 1px solid var(--color-border);
-	border-radius: 12px;
-	background: rgba(255, 255, 255, 0.88);
+	border-radius: 10px;
+	background: transparent;
 	cursor: pointer;
 }
 
@@ -210,8 +224,8 @@ watch(
 	border-radius: 999px;
 	background: var(--color-text);
 	transition:
-		transform 0.28s ease,
-		opacity 0.28s ease;
+		transform 0.25s ease,
+		opacity 0.25s ease;
 }
 
 .hamburger span.open:nth-child(1) {
@@ -226,42 +240,37 @@ watch(
 	transform: translateY(-6px) rotate(-45deg);
 }
 
-@media (max-width: 900px) {
-	.brand-meta {
-		display: none;
-	}
-}
-
-@media (max-width: 768px) {
+@media (max-width: 820px) {
 	.shell {
-		width: min(var(--content-width), calc(100% - 1.5rem));
+		width: min(var(--content-width), calc(100% - 2rem));
 	}
 
 	.nav {
-		grid-template-columns: auto auto;
 		position: relative;
 	}
 
 	.hamburger {
 		display: inline-flex;
-		justify-self: end;
 	}
 
 	.nav-panel {
 		display: none;
 		position: absolute;
-		top: calc(100% + 0.55rem);
+		top: calc(100% + 0.5rem);
 		left: 0;
 		right: 0;
-		padding: 0.85rem;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0.5rem;
+		padding: 0.6rem;
 		border: 1px solid var(--color-border);
-		background: rgba(255, 253, 250, 0.98);
 		border-radius: var(--radius-lg);
+		background: var(--color-surface-strong);
 		box-shadow: var(--shadow-soft);
 	}
 
 	.nav-panel.expanded {
-		display: block;
+		display: flex;
 	}
 
 	.links {
@@ -270,7 +279,27 @@ watch(
 	}
 
 	.links a {
-		justify-content: flex-start;
+		padding: 0.75rem 0.85rem;
+		font-size: 1rem;
+	}
+
+	.links a.active {
+		background: var(--color-accent-soft);
+	}
+
+	.links a.active::after {
+		display: none;
+	}
+
+	.resume-link {
+		justify-content: center;
+		min-height: 2.75rem;
+	}
+}
+
+@media print {
+	.site-header {
+		display: none;
 	}
 }
 </style>

@@ -10,102 +10,152 @@ const engineeringExperience = computed(() =>
 const additionalExperience = computed(() =>
 	store.userProfile.experience.filter(item => item.category === "instruction" || item.category === "leadership")
 );
+
+const sections = [
+	{ id: "current", label: "Current" },
+	{ id: "engineering", label: "Engineering & research" },
+	{ id: "teaching", label: "Teaching & more" }
+];
 </script>
 
 <template>
 	<div class="experience-page">
 		<header class="page-intro">
-			<h1>Professional experience</h1>
+			<h1>Experience</h1>
+			<p>Patent work today, built on engineering research, product development, and teaching.</p>
+			<nav aria-label="Experience sections" class="jump-links">
+				<a v-for="section in sections" :key="section.id" :href="`#${section.id}`">{{ section.label }}</a>
+			</nav>
 		</header>
-		<section class="section-block" aria-labelledby="current-heading">
-			<h2 id="current-heading">Current role</h2>
+
+		<section id="current" class="section-block" aria-labelledby="current-heading">
+			<div class="section-head">
+				<h2 id="current-heading">Current role</h2>
+			</div>
 			<ExperienceEntry
 				v-for="item in patentExperience"
 				:key="item.organization"
 				:item="item"
 				class="current-entry"
+				collapsible
+				open
 			/>
 			<p class="role-boundary">
 				Patent work is performed through Meunier Carlin & Curfman under attorney supervision. This personal site
 				describes my background, not an offer of legal or patent services.
 			</p>
 		</section>
-		<section class="section-block" aria-labelledby="engineering-heading">
-			<h2 id="engineering-heading">Engineering, research & product work</h2>
+
+		<section id="engineering" class="section-block" aria-labelledby="engineering-heading">
+			<div class="section-head">
+				<h2 id="engineering-heading">Engineering, research & product</h2>
+			</div>
 			<div class="timeline">
 				<ExperienceEntry
 					v-for="item in engineeringExperience"
 					:key="`${item.organization}-${item.title}`"
 					:item="item"
+					collapsible
 				/>
 			</div>
 		</section>
-		<section class="section-block" aria-labelledby="additional-heading">
-			<h2 id="additional-heading">Teaching & additional experience</h2>
-			<div class="additional-experience">
+
+		<section id="teaching" class="section-block" aria-labelledby="additional-heading">
+			<div class="section-head">
+				<h2 id="additional-heading">Teaching & additional experience</h2>
+			</div>
+			<div class="timeline">
 				<ExperienceEntry
 					v-for="item in additionalExperience"
 					:key="`${item.organization}-${item.title}`"
 					:item="item"
-					compact
+					collapsible
 				/>
 			</div>
 		</section>
+
+		<aside class="resume-callout">
+			<p>Prefer everything on one page?</p>
+			<RouterLink class="section-link" to="/resume">View the full résumé</RouterLink>
+		</aside>
 	</div>
 </template>
 
 <style scoped>
-.experience-page,
+.experience-page {
+	display: flex;
+	flex-direction: column;
+	gap: 3.5rem;
+}
+
+.jump-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+}
+
+.jump-links a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 2.25rem;
+	padding: 0 0.9rem;
+	border: 1px solid var(--color-border-strong);
+	border-radius: 999px;
+	color: var(--color-text-muted);
+	font-size: 0.9rem;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.jump-links a:hover {
+	border-color: var(--color-accent);
+	color: var(--color-accent);
+}
+
 .section-block {
 	display: flex;
 	flex-direction: column;
 }
 
-.experience-page {
-	gap: 2rem;
-}
-
-.section-block {
-	gap: 1rem;
-}
-
-.section-block h2 {
-	font-size: 2rem;
-	line-height: 1.2;
-}
-
 .timeline {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 1.1rem;
-	align-items: start;
+	display: flex;
+	flex-direction: column;
 }
 
 .current-entry {
-	border-color: rgba(33, 70, 97, 0.24);
-	box-shadow: 0 18px 44px rgba(22, 52, 75, 0.11);
-}
-
-.additional-experience,
-.role-boundary {
-	max-width: 76ch;
+	border-top: 0;
 }
 
 .role-boundary {
-	color: var(--color-text-muted);
-	font-size: 0.92rem;
-	line-height: 1.72;
+	max-width: 70ch;
+	margin-left: calc(var(--date-column) + 2rem);
+	padding: 0.9rem 1.1rem;
+	border-left: 3px solid var(--color-border-strong);
+	background: var(--color-surface);
+	color: var(--color-text-subtle);
+	font-size: 0.9rem;
+	line-height: 1.6;
 }
 
-@media (max-width: 900px) {
-	.timeline {
-		grid-template-columns: 1fr;
-	}
+.resume-callout {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem 1.5rem;
+	padding: 1.4rem 1.6rem;
+	border-radius: var(--radius-lg);
+	background: var(--color-surface-accent);
+}
+
+.resume-callout p {
+	font-weight: 600;
 }
 
 @media (max-width: 640px) {
-	.section-block h2 {
-		font-size: 1.75rem;
+	.role-boundary {
+		margin-left: 0;
 	}
 }
 </style>

@@ -4,18 +4,23 @@ import { useMainStore } from "~/stores";
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
+
+const subjects = ["Programming", "Web development", "Game design", "Embedded systems", "Circuits", "Math", "Spanish"];
 </script>
 
 <template>
 	<div class="classes-page">
 		<section class="hero">
 			<div class="hero-copy">
+				<p class="eyebrow">Classes with Jacob</p>
 				<h1>Programming, STEM, math & Spanish lessons</h1>
 				<p>
 					One-on-one lessons for students from grade school through adulthood, built around schoolwork,
 					personal projects, and practical skills.
 				</p>
-
+				<ul class="tag-list" aria-label="Subjects">
+					<li v-for="subject in subjects" :key="subject" class="tag">{{ subject }}</li>
+				</ul>
 				<div class="button-row">
 					<a class="button-primary" href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
 						Lesson details and scheduling
@@ -24,62 +29,49 @@ const profile = computed(() => store.userProfile);
 				</div>
 			</div>
 
-			<div class="rate-card section-panel">
-				<span class="card-label">Standard lesson</span>
-				<div class="price">
+			<div class="rate-card">
+				<span class="label">Standard lesson</span>
+				<p class="price">
 					<span class="amount">$40</span>
 					<span class="details">per 50-minute lesson</span>
-				</div>
-				<p>Free consultation before the first lesson to discuss goals, schedule, and fit.</p>
-				<p>Pay only for completed classes. Missed or canceled sessions are not billed.</p>
+				</p>
+				<ul class="rate-terms">
+					<li>Free consultation before the first lesson to discuss goals, schedule, and fit.</li>
+					<li>Pay only for completed classes. Missed or canceled sessions are not billed.</li>
+				</ul>
 			</div>
 		</section>
 
-		<section class="grid">
-			<article class="info-card section-panel">
-				<h2>Lesson format</h2>
-				<ul>
-					<li>Weekly 50-minute sessions built around the student’s current goals.</li>
-					<li>Projects, exercises, or review work between meetings when it is useful.</li>
-					<li>Specific feedback and next steps after sessions.</li>
-				</ul>
-			</article>
-
-			<article class="info-card section-panel">
-				<h2>Subjects</h2>
-				<ul>
-					<li>Programming fundamentals, web development, and game design.</li>
-					<li>Embedded systems, circuits, and microcontroller projects.</li>
-					<li>Math foundations and school support.</li>
-					<li>Spanish conversation and academic support.</li>
-				</ul>
-			</article>
-
-			<article class="info-card section-panel">
-				<h2>Getting started</h2>
-				<ol>
-					<li>
-						Reach out at
-						<a :href="`mailto:${profile.email}`">{{ profile.email }}</a
+		<section class="steps-section" aria-labelledby="steps-heading">
+			<div class="section-head">
+				<h2 id="steps-heading">Getting started</h2>
+			</div>
+			<ol class="steps">
+				<li>
+					<h3>Reach out</h3>
+					<p>
+						Email <a :href="`mailto:${profile.email}`">{{ profile.email }}</a
 						>.
-					</li>
-					<li>Share the student’s goals, experience level, and schedule preferences.</li>
-					<li>We will set up a short consultation before the first lesson.</li>
-				</ol>
-			</article>
+					</p>
+				</li>
+				<li>
+					<h3>Share goals</h3>
+					<p>The student’s goals, experience level, and schedule preferences.</p>
+				</li>
+				<li>
+					<h3>Meet briefly</h3>
+					<p>A short consultation before the first weekly lesson.</p>
+				</li>
+			</ol>
 		</section>
 
-		<section class="teaching-fit section-panel">
-			<div>
-				<h2>Build independent problem-solving skills</h2>
-			</div>
+		<section class="format" aria-labelledby="format-heading">
+			<h2 id="format-heading">How lessons work</h2>
 			<p>
-				Guided practice, feedback, and projects help students build confidence and keep learning between
-				lessons.
+				Weekly 50-minute sessions built around current goals, with projects or review between meetings when
+				useful and specific feedback after each session. The aim is independent problem-solving that keeps going
+				between lessons.
 			</p>
-			<a class="section-link" href="https://classes.jacobdanderson.net" rel="noopener" target="_blank">
-				Review scheduling and tuition
-			</a>
 		</section>
 	</div>
 </template>
@@ -88,137 +80,151 @@ const profile = computed(() => store.userProfile);
 .classes-page {
 	display: flex;
 	flex-direction: column;
-	gap: 1.8rem;
+	gap: var(--space-section);
 }
 
 .hero {
 	display: grid;
-	grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-	gap: 1.2rem;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+	gap: 3rem;
 	align-items: start;
 }
 
 .hero-copy {
 	display: flex;
 	flex-direction: column;
-	gap: 1.05rem;
+	gap: 1.1rem;
 }
 
 .hero-copy h1 {
-	font-size: 3.1rem;
-	line-height: 1.06;
-	max-width: none;
+	font-size: clamp(2.3rem, 5vw, 3.25rem);
+	line-height: 1.08;
 }
 
-.hero-copy p,
-.rate-card p,
-.info-card ul,
-.info-card ol {
+.hero-copy > p:not(.eyebrow) {
 	color: var(--color-text-muted);
-	line-height: 1.76;
+	font-size: 1.125rem;
+	max-width: 54ch;
 }
 
-.rate-card,
-.info-card {
-	padding: var(--panel-padding);
+.hero-copy .button-row {
+	margin-top: 0.5rem;
+}
+
+.rate-card {
 	display: flex;
 	flex-direction: column;
-	gap: 0.8rem;
-}
-
-.card-label {
-	color: var(--color-highlight);
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
+	gap: 0.9rem;
+	padding: var(--panel-padding-roomy);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-lg);
+	background: var(--color-surface-strong);
+	box-shadow: var(--shadow-card);
 }
 
 .price {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: baseline;
-	gap: 0.7rem;
+	gap: 0.3rem 0.6rem;
 }
 
 .amount {
 	font-family: var(--font-display);
-	font-size: clamp(2.8rem, 6vw, 4rem);
+	font-size: clamp(2.8rem, 6vw, 3.5rem);
+	font-weight: 700;
 	line-height: 1;
-	color: var(--color-accent-strong);
+	color: var(--color-text);
 }
 
 .details {
 	color: var(--color-text-muted);
-	font-size: 1rem;
-	font-weight: 700;
+	font-weight: 600;
 }
 
-.grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 1.1rem;
-}
-
-.info-card h2 {
-	font-size: 1.42rem;
-	line-height: 1.2;
-}
-
-.info-card ul,
-.info-card ol {
-	margin: 0;
-	padding-left: 1.1rem;
+.rate-terms {
 	display: flex;
 	flex-direction: column;
 	gap: 0.6rem;
-}
-
-.info-card a {
-	color: var(--color-accent);
-	text-decoration: none;
-}
-
-.teaching-fit {
-	display: grid;
-	grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) auto;
-	gap: 1.2rem;
-	align-items: center;
-	padding: var(--panel-padding-roomy);
-}
-
-.teaching-fit h2 {
-	font-size: 1.65rem;
-	line-height: 1.16;
-	margin-top: 0.45rem;
-	max-width: 24ch;
-}
-
-.teaching-fit p {
+	margin: 0;
+	padding: 0.9rem 0 0;
+	border-top: 1px solid var(--color-border);
 	color: var(--color-text-muted);
-	line-height: 1.74;
+	font-size: 0.95rem;
+	list-style: none;
 }
 
-@media (max-width: 960px) {
+.steps-section {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.steps {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	counter-reset: step;
+}
+
+.steps li {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	counter-increment: step;
+}
+
+.steps li::before {
+	content: counter(step);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	margin-bottom: 0.4rem;
+	border-radius: 50%;
+	background: var(--color-accent-soft);
+	color: var(--color-accent);
+	font-weight: 700;
+}
+
+.steps h3 {
+	font-size: 1.1rem;
+}
+
+.steps p {
+	color: var(--color-text-muted);
+}
+
+.steps a {
+	color: var(--color-accent);
+}
+
+.format {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: var(--panel-padding-roomy);
+	border-radius: var(--radius-lg);
+	background: var(--color-surface-accent);
+}
+
+.format h2 {
+	font-size: 1.45rem;
+}
+
+.format p {
+	color: var(--color-text-muted);
+	max-width: 70ch;
+}
+
+@media (max-width: 860px) {
 	.hero,
-	.grid,
-	.teaching-fit {
+	.steps {
 		grid-template-columns: 1fr;
-	}
-
-	.hero-copy h1 {
-		max-width: none;
-	}
-}
-
-@media (max-width: 720px) {
-	.hero-copy h1 {
-		font-size: 2.35rem;
-	}
-
-	.rate-card,
-	.info-card,
-	.teaching-fit {
-		padding: var(--panel-padding);
 	}
 }
 </style>

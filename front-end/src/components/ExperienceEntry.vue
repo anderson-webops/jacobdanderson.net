@@ -1,96 +1,141 @@
 <script lang="ts" setup>
 import type { ExperienceRecord } from "~/stores";
+import { computed } from "vue";
 
-defineProps<{
-	item: ExperienceRecord;
-	compact?: boolean;
-	reference?: boolean;
-}>();
+const props = withDefaults(
+	defineProps<{
+		item: ExperienceRecord;
+		compact?: boolean;
+		reference?: boolean;
+		collapsible?: boolean;
+		open?: boolean;
+	}>(),
+	{ compact: false, reference: false, collapsible: false, open: false }
+);
+
+const place = computed(() => props.item.location || props.item.workFormat);
+const showSummary = computed(() => props.collapsible || props.reference || !props.item.highlights.length);
 </script>
 
 <template>
-	<article class="experience-entry" :class="{ 'section-panel': !compact, 'compact-entry': compact }">
-		<header class="entry-heading">
-			<h3>{{ item.title }}</h3>
-			<div class="entry-meta">
-				<span class="entry-organization">{{ item.organization }}</span>
-				<span class="entry-timeframe">{{ item.timeframe }}</span>
-			</div>
-			<p v-if="item.location" class="entry-location">{{ item.location }}</p>
-			<p v-if="item.workFormat" class="entry-location">Work format: {{ item.workFormat }}</p>
-			<p v-if="item.progression" class="entry-progression">{{ item.progression }}</p>
-		</header>
-		<p v-if="reference || !item.highlights.length" class="entry-summary">{{ item.summary }}</p>
-		<ul v-if="item.highlights.length">
-			<li v-for="highlight in item.highlights" :key="highlight">{{ highlight }}</li>
-		</ul>
+	<article class="experience-entry" :class="{ 'compact-entry': compact }">
+		<p class="entry-time">{{ item.timeframe }}</p>
+		<div class="entry-body">
+			<header class="entry-heading">
+				<h3>{{ item.title }}</h3>
+				<p class="entry-organization">
+					{{ item.organization }}<span v-if="place" class="entry-place"> · {{ place }}</span>
+				</p>
+				<p v-if="item.progression" class="entry-progression">{{ item.progression }}</p>
+			</header>
+			<p v-if="showSummary" class="entry-summary">{{ item.summary }}</p>
+			<details v-if="collapsible && item.highlights.length" class="disclosure" :open="open">
+				<summary tabindex="0">
+					<span class="when-closed">Show highlights</span><span class="when-open">Hide highlights</span>
+				</summary>
+				<ul class="bullet-list">
+					<li v-for="highlight in item.highlights" :key="highlight">{{ highlight }}</li>
+				</ul>
+			</details>
+			<ul v-else-if="item.highlights.length" class="bullet-list">
+				<li v-for="highlight in item.highlights" :key="highlight">{{ highlight }}</li>
+			</ul>
+		</div>
 	</article>
 </template>
 
 <style scoped>
 .experience-entry {
-	padding: var(--panel-padding);
+	display: grid;
+	grid-template-columns: var(--date-column) minmax(0, 1fr);
+	gap: 0.35rem 2rem;
+	padding: 1.6rem 0;
+	border-top: 1px solid var(--color-border);
+	min-width: 0;
+}
+
+.experience-entry:first-child {
+	border-top: 0;
+}
+
+.entry-time {
+	padding-top: 0.2rem;
+	color: var(--color-text-subtle);
+	font-size: 0.875rem;
+	font-variant-numeric: tabular-nums;
+	line-height: 1.5;
+}
+
+.entry-body {
 	display: flex;
 	flex-direction: column;
-	gap: 0.75rem;
+	gap: 0.7rem;
 	min-width: 0;
 }
 
 .entry-heading {
 	display: flex;
 	flex-direction: column;
-	gap: 0.4rem;
+	gap: 0.15rem;
 }
 
 .entry-heading h3 {
-	font-size: 1.42rem;
-	line-height: 1.2;
-}
-
-.entry-meta {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 0.25rem 1rem;
+	font-size: 1.15rem;
+	line-height: 1.35;
 }
 
 .entry-organization {
 	color: var(--color-accent);
-	font-weight: 700;
+	font-weight: 600;
 }
 
-.entry-timeframe,
-.entry-location,
+.entry-place,
 .entry-progression {
-	color: var(--color-text-muted);
-	font-size: 0.92rem;
+	color: var(--color-text-subtle);
+	font-weight: 400;
 }
 
-.entry-summary,
-.experience-entry ul {
+.entry-progression {
+	font-size: 0.9rem;
+}
+
+.entry-summary {
 	color: var(--color-text-muted);
-	line-height: 1.72;
 	max-width: var(--text-measure);
 }
 
-.experience-entry ul {
-	margin: 0;
-	padding-left: 1.1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
+.experience-entry .bullet-list {
+	max-width: var(--text-measure);
+}
+
+.disclosure .bullet-list {
+	margin-top: 0.75rem;
 }
 
 .compact-entry {
-	padding: 1rem 0;
-	border-top: 1px solid var(--color-border-strong);
+	padding: 1.15rem 0;
+}
+
+.compact-entry .entry-body {
+	gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+	.experience-entry {
+		grid-template-columns: 1fr;
+	}
+
+	.entry-time {
+		padding-top: 0;
+	}
 }
 
 @media print {
 	.experience-entry {
 		break-inside: avoid;
-		box-shadow: none;
+		grid-template-columns: 8.5rem minmax(0, 1fr);
+		gap: 0.25rem 1.25rem;
+		padding: 0.6rem 0;
 	}
 }
 </style>

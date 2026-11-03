@@ -236,6 +236,8 @@ try {
 	assert.match(promoterSource, /assert_trusted_tree "\$candidate" "Existing release"/u);
 	assert.match(promoterSource, /assert_trusted_tree "\$previous_target" "Current rollback target"/u);
 	assert.match(promoterSource, /assert_trusted_tree "\$candidate" "Selected candidate"/u);
+	assert.match(promoterSource, /RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24=false RUNTIME_ARTIFACT_EXPECT_COMMIT="\$expected_commit"/u);
+	assert.match(promoterSource, /RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24=true RUNTIME_ARTIFACT_EXPECT_COMMIT="\$expected_current"/u);
 	assert.match(promoterSource, /expected_current="\$\{4,,\}"/u);
 	assert.match(promoterSource, /verify_legacy_tree "\$sealed_legacy"/u);
 	assert.match(promoterSource, /compare-source/u);

@@ -4,141 +4,94 @@ import { useMainStore } from "~/stores";
 
 const store = useMainStore();
 const profile = computed(() => store.userProfile);
-
-const internalLinks = [
-	{ label: "About", to: "/about" },
-	{ label: "Experience", to: "/experience" },
-	{ label: "Projects", to: "/projects" },
-	{ label: "Teaching", to: "/classes" },
-	{ label: "Contact", to: "/contact" }
-];
+const externalProfiles = computed(() => profile.value.profiles.filter(item => !item.href.startsWith("/")));
 </script>
 
 <template>
 	<footer class="footer">
-		<div class="footer-shell section-panel">
-			<div class="footer-top">
+		<div class="footer-shell">
+			<div class="footer-identity">
+				<p class="footer-name">{{ profile.name }}</p>
 				<p class="footer-note">
-					{{ profile.name }} · {{ profile.location }}.<br />
-					Patent work is performed through Meunier Carlin & Curfman under attorney supervision.
+					{{ profile.location }}. Patent work is performed through Meunier Carlin & Curfman under attorney
+					supervision.
 				</p>
-				<nav aria-label="Footer" class="footer-nav">
-					<RouterLink v-for="link in internalLinks" :key="link.to" :to="link.to">
-						{{ link.label }}
-					</RouterLink>
-				</nav>
 			</div>
-
-			<div class="footer-bottom">
-				<div class="footer-links">
-					<template v-for="item in profile.profiles" :key="item.href">
-						<RouterLink v-if="item.href.startsWith('/')" :to="item.href">
-							{{ item.label }}
-						</RouterLink>
-						<a v-else :href="item.href" rel="noopener" target="_blank">
-							{{ item.label }}
-						</a>
-					</template>
-					<a :href="`mailto:${profile.email}`">{{ profile.email }}</a>
-				</div>
-				<p>© {{ new Date().getFullYear() }} Jacob Anderson. All rights reserved.</p>
-			</div>
+			<nav aria-label="Elsewhere" class="footer-links">
+				<a :href="`mailto:${profile.email}`">Email</a>
+				<a v-for="item in externalProfiles" :key="item.href" :href="item.href" rel="noopener" target="_blank">
+					{{ item.label }}
+				</a>
+			</nav>
 		</div>
+		<p class="footer-copyright">© {{ new Date().getFullYear() }} Jacob Anderson</p>
 	</footer>
 </template>
 
 <style scoped>
 .footer {
-	padding: 0 0 1.7rem;
+	width: min(var(--content-width), calc(100% - 3rem));
+	margin: 0 auto;
+	padding: 2rem 0 2.25rem;
+	border-top: 1px solid var(--color-border);
 }
 
 .footer-shell {
-	width: min(var(--content-width), calc(100% - 3rem));
-	margin: 0 auto;
-	padding: 1.45rem 1.6rem;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1.25rem 2rem;
 }
 
-.footer-top {
-	display: grid;
-	grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-	gap: 1.25rem;
-	align-items: center;
+.footer-identity {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	max-width: 34rem;
 }
 
-.footer-note {
-	color: var(--color-text-muted);
-	line-height: 1.7;
-	max-width: 38rem;
+.footer-name {
+	font-weight: 700;
 }
 
-.footer-nav,
+.footer-note,
+.footer-copyright {
+	color: var(--color-text-subtle);
+	font-size: 0.9rem;
+	line-height: 1.6;
+}
+
 .footer-links {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.75rem 1rem;
+	gap: 0.5rem 1.25rem;
 }
 
-.footer-nav {
-	justify-content: flex-end;
-}
-
-.footer-nav a,
 .footer-links a {
+	color: var(--color-text-muted);
+	font-size: 0.95rem;
 	font-weight: 600;
 	text-decoration: none;
 }
 
-.footer-bottom {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 1rem;
-	margin-top: 1.15rem;
-	padding-top: 1rem;
-	border-top: 1px solid var(--color-border);
+.footer-links a:hover {
+	color: var(--color-accent);
 }
 
-.footer-bottom p {
-	color: var(--color-text-muted);
-	font-size: 0.92rem;
-}
-
-@media (max-width: 960px) {
-	.footer-top {
-		grid-template-columns: 1fr;
-	}
-
-	.footer-nav {
-		justify-content: flex-start;
-	}
+.footer-copyright {
+	margin-top: 1.25rem;
 }
 
 @media (max-width: 768px) {
-	.footer-shell {
-		width: min(var(--content-width), calc(100% - 1.5rem));
-		padding: 1.35rem 1.2rem;
+	.footer {
+		width: min(var(--content-width), calc(100% - 2rem));
 	}
+}
 
-	.footer-nav,
-	.footer-links {
-		display: grid;
-		grid-template-columns: repeat(2, minmax(0, max-content));
-		gap: 0.65rem 1rem;
-		justify-content: flex-start;
-	}
-
-	.footer-note {
-		font-size: 0.98rem;
-	}
-
-	.footer-links a:last-child {
-		grid-column: 1 / -1;
-		overflow-wrap: anywhere;
-	}
-
-	.footer-bottom {
-		flex-direction: column;
-		align-items: flex-start;
+@media print {
+	.footer {
+		display: none;
 	}
 }
 </style>

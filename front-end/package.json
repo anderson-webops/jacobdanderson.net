@@ -7,10 +7,10 @@
 	"license": "ISC",
 	"type": "module",
 	"private": true,
-	"packageManager": "npm@12.0.2",
+	"packageManager": "npm@12.2.1",
 	"engines": {
-		"node": ">=24.18.1 <25",
-		"npm": ">=12.0.2 <13"
+		"node": ">=26.13.0 <27",
+		"npm": ">=12.2.1 <13"
 	},
 	"main": "dist/script.js",
 	"scripts": {
@@ -27,7 +27,7 @@
 		"lint-fix": "eslint \"src/**/*.{js,ts,vue}\" --fix"
 	},
 	"dependencies": {
-		"@unhead/vue": "^3.4.2",
+		"@unhead/vue": "^3.4.3",
 		"@unocss/reset": "^66.10.5",
 		"pinia": "^4.0.3",
 		"vite-plugin-pages": "^0.33.3",
@@ -36,10 +36,11 @@
 		"vue-router": "^5.4.0"
 	},
 	"devDependencies": {
-		"@types/node": "^24.13.6",
+		"@types/node": "^26.6.6",
 		"@vitejs/plugin-vue": "^6.0.9",
+		"@vue/server-renderer": "^3.5.44",
 		"@vue/test-utils": "^2.5.1",
-		"beasties": "^0.3.5",
+		"beasties-renderer": "npm:beasties@^0.5.5",
 		"cross-env": "^10.1.0",
 		"esbuild": "^0.28.2",
 		"eslint-plugin-format": "^2.0.1",
