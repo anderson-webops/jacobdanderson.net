@@ -78,6 +78,7 @@
     "useLink": true,
     "useMainStore": true,
     "useModel": true,
+    "useProjectVisibility": true,
     "useRoute": true,
     "useRouter": true,
     "useSeoMeta": true,

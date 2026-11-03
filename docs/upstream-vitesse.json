@@ -1,0 +1,891 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/antfu/vitesse",
+  "upstreamCommit": "a8785264f83c2ebe1b3cf689296775a4949957c8",
+  "mergeBase": "76fb0845ec0646e8608b4c8cd2af30f8aab0cd78",
+  "siteBaseline": "59eff222f7f8a7ac409ddfc6b8b3156397010860",
+  "entries": [
+    {
+      "status": "A",
+      "path": ".dockerignore",
+      "decision": "not-applicable",
+      "targets": [
+        "DEPLOYMENT.md",
+        "deploy/systemd"
+      ],
+      "reason": "Production is the reviewed direct Nginx/systemd artifact path, not a new container deployment."
+    },
+    {
+      "status": "A",
+      "path": ".editorconfig",
+      "decision": "integrated",
+      "targets": [
+        ".editorconfig"
+      ],
+      "reason": "Retain the site's tab width; adopt final-newline and trailing-space hygiene."
+    },
+    {
+      "status": "A",
+      "path": ".github/FUNDING.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "README.md",
+        "front-end/LICENSE"
+      ],
+      "reason": "Retain upstream attribution without importing its donation/advertising or translated starter documentation."
+    },
+    {
+      "status": "A",
+      "path": ".github/workflows/ci.yml",
+      "decision": "site-specific",
+      "targets": [
+        ".github/workflows/ci.yml"
+      ],
+      "reason": "Keep the nine pinned Node 26 jobs, complete audits, compiled-browser, direct-runtime and genuine recovery gates instead of the demo CI."
+    },
+    {
+      "status": "M",
+      "path": ".gitignore",
+      "decision": "integrated",
+      "targets": [
+        ".gitignore"
+      ],
+      "reason": "Ignore disposable SSG output while retaining committed site fonts and protected AI/recovery exclusions."
+    },
+    {
+      "status": "A",
+      "path": ".npmrc",
+      "decision": "site-specific",
+      "targets": [
+        ".npmrc"
+      ],
+      "reason": "Keep the npm workspace's strict engines, optional native packages and reviewed lifecycle-script allowlist."
+    },
+    {
+      "status": "A",
+      "path": ".vscode/extensions.json",
+      "decision": "not-applicable",
+      "targets": [
+        ".editorconfig"
+      ],
+      "reason": "Editor preferences are local and ignored; do not replace an active owner's workspace settings."
+    },
+    {
+      "status": "A",
+      "path": ".vscode/settings.json",
+      "decision": "not-applicable",
+      "targets": [
+        ".editorconfig"
+      ],
+      "reason": "Editor preferences are local and ignored; do not replace an active owner's workspace settings."
+    },
+    {
+      "status": "A",
+      "path": "Dockerfile",
+      "decision": "not-applicable",
+      "targets": [
+        "DEPLOYMENT.md",
+        "deploy/systemd"
+      ],
+      "reason": "Production is the reviewed direct Nginx/systemd artifact path, not a new container deployment."
+    },
+    {
+      "status": "M",
+      "path": "LICENSE",
+      "decision": "already-integrated",
+      "targets": [
+        "front-end/LICENSE"
+      ],
+      "reason": "The retained relocated MIT attribution is byte-identical to the upstream license."
+    },
+    {
+      "status": "M",
+      "path": "README.md",
+      "decision": "site-specific",
+      "targets": [
+        "README.md"
+      ],
+      "reason": "Keep the actual monorepo architecture, validation and upstream integration documentation rather than template advertising."
+    },
+    {
+      "status": "A",
+      "path": "README.zh-CN.md",
+      "decision": "not-applicable",
+      "targets": [
+        "README.md",
+        "front-end/LICENSE"
+      ],
+      "reason": "Retain upstream attribution without importing its donation/advertising or translated starter documentation."
+    },
+    {
+      "status": "A",
+      "path": "cypress.config.ts",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/test",
+        "scripts/hydrated-head-smoke.mjs",
+        "scripts/a11y-smoke.mjs",
+        ".github/workflows/ci.yml"
+      ],
+      "reason": "Keep current unit, production-browser and accessibility coverage of this application rather than restoring hello/counter demo tests or a redundant browser installation."
+    },
+    {
+      "status": "A",
+      "path": "cypress/e2e/basic.spec.ts",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/test",
+        "scripts/hydrated-head-smoke.mjs",
+        "scripts/a11y-smoke.mjs",
+        ".github/workflows/ci.yml"
+      ],
+      "reason": "Keep current unit, production-browser and accessibility coverage of this application rather than restoring hello/counter demo tests or a redundant browser installation."
+    },
+    {
+      "status": "A",
+      "path": "cypress/tsconfig.json",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/test",
+        "scripts/hydrated-head-smoke.mjs",
+        "scripts/a11y-smoke.mjs",
+        ".github/workflows/ci.yml"
+      ],
+      "reason": "Keep current unit, production-browser and accessibility coverage of this application rather than restoring hello/counter demo tests or a redundant browser installation."
+    },
+    {
+      "status": "A",
+      "path": "eslint.config.js",
+      "decision": "already-integrated",
+      "targets": [
+        "eslint.config.js",
+        "front-end/eslint.config.js",
+        "back-end/eslint.config.js"
+      ],
+      "reason": "The maintained Antfu 10 rules span root tools and both workspaces; retain stricter site checks and formatting."
+    },
+    {
+      "status": "M",
+      "path": "index.html",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/index.html",
+        "front-end/src/App.vue"
+      ],
+      "reason": "The entrypoint was relocated; retain site identity, metadata, SRI and supported Unhead 3 document rendering."
+    },
+    {
+      "status": "A",
+      "path": "locales/README.md",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/ar.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/de.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/en.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/es.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/fr.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/id.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/it.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/ja.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/ka.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/ko.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/pl.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/pt-BR.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/ru.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/tr.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/uk.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/uz.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/vi.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "A",
+      "path": "locales/zh-CN.yml",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "These are starter-demo messages, not reviewed translations of this site's content."
+    },
+    {
+      "status": "M",
+      "path": "netlify.toml",
+      "decision": "integrated",
+      "targets": [
+        "netlify.toml"
+      ],
+      "reason": "Retain Node 26, the monorepo output and browser-security headers; add immutable caching for fingerprinted assets."
+    },
+    {
+      "status": "M",
+      "path": "package.json",
+      "decision": "integrated",
+      "targets": [
+        "package.json",
+        "front-end/package.json",
+        "back-end/package.json"
+      ],
+      "reason": "Keep the independently audited npm graphs and newer compatible tools; remove the superseded pages plugin now that Vue Router 5 owns generation."
+    },
+    {
+      "status": "M",
+      "path": "pnpm-lock.yaml",
+      "decision": "not-applicable",
+      "targets": [
+        "package-lock.json",
+        "back-end/package-lock.json"
+      ],
+      "reason": "The site's authoritative root and standalone-backend locks are npm, not the starter's pnpm graph."
+    },
+    {
+      "status": "A",
+      "path": "pnpm-workspace.yaml",
+      "decision": "not-applicable",
+      "targets": [
+        "package.json",
+        ".npmrc"
+      ],
+      "reason": "Retain npm workspaces, strict script admission and registry-signature verification rather than creating a second package-manager graph."
+    },
+    {
+      "status": "D",
+      "path": "postcss.config.js",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "A",
+      "path": "public/_headers",
+      "decision": "integrated",
+      "targets": [
+        "netlify.toml",
+        "deploy/nginx/jacobdanderson.conf.example"
+      ],
+      "reason": "Map the template's immutable asset policy into maintained host contracts, preserving private metadata/API cache rules and CSP."
+    },
+    {
+      "status": "A",
+      "path": "public/favicon-dark.svg",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/public/site.webmanifest",
+        "front-end/public/icons/site-icon.svg"
+      ],
+      "reason": "Retain the site's approved branding and icons instead of starter logos."
+    },
+    {
+      "status": "M",
+      "path": "public/favicon.svg",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/public/site.webmanifest",
+        "front-end/public/icons/site-icon.svg"
+      ],
+      "reason": "Retain the site's approved branding and icons instead of starter logos."
+    },
+    {
+      "status": "A",
+      "path": "public/pwa-192x192.png",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/public/site.webmanifest",
+        "front-end/public/icons/site-icon.svg"
+      ],
+      "reason": "Retain the site's approved branding and icons instead of starter logos."
+    },
+    {
+      "status": "A",
+      "path": "public/pwa-512x512.png",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/public/site.webmanifest",
+        "front-end/public/icons/site-icon.svg"
+      ],
+      "reason": "Retain the site's approved branding and icons instead of starter logos."
+    },
+    {
+      "status": "A",
+      "path": "public/safari-pinned-tab.svg",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/public/site.webmanifest",
+        "front-end/public/icons/site-icon.svg"
+      ],
+      "reason": "Retain the site's approved branding and icons instead of starter logos."
+    },
+    {
+      "status": "M",
+      "path": "src/App.vue",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/App.vue",
+        "front-end/src/utils/ssgHead.ts"
+      ],
+      "reason": "Retain actual portfolio metadata and private-safe SRI-pinned analytics through the independently supported Unhead 3 bridge."
+    },
+    {
+      "status": "A",
+      "path": "src/auto-imports.d.ts",
+      "decision": "integrated",
+      "targets": [
+        "front-end/src/auto-imports.d.ts",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "Regenerate from supported Vue/Unhead/router imports and include local composables as well as stores."
+    },
+    {
+      "status": "A",
+      "path": "src/components.d.ts",
+      "decision": "already-integrated",
+      "targets": [
+        "front-end/src/components.d.ts",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "Generate declarations for actual site components, not uninstalled demo/i18n components."
+    },
+    {
+      "status": "D",
+      "path": "src/components/Footer.vue",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "D",
+      "path": "src/components/Icon.vue",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "D",
+      "path": "src/components/Modal.vue",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "A",
+      "path": "src/components/README.md",
+      "decision": "site-specific",
+      "targets": [
+        "README.md"
+      ],
+      "reason": "The monorepo documentation describes actual module, route and component ownership."
+    },
+    {
+      "status": "A",
+      "path": "src/components/TheCounter.vue",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/components"
+      ],
+      "reason": "Unused starter demo components/macros are not current site functionality."
+    },
+    {
+      "status": "A",
+      "path": "src/components/TheFooter.vue",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/components/TheFooter.vue"
+      ],
+      "reason": "Keep the site's substantive footer/navigation rather than demo language and theme controls."
+    },
+    {
+      "status": "A",
+      "path": "src/components/TheInput.vue",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/components"
+      ],
+      "reason": "Unused starter demo components/macros are not current site functionality."
+    },
+    {
+      "status": "D",
+      "path": "src/components/index.ts",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "A",
+      "path": "src/composables/dark.ts",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/styles/main.css"
+      ],
+      "reason": "The site follows the system color scheme; importing a separate demo theme toggle would replace existing design behavior."
+    },
+    {
+      "status": "A",
+      "path": "src/layouts/404.vue",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/pages/[...all].vue"
+      ],
+      "reason": "The current catch-all implements the site's not-found behavior."
+    },
+    {
+      "status": "A",
+      "path": "src/layouts/README.md",
+      "decision": "site-specific",
+      "targets": [
+        "README.md"
+      ],
+      "reason": "The monorepo documentation describes actual module, route and component ownership."
+    },
+    {
+      "status": "A",
+      "path": "src/layouts/default.vue",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/layouts/default.vue"
+      ],
+      "reason": "Keep the actual accessible layout, not visible starter-layout annotations."
+    },
+    {
+      "status": "A",
+      "path": "src/layouts/home.vue",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/layouts/home.vue"
+      ],
+      "reason": "Keep the actual homepage layout and its content."
+    },
+    {
+      "status": "D",
+      "path": "src/main.postcss",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "M",
+      "path": "src/main.ts",
+      "decision": "already-integrated",
+      "targets": [
+        "front-end/src/main.ts"
+      ],
+      "reason": "Typed module installation, generated Vue Router 5 routes and SSG are present; preserve scrolling, head and privacy extensions."
+    },
+    {
+      "status": "A",
+      "path": "src/modules/README.md",
+      "decision": "site-specific",
+      "targets": [
+        "README.md"
+      ],
+      "reason": "The monorepo documentation describes actual module, route and component ownership."
+    },
+    {
+      "status": "A",
+      "path": "src/modules/i18n.ts",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "No reviewed translated portfolio content exists; do not add demo locale selection or fictional translations."
+    },
+    {
+      "status": "A",
+      "path": "src/modules/nprogress.ts",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/main.ts"
+      ],
+      "reason": "There is no progress-bar consumer in this design; keep the current navigation and analytics lifecycle."
+    },
+    {
+      "status": "A",
+      "path": "src/modules/pinia.ts",
+      "decision": "integrated",
+      "targets": [
+        "front-end/src/modules/pinia.ts",
+        "front-end/test/pinia.test.ts"
+      ],
+      "reason": "Use the explicit SSG client/server context; verify serialization, hydration and per-request state isolation."
+    },
+    {
+      "status": "A",
+      "path": "src/modules/pwa.ts",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/public/site.webmanifest"
+      ],
+      "reason": "Retain the site's manifest without introducing an unapproved service worker, offline data cache or automatic page reload."
+    },
+    {
+      "status": "A",
+      "path": "src/pages/README.md",
+      "decision": "site-specific",
+      "targets": [
+        "README.md"
+      ],
+      "reason": "The monorepo documentation describes actual module, route and component ownership."
+    },
+    {
+      "status": "A",
+      "path": "src/pages/[...all].vue",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/pages/[...all].vue"
+      ],
+      "reason": "Preserve the relocated and tested site not-found route."
+    },
+    {
+      "status": "A",
+      "path": "src/pages/about.md",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/pages/about.vue"
+      ],
+      "reason": "The real About page is reviewed Vue content, not template Markdown."
+    },
+    {
+      "status": "M",
+      "path": "src/pages/hi/[name].vue",
+      "decision": "not-applicable",
+      "targets": [
+        "scripts/check-static-output.mjs"
+      ],
+      "reason": "The removed hello-name demo must not be restored; static acceptance forbids its output."
+    },
+    {
+      "status": "M",
+      "path": "src/pages/index.vue",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/pages/index.vue"
+      ],
+      "reason": "Keep the actual portfolio homepage and curated catalog."
+    },
+    {
+      "status": "A",
+      "path": "src/route-map.d.ts",
+      "decision": "already-integrated",
+      "targets": [
+        "front-end/src/route-map.d.ts",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The current Vue Router 5 generator already produces the site's exact typed route map."
+    },
+    {
+      "status": "D",
+      "path": "src/shims-vue.d.ts",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "A",
+      "path": "src/shims.d.ts",
+      "decision": "already-integrated",
+      "targets": [
+        "front-end/src/shims.d.ts"
+      ],
+      "reason": "The relocated Vue and generated-layout shims already cover the supported site build."
+    },
+    {
+      "status": "A",
+      "path": "src/stores/user.ts",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/modules/pinia.ts"
+      ],
+      "reason": "The upstream remembered-name demo is not an application account system or current portfolio feature."
+    },
+    {
+      "status": "A",
+      "path": "src/styles/main.css",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/src/styles/main.css"
+      ],
+      "reason": "Keep the actual accessible design and system light/dark scheme; template progress-bar/markdown styling has no active consumer."
+    },
+    {
+      "status": "A",
+      "path": "src/styles/markdown.css",
+      "decision": "not-applicable",
+      "targets": [
+        "front-end/src/pages"
+      ],
+      "reason": "The site serves reviewed Vue pages, not the starter's Markdown demos."
+    },
+    {
+      "status": "A",
+      "path": "src/types.ts",
+      "decision": "already-integrated",
+      "targets": [
+        "front-end/src/types.ts"
+      ],
+      "reason": "The relocated UserModule already uses the maintained ViteSSG context."
+    },
+    {
+      "status": "D",
+      "path": "src/utils/dark.ts",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "D",
+      "path": "src/window.d.ts",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "D",
+      "path": "tailwind.config.js",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "A",
+      "path": "test/__snapshots__/component.test.ts.snap",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/test",
+        "scripts/hydrated-head-smoke.mjs",
+        "scripts/a11y-smoke.mjs",
+        ".github/workflows/ci.yml"
+      ],
+      "reason": "Keep current unit, production-browser and accessibility coverage of this application rather than restoring hello/counter demo tests or a redundant browser installation."
+    },
+    {
+      "status": "A",
+      "path": "test/basic.test.ts",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/test",
+        "scripts/hydrated-head-smoke.mjs",
+        "scripts/a11y-smoke.mjs",
+        ".github/workflows/ci.yml"
+      ],
+      "reason": "Keep current unit, production-browser and accessibility coverage of this application rather than restoring hello/counter demo tests or a redundant browser installation."
+    },
+    {
+      "status": "A",
+      "path": "test/component.test.ts",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/test",
+        "scripts/hydrated-head-smoke.mjs",
+        "scripts/a11y-smoke.mjs",
+        ".github/workflows/ci.yml"
+      ],
+      "reason": "Keep current unit, production-browser and accessibility coverage of this application rather than restoring hello/counter demo tests or a redundant browser installation."
+    },
+    {
+      "status": "M",
+      "path": "tsconfig.json",
+      "decision": "integrated",
+      "targets": [
+        "tsconfig.base.json",
+        "front-end/tsconfig.json",
+        "front-end/tsconfig.node.json"
+      ],
+      "reason": "Use Vue's preserved JSX and the existing strict bundler/project references without importing absent PWA/macros globals."
+    },
+    {
+      "status": "A",
+      "path": "uno.config.ts",
+      "decision": "site-specific",
+      "targets": [
+        "front-end/uno.config.ts",
+        "front-end/public/assets/fonts"
+      ],
+      "reason": "Use the maintained explicit Wind3 preset and existing prebundled local fonts, preserving design and network-independent builds."
+    },
+    {
+      "status": "D",
+      "path": "vite.config.js",
+      "decision": "retired",
+      "targets": [
+        "front-end/src",
+        "front-end/vite.config.mts"
+      ],
+      "reason": "The obsolete root-era module/config is already retired; preserve its maintained frontend replacement."
+    },
+    {
+      "status": "A",
+      "path": "vite.config.ts",
+      "decision": "integrated",
+      "targets": [
+        "front-end/vite.config.mts"
+      ],
+      "reason": "Keep the current Vite 8/Vue Router 5 pipeline and supported head/CSS bridges; add local composable discovery without installing unused demo plugins."
+    }
+  ]
+}

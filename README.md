@@ -53,3 +53,20 @@ hydration/navigation pageviews, administration privacy, and rejected bad pins
 using the approved tracker bytes and a synthetic collector.
 
 The public site has no application account, session, role, promotion, or demotion system. Project administration is a narrow host-authenticated operation, not a general application login.
+
+## Upstream integration
+
+Vitesse `a8785264f83c2ebe1b3cf689296775a4949957c8` is merged into this
+monorepo's history. `docs/upstream-vitesse.json` records all 92 changed paths
+since the shared ancestor, their maintained local targets and the reason for
+each integration or application-specific replacement. `npm run verify:upstream`
+requires the actual merged ancestry and complete exact path accounting; CI runs
+it with full history before artifact acceptance.
+
+Framework updates are mapped into `front-end/`. Keep actual portfolio content,
+branding, privacy, administration, npm lockfiles and direct-deployment contracts
+when reconciling future starter changes. The hello/counter pages, demo locales,
+optional service worker, container deployment and external starter branding are
+not application features. Pinia state is serialized or hydrated from the explicit
+SSG request context, with independent-request regression coverage. Generated
+routes use Vue Router 5; the superseded pages plugin is no longer installed.

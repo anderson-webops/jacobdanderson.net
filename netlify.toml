@@ -24,6 +24,12 @@ X-Content-Type-Options = "nosniff"
 X-Frame-Options = "DENY"
 
 [[headers]]
+for = "/assets/*"
+
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
 for = "/site.webmanifest"
 
 [headers.values]

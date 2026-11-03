@@ -65,7 +65,7 @@ export default defineConfig(({ command }) => ({
 				globalsPropValue: true // all the auto-imports become readonly globals
 			},
 			dts: "src/auto-imports.d.ts",
-			dirs: ["src/stores"],
+			dirs: ["src/composables", "src/stores"],
 			vueTemplate: true
 		}),
 

@@ -68,6 +68,7 @@ declare global {
   const useLink: typeof import('vue-router/auto').useLink
   const useMainStore: typeof import('./stores/index').useMainStore
   const useModel: typeof import('vue').useModel
+  const useProjectVisibility: typeof import('./composables/useProjectVisibility').useProjectVisibility
   const useRoute: typeof import('vue-router').useRoute
   const useRouter: typeof import('vue-router').useRouter
   const useSeoMeta: typeof import('@unhead/vue').useSeoMeta
@@ -156,6 +157,7 @@ declare module 'vue' {
     readonly useLink: UnwrapRef<typeof import('vue-router/auto')['useLink']>
     readonly useMainStore: UnwrapRef<typeof import('./stores/index')['useMainStore']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly useProjectVisibility: UnwrapRef<typeof import('./composables/useProjectVisibility')['useProjectVisibility']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
     readonly useSeoMeta: UnwrapRef<typeof import('@unhead/vue')['useSeoMeta']>
