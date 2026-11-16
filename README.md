@@ -9,11 +9,14 @@ Public Vite SSG portfolio plus a small loopback-only Express API for health, rea
 - `deploy/`: direct Nginx and systemd contracts. Production does not use Docker.
 - `HEALTHCHECKS.md`: monitor behavior.
 - `SECURITY.md`: authentication, authorization, and data boundaries.
-- `DEPLOYMENT.md`: immutable runtime artifact and rollback workflow.
+- `DEPLOYMENT.md`: source-owned immutable artifact and compatibility contract.
 
 ## Local validation
 
 ```bash
+bin="$(node scripts/build-toolchain.mjs --print-bin)"
+export PATH="$bin:$PATH"
+npm run verify:toolchain
 npm ci --include=optional --strict-allow-scripts
 npm audit
 npm audit --omit=dev
@@ -29,7 +32,7 @@ npm run artifact:verify
 RUNTIME_ARTIFACT_MONGO_URI=mongodb://127.0.0.1:27017 npm run artifact:smoke
 ```
 
-Use Node `26.13.0` and npm `12.2.1`. The supported MongoDB server is `9.0.4`, the version CI runs the artifact acceptance against with the locked MongoDB 7 driver. The root lockfile governs the monorepo build. `back-end/package-lock.json` separately governs the exact standalone production install copied into the runtime artifact.
+Use Node `26.13.1` and the independent locked npm `12.2.2` profile selected above. Its reviewed CLI, transitive dependencies, compatibility inputs and complete payload are checked before use; build tools remain outside runtime archives. The supported MongoDB server is `9.0.4`, the version CI runs the artifact acceptance against with the locked MongoDB 7 driver. The root lockfile governs the monorepo build. `back-end/package-lock.json` separately governs the exact standalone production install copied into the runtime artifact.
 
 The locked install verifies and patches the exact `vite-plugin-vue-layouts-next` 3.3.1 import for audited `brace-expansion` 5.0.13. Unexpected upstream bytes stop the install for review.
 

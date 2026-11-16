@@ -30,10 +30,11 @@ if [[ -n "$(git -C "$candidate" status --porcelain)" ]]; then
 	echo "Candidate checkout must be clean before release artifact preparation." >&2
 	exit 1
 fi
-if [[ "$(node --version)" != "v26.13.0" || "$(npm --version)" != "12.2.1" ]]; then
-	echo "Preparation requires Node 26.13.0 and npm 12.2.1." >&2
+if [[ "$(node --version)" != "v26.13.1" || "$(npm --version)" != "12.2.2" ]]; then
+	echo "Preparation requires Node 26.13.1 and the locked npm 12.2.2 build profile." >&2
 	exit 1
 fi
+node "$candidate/scripts/check-build-toolchain.mjs"
 if [[ -z "${RUNTIME_ARTIFACT_MONGO_URI:-}" ]]; then
 	echo "Set RUNTIME_ARTIFACT_MONGO_URI to an isolated synthetic acceptance database." >&2
 	exit 1

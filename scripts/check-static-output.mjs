@@ -83,11 +83,37 @@ for (const file of requiredFiles.filter(name => name.endsWith("index.html"))) {
 }
 
 const sitemap = readOutput("sitemap.xml");
+const sitemapTargets = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/gu)].map(match => new URL(match[1]));
+if (!sitemapTargets.length || sitemapTargets.some(target =>
+	target.origin !== "https://jacobdanderson.net" || target.username || target.password || target.search || target.hash
+)) {
+	console.error("Static output check failed for front-end/dist/sitemap.xml: canonical site URLs are required.");
+	process.exit(1);
+}
 if (sitemap.includes("/admin") || sitemap.includes("/other-projects")) {
 	console.error("Static output check failed for front-end/dist/sitemap.xml: unlisted routes must be excluded.");
 	process.exit(1);
 }
-requireMatch("robots.txt", /Disallow: \/admin/, "admin crawler rule missing");
-requireMatch("robots.txt", /Disallow: \/api/, "API crawler rule missing");
+const restrictedBots = ["GPTBot", "ClaudeBot", "Google-Extended"];
+const searchableBots = [
+	"Googlebot",
+	"Bingbot",
+	"OAI-SearchBot",
+	"Claude-SearchBot",
+	"PerplexityBot",
+	"Perplexity-User",
+	"Claude-User",
+	"*"
+];
+const expectedRobots = [
+	...restrictedBots.flatMap(bot => [`User-agent: ${bot}`, "Disallow: /"]),
+	...searchableBots.flatMap(bot => [`User-agent: ${bot}`, "Allow: /", "Disallow: /admin", "Disallow: /api"]),
+	"",
+	"Sitemap: https://jacobdanderson.net/sitemap.xml"
+].join("\n");
+if (readOutput("robots.txt").trim() !== expectedRobots) {
+	console.error("Static output check failed for front-end/dist/robots.txt: reviewed crawler policy changed.");
+	process.exit(1);
+}
 
 console.log("Static output shape and metadata ok.");

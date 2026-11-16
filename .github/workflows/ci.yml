@@ -16,8 +16,8 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  NODE_VERSION: 26.13.0
-  NPM_VERSION: 12.2.1
+  NODE_VERSION: 26.13.1
+  NPM_VERSION: 12.2.2
   PUPPETEER_SKIP_DOWNLOAD: true
 
 jobs:
@@ -25,11 +25,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm run lint
 
@@ -37,11 +43,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm run typecheck
 
@@ -49,11 +61,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm test
 
@@ -61,11 +79,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm ci --include=optional --strict-allow-scripts
       - name: Verify installed dependency graph
         run: npm ls --all --parseable > /dev/null
@@ -88,11 +112,17 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm ci --include=optional --strict-allow-scripts
       - run: npm run a11y
 
@@ -100,11 +130,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm ci --include=optional --strict-allow-scripts
       - name: Build exact source
         env:
@@ -122,22 +158,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm run verify:platform-install
 
   nginx-contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm ci --include=optional --strict-allow-scripts
       - run: sudo apt-get update && sudo apt-get install --yes nginx
       - run: npm run smoke:nginx
@@ -160,20 +208,26 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm install --global "npm@${NPM_VERSION}"
+          package-manager-cache: false
+      - name: Prepare the independent locked build toolchain
+        run: |
+          bin="$(node scripts/build-toolchain.mjs --print-bin)"
+          printf '%s\n' "$bin" >> "$GITHUB_PATH"
+          "$bin/node" scripts/check-build-toolchain.mjs
       - run: npm ci --include=optional --strict-allow-scripts
       - name: Verify release tag identity
         if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           test "$(git cat-file -t "refs/tags/${GITHUB_REF_NAME}")" = tag
           test "$(git rev-parse "refs/tags/${GITHUB_REF_NAME}^{commit}")" = "${GITHUB_SHA}"
           [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
-          git fetch --no-tags origin '+refs/heads/main:refs/remotes/origin/main'
-          test "$(git rev-parse refs/remotes/origin/main)" = "${GITHUB_SHA}"
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)" = "${GITHUB_SHA}"
       - run: npm run verify:upstream
       - name: Build exact source
         env:
@@ -196,6 +250,23 @@ jobs:
           npm audit --prefix .runtime-artifact/back-end --omit=dev
           npm run artifact:pack
           npm run artifact:archive-smoke
+      - name: Rehearse the exact retained Node 26 artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNTIME_ARTIFACT_MONGO_URI: mongodb://127.0.0.1:27017
+          RUNTIME_ARTIFACT_REQUIRE_MONGO: true
+        run: |
+          prior_root="$RUNNER_TEMP/portfolio-v2.14.7-retained"
+          mkdir -p "$prior_root/extracted"
+          gh release download v2.14.7 -R "$GITHUB_REPOSITORY" -D "$prior_root" -p jacobdanderson.net-runtime.tar.gz
+          printf '%s  %s\n' 'e39b030cc82fdba5a23f9ad091df4e6b316f34fe6d2ba54e3995ee051b1228c5' "$prior_root/jacobdanderson.net-runtime.tar.gz" | sha256sum --check
+          python3 -B deploy/systemd/extract-runtime-artifact.py "$prior_root/jacobdanderson.net-runtime.tar.gz" "$prior_root/extracted"
+          if RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE26=false RUNTIME_ARTIFACT_EXPECT_COMMIT=9109c6f4008c35f08e7f3f563a0f56d9c87adc0d RUNTIME_ARTIFACT_REQUIRE_CLEAN=true node scripts/verify-runtime-artifact.mjs "$prior_root/extracted" >/dev/null 2>&1; then
+            echo 'Retained Node 26 artifact was accepted as a new candidate.' >&2
+            exit 1
+          fi
+          RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE26=true RUNTIME_ARTIFACT_EXPECT_COMMIT=9109c6f4008c35f08e7f3f563a0f56d9c87adc0d RUNTIME_ARTIFACT_REQUIRE_CLEAN=true node scripts/verify-runtime-artifact.mjs "$prior_root/extracted"
+          RUNTIME_ARTIFACT_ROOT="$prior_root/extracted" RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE26=true RUNTIME_ARTIFACT_EXPECT_COMMIT=9109c6f4008c35f08e7f3f563a0f56d9c87adc0d RUNTIME_ARTIFACT_REQUIRE_CLEAN=true npm run artifact:smoke
       - name: Rehearse retained Node 24 artifact under Node 26
         env:
           GH_TOKEN: ${{ github.token }}
@@ -220,5 +291,8 @@ jobs:
           path: |
             jacobdanderson.net-runtime.tar.gz
             jacobdanderson.net-runtime.tar.gz.sha256
+            jacobdanderson.net-runtime-manifest.json
+            jacobdanderson.net-runtime-contract.json
+            jacobdanderson.net-provenance.json
           if-no-files-found: error
           retention-days: 14

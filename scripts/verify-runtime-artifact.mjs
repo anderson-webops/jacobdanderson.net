@@ -62,7 +62,8 @@ function impliedDirectories(files) {
 	return [...directories].sort();
 }
 
-const manifest = JSON.parse(await readFile(path.join(artifactRoot, manifestName), "utf8"));
+const manifestBytes = await readFile(path.join(artifactRoot, manifestName));
+const manifest = JSON.parse(manifestBytes);
 if (manifest.schemaVersion !== 1 || manifest.service !== "jacobdanderson.net") {
 	throw new Error("Runtime artifact manifest has an unsupported identity or schema version.");
 }
@@ -76,11 +77,30 @@ const expectedCommit = process.env.RUNTIME_ARTIFACT_EXPECT_COMMIT;
 if (expectedCommit && !manifest.source.commit.startsWith(expectedCommit)) {
 	throw new Error(`Runtime artifact source ${manifest.source.commit} does not match ${expectedCommit}.`);
 }
-const currentToolchain = manifest.toolchain?.node === "v26.13.0" && manifest.toolchain?.npm === "12.2.1";
+const expectedBuildSdk = {
+	schemaVersion: 1,
+	repository: "anderson-webops/vitesse-nuxt-template",
+	commit: "a4dd6f9fcce9bec4275c688d165b993cb7b5ef22",
+	profile: "webops-locked-npm-v1",
+	lockSha256: "87f602703478c129d228479cd4638f46e36057fd9299d214090057ca75d74bde",
+	payloadTreeSha256: "266bb8045b5fd0c689010b9b1b1ec44a489147607836dc583243087e23fcc7b8",
+	archiveSha256: "937f92496a66d6a89955961eb2c70a8e873e4b407b1d4c09e77a0ddec0fafe4d"
+};
+const currentToolchain = manifest.toolchain?.node === "v26.13.1" && manifest.toolchain?.npm === "12.2.2"
+	&& Object.keys(manifest.toolchain.buildSdk || {}).length === Object.keys(expectedBuildSdk).length
+	&& Object.entries(expectedBuildSdk).every(([key, value]) => manifest.toolchain.buildSdk?.[key] === value);
+const retainedNode26 = process.env.RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE26 === "true"
+	&& process.env.RUNTIME_ARTIFACT_REQUIRE_CLEAN === "true"
+	&& expectedCommit === "9109c6f4008c35f08e7f3f563a0f56d9c87adc0d"
+	&& manifest.source.commit === expectedCommit
+	&& manifest.source.dirty === false
+	&& manifest.source.tag === "v2.14.7"
+	&& manifest.toolchain?.node === "v26.13.0" && manifest.toolchain?.npm === "12.2.1"
+	&& createHash("sha256").update(manifestBytes).digest("hex") === "884b17b6394768031f15dcb54a696fdb31f24b9a25794cad1eed751035a5fbf8";
 const retainedToolchain = process.env.RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24 === "true"
 	&& manifest.toolchain?.node === "v24.18.1" && manifest.toolchain?.npm === "12.0.2";
-if (!currentToolchain && !retainedToolchain) {
-	throw new Error("Runtime artifact toolchain is neither the pinned Node 26.13.0/npm 12.2.1 release nor an explicitly permitted retained Node 24.18.1/npm 12.0.2 rollback.");
+if (!currentToolchain && !retainedNode26 && !retainedToolchain) {
+	throw new Error("Runtime artifact toolchain must identify the reviewed Node 26.13.1/npm 12.2.2 SDK or an explicitly permitted retained runtime.");
 }
 if (JSON.stringify(manifest.requiredPaths) !== JSON.stringify(independentRequiredPaths)) {
 	throw new Error("Runtime artifact required-path contract does not match the independent verifier.");
@@ -95,7 +115,18 @@ for (const relativePath of independentRequiredPaths) {
 		throw new Error(`Runtime artifact is missing required file: ${relativePath}`);
 	}
 }
-for (const forbiddenPath of [".env", "back-end/.env", "front-end/.env", ".git"]) {
+for (const forbiddenPath of [
+	".env",
+	"back-end/.env",
+	"front-end/.env",
+	".git",
+	".ai-work",
+	"build-toolchain",
+	"vendor",
+	"node_modules",
+	"scripts",
+	"back-end/node_modules/npm"
+]) {
 	try {
 		await lstat(path.join(artifactRoot, forbiddenPath));
 		throw new Error(`Runtime artifact contains forbidden private/source path: ${forbiddenPath}`);
@@ -129,7 +160,7 @@ if (JSON.stringify(dependencies) !== JSON.stringify(manifest.productionDependenc
 }
 if (
 	backendPackage.allowScripts?.["esbuild@0.28.2"] !== false
-	|| (currentToolchain && backendPackage.allowScripts?.["fsevents@2.3.3"] !== false)
+	|| ((currentToolchain || retainedNode26) && backendPackage.allowScripts?.["fsevents@2.3.3"] !== false)
 	|| backendPackage.allowScripts?.mongodb !== false
 	|| backendLock.packages?.[""]?.name !== backendPackage.name
 ) {

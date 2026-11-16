@@ -13,8 +13,52 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { nodeIdentity, verifyReusableToolchain } from "./build-toolchain-cache.mjs";
+import { toolchainMetadata } from "./build-toolchain-state.mjs";
 
 const root = await realpath(process.cwd());
+if (!process.env.npm_execpath) throw new Error("Run artifact:build through the selected locked npm profile.");
+const npmExecPath = await realpath(process.env.npm_execpath);
+const npmPrefix = path.resolve(path.dirname(npmExecPath), "../../..");
+if (npmExecPath !== path.join(npmPrefix, "node_modules/npm/bin/npm-cli.js")) {
+	throw new Error("Artifact builds require the locked profile's npm JavaScript entrypoint.");
+}
+const buildSdk = {
+	schemaVersion: 1,
+	repository: "anderson-webops/vitesse-nuxt-template",
+	commit: "a4dd6f9fcce9bec4275c688d165b993cb7b5ef22",
+	profile: "webops-locked-npm-v1",
+	lockSha256: "87f602703478c129d228479cd4638f46e36057fd9299d214090057ca75d74bde",
+	payloadTreeSha256: "266bb8045b5fd0c689010b9b1b1ec44a489147607836dc583243087e23fcc7b8",
+	archiveSha256: "937f92496a66d6a89955961eb2c70a8e873e4b407b1d4c09e77a0ddec0fafe4d"
+};
+const runtimeContract = JSON.parse(await readFile(path.join(root, "deploy/runtime-artifact.json"), "utf8")).runtime;
+if (
+	runtimeContract?.node !== "26.13.1"
+	|| runtimeContract.npmBuildOnly !== "12.2.2"
+	|| runtimeContract.npmBuildProfile !== buildSdk.profile
+	|| runtimeContract.npmBuildLockSha256 !== buildSdk.lockSha256
+	|| runtimeContract.npmBuildPayloadSha256 !== buildSdk.payloadTreeSha256
+) {
+	throw new Error("Runtime artifact contract does not identify the reviewed Node/npm build profile.");
+}
+
+function verifyBuildSdk() {
+	const receipt = verifyReusableToolchain(npmPrefix, nodeIdentity());
+	if (
+		process.version !== "v26.13.1"
+		|| receipt.node !== "26.13.1"
+		|| receipt.versions.npm !== "12.2.2"
+		|| receipt.profile !== buildSdk.profile
+		|| receipt.lockSha256 !== buildSdk.lockSha256
+		|| receipt.payloadTreeSha256 !== buildSdk.payloadTreeSha256
+		|| toolchainMetadata.archiveSha256 !== buildSdk.archiveSha256
+	) {
+		throw new Error("Artifact builds require the exact reviewed Node 26.13.1/npm 12.2.2 SDK.");
+	}
+}
+
+verifyBuildSdk();
 const artifactRoot = path.join(root, ".runtime-artifact");
 const manifestName = ".runtime-manifest.json";
 const requiredPaths = [
@@ -45,8 +89,6 @@ function gitOptional(args) {
 }
 
 function runSelectedNpm(args, cwd) {
-	const npmExecPath = process.env.npm_execpath;
-	if (!npmExecPath) throw new Error("Run artifact:build through npm so the selected npm executable is known.");
 	const environment = { ...process.env };
 	delete environment.npm_config_global_ignore_file;
 	delete environment.NPM_CONFIG_GLOBAL_IGNORE_FILE;
@@ -165,6 +207,7 @@ if (!/^[a-f0-9]{12,40}$/u.test(deploymentCommit) || !sourceCommit.startsWith(dep
 	throw new Error("Frontend deployment metadata does not identify the artifact source commit.");
 }
 const sourceTimestamp = Number.parseInt(git(["show", "-s", "--format=%ct", "HEAD"]), 10);
+verifyBuildSdk();
 const manifest = {
 	entrypoints: { api: "back-end/dist/server.js", webRoot: "front-end/dist" },
 	externalState: ["MongoDB project visibility and audit records remain outside immutable releases."],
@@ -186,7 +229,8 @@ const manifest = {
 	staticAssets: ["front-end/dist"],
 	toolchain: {
 		node: process.version,
-		npm: spawnSync(process.execPath, [process.env.npm_execpath, "--version"], { encoding: "utf8" }).stdout.trim()
+		npm: "12.2.2",
+		buildSdk
 	},
 	writablePaths: []
 };

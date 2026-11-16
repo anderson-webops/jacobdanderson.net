@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { Buffer } from "node:buffer";
 import { spawn, spawnSync } from "node:child_process";
-import { cp, mkdir, mkdtemp, readFile, realpath, rm } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
@@ -20,6 +21,7 @@ function cleanEnvironment(overrides = {}) {
 		HOME: process.env.HOME || "",
 		LANG: "C.UTF-8",
 		PATH: process.env.PATH || "",
+		TMPDIR: process.env.TMPDIR || os.tmpdir(),
 		...overrides
 	};
 }
@@ -147,19 +149,70 @@ try {
 		cp(sourceArtifact, artifactRoot, { recursive: true }),
 		cp(sourceVerifier, verifier)
 	]);
-	const manifest = JSON.parse(await readFile(path.join(artifactRoot, ".runtime-manifest.json"), "utf8"));
+	const manifestPath = path.join(artifactRoot, ".runtime-manifest.json");
+	const manifestBytes = await readFile(manifestPath);
+	const manifest = JSON.parse(manifestBytes);
 	const expectedCommit = process.env.RUNTIME_ARTIFACT_EXPECT_COMMIT || manifest.source.commit;
 	const requireClean = process.env.RUNTIME_ARTIFACT_REQUIRE_CLEAN || "false";
 	const allowRetainedNode24 = process.env.RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24 === "true" ? "true" : "false";
+	const allowRetainedNode26 = process.env.RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE26 === "true" ? "true" : "false";
+	const verificationEnvironment = cleanEnvironment({
+		RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24: allowRetainedNode24,
+		RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE26: allowRetainedNode26,
+		RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit,
+		RUNTIME_ARTIFACT_REQUIRE_CLEAN: requireClean
+	});
 	const verification = runSync(process.execPath, [verifier, artifactRoot], {
 		cwd: acceptanceRoot,
-		env: cleanEnvironment({
-			RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24: allowRetainedNode24,
-			RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit,
-			RUNTIME_ARTIFACT_REQUIRE_CLEAN: requireClean
-		})
+		env: verificationEnvironment
 	});
 	assert.equal(verification.status, 0, verification.output);
+	if (manifest.toolchain.node === "v26.13.1") {
+		try {
+			for (const buildSdk of [
+				undefined,
+				{ ...manifest.toolchain.buildSdk, lockSha256: "0".repeat(64) },
+				{ ...manifest.toolchain.buildSdk, payloadTreeSha256: "0".repeat(64) },
+				{ ...manifest.toolchain.buildSdk, commit: "0".repeat(40) }
+			]) {
+				await writeFile(manifestPath, JSON.stringify({ ...manifest, toolchain: { ...manifest.toolchain, buildSdk } }));
+				const invalidSdk = runSync(process.execPath, [verifier, artifactRoot], {
+					cwd: acceptanceRoot,
+					env: verificationEnvironment
+				});
+				assert.notEqual(invalidSdk.status, 0, invalidSdk.output);
+				assert.match(invalidSdk.output, /toolchain/iu);
+			}
+		}
+		finally {
+			await writeFile(manifestPath, manifestBytes);
+		}
+	}
+	if (manifest.toolchain.node === "v26.13.0") {
+		for (const overrides of [
+			{ RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE26: "false" },
+			{ RUNTIME_ARTIFACT_EXPECT_COMMIT: "0".repeat(40) },
+			{ RUNTIME_ARTIFACT_REQUIRE_CLEAN: "false" }
+		]) {
+			const invalidRetained = runSync(process.execPath, [verifier, artifactRoot], {
+				cwd: acceptanceRoot,
+				env: { ...verificationEnvironment, ...overrides }
+			});
+			assert.notEqual(invalidRetained.status, 0, invalidRetained.output);
+		}
+		try {
+			await writeFile(manifestPath, Buffer.concat([manifestBytes, Buffer.from("\n")]));
+			const changedRetained = runSync(process.execPath, [verifier, artifactRoot], {
+				cwd: acceptanceRoot,
+				env: verificationEnvironment
+			});
+			assert.notEqual(changedRetained.status, 0, changedRetained.output);
+			assert.match(changedRetained.output, /toolchain/iu);
+		}
+		finally {
+			await writeFile(manifestPath, manifestBytes);
+		}
+	}
 	assert.match(await readFile(path.join(artifactRoot, "front-end/dist/index.html"), "utf8"), /<html/iu);
 
 	const missingConfiguration = runSync(
@@ -338,10 +391,7 @@ try {
 	await mkdir(unexpectedDirectory);
 	const unmanifestedDirectory = runSync(process.execPath, [verifier, artifactRoot], {
 		cwd: acceptanceRoot,
-		env: cleanEnvironment({
-			RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24: allowRetainedNode24,
-			RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit
-		})
+		env: verificationEnvironment
 	});
 	assert.notEqual(unmanifestedDirectory.status, 0);
 	assert.match(unmanifestedDirectory.output, /directory inventory mismatch/iu);
@@ -350,10 +400,7 @@ try {
 	await rm(path.join(artifactRoot, "back-end/dist/projectCatalog.js"));
 	const missingModule = runSync(process.execPath, [verifier, artifactRoot], {
 		cwd: acceptanceRoot,
-		env: cleanEnvironment({
-			RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24: allowRetainedNode24,
-			RUNTIME_ARTIFACT_EXPECT_COMMIT: expectedCommit
-		})
+		env: verificationEnvironment
 	});
 	assert.notEqual(missingModule.status, 0);
 	assert.match(missingModule.output, /inventory or hash mismatch.*projectCatalog\.js/iu);

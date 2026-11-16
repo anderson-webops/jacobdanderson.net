@@ -1,20 +1,38 @@
 import { spawn } from "node:child_process";
-import { cp, mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, realpath, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
+import { nodeIdentity, verifyReusableToolchain } from "./build-toolchain-cache.mjs";
 
 const root = process.cwd();
+if (!process.env.npm_execpath) throw new Error("Run platform qualification through the selected locked npm profile.");
+const npmExecPath = await realpath(process.env.npm_execpath);
+const npmPrefix = path.resolve(path.dirname(npmExecPath), "../../..");
+if (npmExecPath !== path.join(npmPrefix, "node_modules/npm/bin/npm-cli.js")) {
+	throw new Error("Platform qualification requires the locked profile's npm JavaScript entrypoint.");
+}
+const receipt = verifyReusableToolchain(npmPrefix, nodeIdentity());
+if (
+	process.version !== "v26.13.1"
+	|| receipt.node !== "26.13.1"
+	|| receipt.versions.npm !== "12.2.2"
+	|| receipt.profile !== "webops-locked-npm-v1"
+	|| receipt.lockSha256 !== "87f602703478c129d228479cd4638f46e36057fd9299d214090057ca75d74bde"
+	|| receipt.payloadTreeSha256 !== "266bb8045b5fd0c689010b9b1b1ec44a489147607836dc583243087e23fcc7b8"
+) {
+	throw new Error("Platform qualification requires the exact reviewed Node 26.13.1/npm 12.2.2 SDK.");
+}
 const frontendManifest = JSON.parse(await readFile(path.join(root, "front-end/package.json"), "utf8"));
 
 function run(command, args, cwd) {
 	return new Promise((resolve, reject) => {
+		const environment = { ...process.env, PUPPETEER_SKIP_DOWNLOAD: "true" };
+		delete environment.npm_config_global_ignore_file;
+		delete environment.NPM_CONFIG_GLOBAL_IGNORE_FILE;
 		const child = spawn(command, args, {
 			cwd,
-			env: {
-				...process.env,
-				PUPPETEER_SKIP_DOWNLOAD: "true"
-			},
+			env: environment,
 			stdio: "inherit"
 		});
 		child.once("error", reject);
@@ -50,8 +68,9 @@ async function verifyTarget(libc) {
 			cp(path.join(root, "front-end/package.json"), path.join(temporaryRoot, "front-end/package.json"))
 		]);
 		await run(
-			process.execPath.replace(/node$/, "npm"),
+			process.execPath,
 			[
+				npmExecPath,
 				"ci",
 				"--ignore-scripts",
 				"--include=optional",

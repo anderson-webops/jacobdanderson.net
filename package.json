@@ -3,10 +3,10 @@
 	"type": "module",
 	"version": "1.0.0",
 	"private": true,
-	"packageManager": "npm@12.2.1",
+	"packageManager": "npm@12.2.2",
 	"engines": {
-		"node": ">=26.13.0 <27",
-		"npm": ">=12.2.1 <13"
+		"node": ">=26.13.1 <27",
+		"npm": ">=12.2.2 <13"
 	},
 	"description": "Monorepo for main page",
 	"author": "Jacob Anderson",
@@ -24,6 +24,8 @@
 		"simple-git-hooks@2.14.0": true
 	},
 	"scripts": {
+		"audit:toolchain": "node scripts/audit-build-toolchain.mjs",
+		"verify:toolchain": "node scripts/check-build-toolchain.mjs",
 		"artifact:archive-smoke": "node scripts/runtime-archive-smoke.mjs",
 		"artifact:build": "node scripts/build-runtime-artifact.mjs",
 		"artifact:pack": "node scripts/pack-runtime-artifact.mjs",
@@ -64,18 +66,18 @@
 	},
 	"devDependencies": {
 		"@antfu/eslint-config": "^10.0.0",
-		"@typescript-eslint/eslint-plugin": "^8.72.2",
-		"@typescript-eslint/parser": "^8.72.2",
+		"@typescript-eslint/eslint-plugin": "^8.73.0",
+		"@typescript-eslint/parser": "^8.73.0",
 		"@unocss/eslint-plugin": "^66.13.0",
-		"axe-core": "^4.13.0",
-		"eslint": "^10.11.0",
+		"axe-core": "^4.14.1",
+		"eslint": "^10.15.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-format": "^2.0.1",
 		"eslint-plugin-prettier": "^5.5.5",
 		"eslint-plugin-vue": "^10.12.1",
 		"globals": "^17.12.0",
 		"js-beautify": "2.0.3",
-		"lint-staged": "^17.5.1",
+		"lint-staged": "^17.6.1",
 		"prettier": "^3.10.1",
 		"puppeteer": "^25.17.0",
 		"simple-git-hooks": "^2.14.0",
@@ -92,7 +94,7 @@
 	},
 	"overrides": {
 		"brace-expansion": "5.0.13",
-		"glob": "14.0.3",
+		"glob": "14.0.6",
 		"katex": "0.19.1",
 		"minimatch": "11.0.8",
 		"tinypool": "2.2.0"

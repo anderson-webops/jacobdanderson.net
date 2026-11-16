@@ -1,137 +1,33 @@
-# Production Deployment
+# Runtime Artifact Contract
 
-The public site is a Vite SSG bundle served by host Nginx. The optional Express API runs directly under systemd on `127.0.0.1:3003`. Production does not use Docker and does not build or install dependencies from a live checkout.
+The portfolio is a Vite SSG site with a loopback-only Express API and external MongoDB state. Production uses its existing direct Nginx and systemd topology.
 
-## Pinned toolchain and artifact
+## Build Identity
 
-- Node `26.13.0`
-- npm `12.2.1`
-- source/build lock: `package-lock.json`
-- standalone backend runtime lock: `back-end/package-lock.json`
+The versioned source contract is `deploy/runtime-artifact.json`. Builds use Node `26.13.1` and the independent `webops-locked-npm-v1` npm `12.2.2` profile from `build-toolchain/`. The bootstrap verifies its reviewed local archives, independent lock, complete installed payload, signatures and full/production audits before selecting its paired executables.
 
-The Node 26 transition retains the exact v2.14.0 Node 24 artifact at commit
-`c30a8664619fe000567a425be161e76db9f15353` (archive SHA-256
-`e25c739132c2e2b5ada2f4d0a4cb988cad7862d99428e71fc17b99aa0bca1929`).
-CI verifies its unchanged bytes and replays its runtime checks under Node 26.
-The installed promoter accepts a Node 24 manifest only when verifying the
-caller-identified retained rollback target, never as a new candidate. The
-protected operator still confirms the actual serving commit, Node 26 host
-readiness, and a recoverable prior-runtime/data path before activation.
+The root `package-lock.json` governs source and static builds. `back-end/package-lock.json` separately governs the production API installation. The SDK and development dependencies remain outside runtime archives.
 
-`npm run artifact:build` creates `.runtime-artifact/` containing only:
+## Artifact Acceptance
 
-- `front-end/dist/`
-- compiled `back-end/dist/`
-- the standalone backend manifest and lock
-- production backend dependencies
-- `.runtime-manifest.json` with source identity, required paths, complete hashes/modes, entrypoints, dependency names, native bindings, static assets, external state, and writable-path declarations
+The archive contains the compiled backend, complete production dependency tree, static site, deployment identity and a hashed `.runtime-manifest.json`. Its required paths are checked independently of the archive's own inventory. Release preparation preserves a clean exact source revision, annotated semver identity and current default-branch correspondence.
 
-The exact copied artifact is tested in a clean temporary directory with no source or development dependencies. Acceptance starts from a synthetic v2.11.0 database containing the retained `slug_1` uniqueness index and saved visibility data, then covers the in-place upgrade, health/readiness, a real read/write, semantic audit persistence, fresh-database convergence, incompatible-index rejection, dependency failure, graceful shutdown, and a deliberately removed runtime module. The application never drops, renames, or rewrites the retained uniqueness index.
+Acceptance exercises the exact unpacked archive independently of the source checkout, development dependencies and real providers. Existing fixtures cover GET/HEAD liveness and readiness, synthetic MongoDB, static output, dependency failure, missing runtime modules, graceful shutdown, failed promotion and recovery from unchanged retained bytes.
 
-`npm run artifact:pack` produces:
+The archive and checksum become deployment-ready only after the corresponding exact-tag CI and uploaded-asset verification pass. The runtime manifest includes the SDK profile, lock and payload identity used for the build.
 
-- `jacobdanderson.net-runtime.tar.gz`
-- `jacobdanderson.net-runtime.tar.gz.sha256`
+The release also publishes the runtime manifest, versioned source contract and digest-bound provenance as separate JSON assets. They identify the exact source, SDK and archive independently of the archive's internal inventory.
 
-CI publishes both as one short-retention workflow artifact. A release-worthy tag must attach those same reviewed files as GitHub release assets.
+## Retained Compatibility
 
-After packing, `npm run artifact:archive-smoke` verifies the checksum, safely extracts the final archive into a new temporary directory, and repeats the complete runtime acceptance suite against those unpacked bytes. Release preparation fails unless both the pre-pack tree and the exact post-pack archive pass.
+The current retained release is `v2.14.7`, commit `9109c6f4008c35f08e7f3f563a0f56d9c87adc0d`, built with Node `26.13.0` and npm `12.2.1`. Its unchanged archive must remain recoverable under the updated runtime, with bounded explicit retained-release verification and an exact expected-current identity.
 
-The public pages load the analytics tracker with a SHA-384 integrity pin and
-anonymous CORS. This prevents a changed analytics response from executing with
-the portfolio origin's project-administration authority. If the analytics
-service changes `script.js`, browser tracking fails closed until a reviewed
-portfolio release updates the pin. Before such a release, compare the intended
-tracker bytes and response headers from the approved analytics deployment,
-recompute the SHA-384 digest, and verify the generated public pages contain
-the new `integrity` and `crossorigin` attributes while `/admin` remains free
-of analytics. Never remove the pin merely to restore tracking.
+The earlier `v2.14.0` Node 24 archive at `c30a8664619fe000567a425be161e76db9f15353` remains a separate recovery fixture. Its SHA-256 is `e25c739132c2e2b5ada2f4d0a4cb988cad7862d99428e71fc17b99aa0bca1929`. Historical capture checks remain scoped to their original release. Retained toolchains are accepted only in their explicit recovery context; new candidate artifacts require the current SDK identity.
 
-## One-time host installation
+## Runtime Invariants
 
-From a reviewed source revision, the host operator installs the service unit and the root-owned promotion components:
+Host-controlled users, paths, protected configuration, loopback binding, exact proxy trust, IPv4/IPv6 edge listeners and administration gates remain authoritative. The source helpers preserve archive-only preparation, independent extraction and verification, bounded work, atomic release selection, readiness and exact served identity, and genuine prior-runtime recovery.
 
-```bash
-sudo deploy/systemd/install-api-unit.sh
-```
+MongoDB visibility and semantic audit records remain external to releases. Existing supported schemas and the unique `slug_1` index retain their compatibility contract; this toolchain release includes no production data transformation.
 
-The installer refuses to preserve an existing environment file unless it is a regular root:root mode `0600` file. It installs:
-
-- `/usr/local/sbin/jacobdanderson-promote-release`
-- `/usr/local/sbin/jacobdanderson-prepare-legacy-rollback`
-- `/usr/local/libexec/jacobdanderson/verify-runtime-artifact.mjs`
-- `/usr/local/libexec/jacobdanderson/extract-runtime-artifact.py`
-- `/usr/local/libexec/jacobdanderson/legacy-runtime-artifact.mjs`
-
-These files are the trusted promotion boundary. Never invoke a promoter from an unprivileged checkout with sudo.
-Before promotion, the installed helper requires the release and rollback roots,
-the current-link parent, the deployment-lock parent, and every ancestor of those
-directories to be root-owned, non-writable by other users, and free of symlinks.
-Missing or unsafe directories are host prerequisites to repair deliberately;
-the promoter will not create or silently take ownership of them.
-
-The checked-in unit preserves the established `/srv/jacobdanderson.net/current` path and port 3003. It fixes loopback binding/trust, starts compiled code only, makes release trees read-only to the service, limits tasks/file descriptors, caps V8 old space at 64 MiB, and applies measured 128/160 MiB systemd memory thresholds.
-
-Choose exactly one database credential source in `/etc/jacobdanderson/api.env`:
-
-- complete Vault AppRole: `VAULT_ADDR`, `VAULT_ROLE_ID`, and `VAULT_SECRET_ID`
-- direct environment: `MONGODB_URI`, with both AppRole values empty
-
-Keep diagnostics disabled normally. Project administration remains disabled until both Nginx gates are installed.
-
-## Nginx
-
-Install `deploy/nginx/jacobdanderson-rate-limits.conf.example` in the Nginx `http` context, then use `deploy/nginx/jacobdanderson.conf.example` as the full virtual-server contract. Hosts retaining their existing TLS server can use `jacobdanderson-api.locations.conf` only if the same rate-limit zones are loaded.
-
-The edge contract:
-
-- preserves IPv4 and IPv6 listeners
-- uses current `http2 on` syntax
-- has four exact probe locations so `^~ /api/` cannot shadow them
-- clears caller-controlled auth/internal headers
-- limits public and administrative request/connection work
-- delays Basic-auth failures
-- injects `$remote_user` and `$request_id` only for authorized mutations
-- serves static files from `/srv/jacobdanderson.net/current/front-end/dist`
-- redirects `/release.json` to the canonical no-store `/deployment.json` identity across promotion and rollback
-
-Validate the complete effective graph before reload:
-
-```bash
-sudo nginx -t
-```
-
-## One-time v2.11.0 transition
-
-The first artifact-format activation must preserve the exact healthy v2.11.0 runtime at commit `d807a52a7b41ae7774cc528c82ab218fbf423475`. After installing the reviewed helpers, capture it before any service, release pointer, or database change:
-
-```bash
-sudo /usr/local/sbin/jacobdanderson-prepare-legacy-rollback \
-  d807a52a7b41ae7774cc528c82ab218fbf423475
-```
-
-Installing the reviewed helpers transfers the site and release roots to the root-only artifact promotion boundary and creates a persistent root-only deployment lock. Retire the legacy checkout adapter at that cutover; it must not continue writing releases or the `current` symlink.
-
-The root-installed capture helper accepts only that exact deployment identity and its reviewed source manifests. While holding the same lock used by promotion, it preflights file count and byte limits before copying, rejects special files and escaping links, protects the live runtime's directory ancestry from replacement, and then performs a bounded file-by-file copy. It does not change ownership or permissions of source files, which might have hardlink aliases outside the release. It copies only the compiled backend, static frontend, production dependency tree, and package manifests into `/srv/jacobdanderson.net/legacy-releases/`; rescans the source after the copy; records every path, mode, link target, size, and SHA-256; and seals the result as a root-owned rollback tree. The promoter compares the serving source with that protected copy immediately before transition. The serving source is not claimed to be immutable until it is retired. Capture does not execute the old checkout, install packages, access credentials, or alter MongoDB.
-
-Record the returned sealed path and manifest digest. The promoter accepts that path only while `current` still identifies the directory-protected v2.11.0 checkout. It compares every selected active runtime path, hash, size, and link target with the sealed tree before mutation. Once the first candidate succeeds, later promotions accept only verified artifact-format releases, although a failed first activation can restore and retain the sealed v2.11.0 tree for another reviewed attempt.
-
-## Promote and roll back
-
-Download the release archive and checksum to a root-controlled staging location. Verify the GitHub release/tag/commit relationship, then invoke only the installed helper:
-
-```bash
-sudo /usr/local/sbin/jacobdanderson-promote-release \
-  /root/staging/jacobdanderson.net-runtime.tar.gz \
-  <candidate-full-40-hex-commit> \
-  <full-64-hex-sha256> \
-  <expected-current-full-40-hex-commit>
-```
-
-For the one-time transition, append the sealed v2.11.0 rollback path returned by `jacobdanderson-prepare-legacy-rollback`.
-
-The helper holds the exclusive deployment lock for the complete transaction. It requires a non-dangling current release that matches the caller-supplied expected commit, copies the supplied archive into a root-owned mode `0600` file under the protected release root, verifies the supplied digest against that stable copy, and extracts only those verified bytes. It safely extracts only regular files into a root-owned staging directory, independently verifies every artifact path/hash/mode and source identity, and installs the release at `/srv/jacobdanderson.net/releases/<commit>`. New, pre-existing, selected, and rollback release trees must all be root-owned and non-writable by other users. Immediately before the atomic `current` switch, it rechecks the exact symlink value and resolved target. It then restarts the API, validates Nginx, and requires readiness plus exact deployment identity over local IPv4 and IPv6 TLS.
-
-Rollback is allowed only to a previously verified, root-owned, non-writable artifact release or the exact separately sealed v2.11.0 rollback tree. The promoter refuses a caller-supplied current identity mismatch, an unsealed checkout, a different legacy version, or a legacy capture whose public and prepared deployment identities differ.
-
-MongoDB data and audit records remain external state and are not synchronized during promotion or rollback. The supported server is MongoDB `9.0.4`; upgrade the database host to that release (following MongoDB's own upgrade path and feature-compatibility-version steps) separately from artifact promotion. The v2.12-series compatibility change retains the established unique `slug_1` index by name and specification. Startup creates the new audit indexes only after that compatibility gate succeeds. No migration ledger edit, index drop, index rename, deduplication, or record rewrite is part of this release contract.
+Installed-helper support and protected current/rollback acceptance remain host prerequisites. Source publication, host activation and independent public acceptance are recorded separately.

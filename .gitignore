@@ -9,6 +9,9 @@
 .runtime-artifact/
 jacobdanderson.net-runtime.tar.gz
 jacobdanderson.net-runtime.tar.gz.sha256
+jacobdanderson.net-runtime-manifest.json
+jacobdanderson.net-runtime-contract.json
+jacobdanderson.net-provenance.json
 
 #package-lock.json
 #pnpm-lock.yaml
