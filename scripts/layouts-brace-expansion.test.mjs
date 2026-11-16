@@ -12,7 +12,7 @@ const targets = [
 ].filter(existsSync);
 
 test("the layouts dependency uses audited brace-expansion", () => {
-	assert.equal(lock.packages["front-end/node_modules/brace-expansion"].version, "5.0.12");
+	assert.equal(lock.packages["front-end/node_modules/brace-expansion"].version, "5.0.13");
 	assert.equal(lock.packages["front-end/node_modules/vite-plugin-vue-layouts-next/node_modules/brace-expansion"], undefined);
 });
 
