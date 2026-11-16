@@ -50,8 +50,7 @@ const subjects = ["Programming", "Web development", "Game design", "Embedded sys
 				<li>
 					<h3>Reach out</h3>
 					<p>
-						Email <a :href="`mailto:${profile.email}`">{{ profile.email }}</a
-						>.
+						Email <a :href="`mailto:${profile.email}`">{{ profile.email }}</a>.
 					</p>
 				</li>
 				<li>
