@@ -34,6 +34,8 @@ RUNTIME_ARTIFACT_MONGO_URI=mongodb://127.0.0.1:27017 npm run artifact:smoke
 
 Use Node `26.13.1` and the independent locked npm `12.2.2` profile selected above. Its reviewed CLI, transitive dependencies, compatibility inputs and complete payload are checked before use; build tools remain outside runtime archives. The supported MongoDB server is `9.0.4`, the version CI runs the artifact acceptance against with the locked MongoDB 7 driver. The root lockfile governs the monorepo build. `back-end/package-lock.json` separately governs the exact standalone production install copied into the runtime artifact.
 
+The SDK's default `.ai-work/` build cache is excluded from the Git source tree and runtime archives. Its complete payload is independently verified before reuse; uncommitted source changes still fail release acceptance.
+
 The locked install verifies and patches the exact `vite-plugin-vue-layouts-next` 3.3.1 import for audited `brace-expansion` 5.0.13. Unexpected upstream bytes stop the install for review.
 
 Both dependency graphs use the patched Minimatch 11 glob API, including the
