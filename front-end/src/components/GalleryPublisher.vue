@@ -19,8 +19,9 @@ async function select() {
 	error.value = "";
 	status.value = "";
 	if (!file) return;
-	if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 16 * 1024 * 1024) {
-		error.value = "Choose a JPEG, PNG, or WebP image up to 16 MB.";
+	const heic = ["image/heic", "image/heif"].includes(file.type) || (!file.type && /\.hei[cf]$/i.test(file.name));
+	if ((!heic && !["image/jpeg", "image/png", "image/webp"].includes(file.type)) || file.size > 16 * 1024 * 1024) {
+		error.value = "Choose a JPEG, PNG, WebP, or HEIC image up to 16 MB.";
 		return;
 	}
 	preparing.value = true;
@@ -40,7 +41,9 @@ async function select() {
 			bitmap.close();
 		}
 	} catch {
-		error.value = "This image couldn’t be opened. Choose another file.";
+		error.value = heic
+			? "This browser couldn’t open the HEIC image. Try Safari or export a JPEG."
+			: "This image couldn’t be opened. Choose another file.";
 	} finally {
 		preparing.value = false;
 	}
@@ -94,12 +97,12 @@ async function publish() {
 				>Choose an image<input
 					ref="picker"
 					type="file"
-					accept="image/jpeg,image/png,image/webp"
+					accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
 					:disabled="preparing || publishing"
 					aria-describedby="image-formats"
 					@change="select"
 			/></label>
-			<small id="image-formats">JPEG, PNG, or WebP · Up to 16 MB</small>
+			<small id="image-formats">JPEG, PNG, WebP, or HEIC · Up to 16 MB</small>
 			<canvas v-show="selected" ref="preview" role="img" aria-label="Selected image preview" />
 			<label v-if="selected"
 				>Image description<input v-model="description" maxlength="200" required :disabled="publishing"
