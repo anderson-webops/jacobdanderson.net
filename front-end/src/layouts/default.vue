@@ -28,6 +28,10 @@ const route = useRoute();
 	.wide-gallery :deep(.gallery-intro) {
 		margin: 0 8px 1rem;
 	}
+
+	.wide-gallery :deep(.gallery-intro .section-link::after) {
+		content: none;
+	}
 }
 
 .skip-link {

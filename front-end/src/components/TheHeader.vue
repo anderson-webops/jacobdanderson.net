@@ -10,8 +10,7 @@ const links = [
 	{ name: "Experience", path: "/experience" },
 	{ name: "Projects", path: "/projects" },
 	{ name: "Teaching", path: "/classes" },
-	{ name: "Contact", path: "/contact" },
-	{ name: "Extra", path: "/extra" }
+	{ name: "Contact", path: "/contact" }
 ];
 
 const activePath = computed(() => route.path);

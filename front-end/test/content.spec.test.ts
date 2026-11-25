@@ -6,6 +6,7 @@ import About from "../src/pages/about.vue";
 import Classes from "../src/pages/classes.vue";
 import Contact from "../src/pages/contact.vue";
 import Experience from "../src/pages/experience.vue";
+import GalleriesAndGames from "../src/pages/extra/index.vue";
 import Home from "../src/pages/index.vue";
 import OtherProjects from "../src/pages/other-projects.vue";
 import Projects from "../src/pages/projects.vue";
@@ -54,6 +55,24 @@ describe("focused public content", () => {
 		expect(wrapper.get(".current-entry details").attributes("open")).toBeDefined();
 		expect(disclosures.filter(details => details.attributes("open") !== undefined)).toHaveLength(1);
 		expect(wrapper.findAll("summary").every(summary => summary.attributes("tabindex") === "0")).toBe(true);
+		wrapper.unmount();
+	});
+
+	it("leads with the galleries and keeps games separate from strategy guides", () => {
+		const wrapper = mount(GalleriesAndGames, { global });
+		expect(wrapper.get("h1").text()).toBe("Galleries & games");
+		expect(wrapper.findAll('nav[aria-label="Galleries"] a').map(link => link.attributes("href"))).toEqual([
+			"/extra/photos",
+			"/extra/drawings"
+		]);
+		expect(wrapper.findAll(".gallery-links img").every(image => image.attributes("alt") === "")).toBe(true);
+		expect(wrapper.findAll("h2").map(heading => heading.text())).toEqual(["Games", "Strategy guides"]);
+		expect(wrapper.findAll("section a").map(link => link.attributes("href"))).toEqual([
+			"https://chess.jacobdanderson.net/",
+			"https://zilch.jacobdanderson.net/",
+			"https://incangold.jacobdanderson.net/",
+			"https://liarsdice.jacobdanderson.net/"
+		]);
 		wrapper.unmount();
 	});
 

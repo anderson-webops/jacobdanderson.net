@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="336" viewBox="0 0 768 336">
+	<defs>
+		<linearGradient id="sky" x2="0" y2="1">
+			<stop stop-color="#698b97"/>
+			<stop offset="1" stop-color="#eac9a2"/>
+		</linearGradient>
+		<pattern id="grain" width="12" height="12" patternUnits="userSpaceOnUse">
+			<circle cx="2" cy="2" r=".65" fill="#fcf3de" opacity=".28"/>
+		</pattern>
+		<clipPath id="frame"><rect x="183" y="52" width="402" height="218" rx="4"/></clipPath>
+	</defs>
+	<path fill="#233b45" d="M0 0h768v336H0z"/>
+	<path fill="url(#grain)" d="M0 0h768v336H0z"/>
+	<g fill="none" stroke="#d9c7aa" opacity=".45" stroke-width="1.5">
+		<path d="M106 80h26m-13-13v26m521 135h26m-13-13v26"/>
+		<circle cx="101" cy="232" r="3"/><circle cx="656" cy="106" r="3"/>
+	</g>
+	<g transform="rotate(-5 384 168)">
+		<rect x="166" y="41" width="446" height="260" rx="8" fill="#132631" opacity=".8"/>
+		<rect x="162" y="33" width="444" height="260" rx="8" fill="#f4ebd8"/>
+		<g clip-path="url(#frame)">
+			<path d="M183 52h402v218H183z" fill="url(#sky)"/>
+			<circle cx="457" cy="112" r="31" fill="#ffdfa8"/>
+			<path d="m183 207 82-70 48 27 48-57 88 100 60-45 76 58v50H183z" fill="#627c80"/>
+			<path d="m315 164 46-57 43 49-38-19-13 15-15-5z" fill="#c9ccc1" opacity=".85"/>
+			<path d="m183 220 67-28 49 18 78-26 111 49 97-35v72H183z" fill="#355b63"/>
+			<path d="M183 243c74-22 142-5 203-4 92 2 122-19 199-15v46H183z" fill="#2a4b57"/>
+			<path d="M427 232h67m-86 10h94m-51 9h67" stroke="#c4a884" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+		</g>
+	</g>
+</svg>

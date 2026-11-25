@@ -18,6 +18,7 @@ const externalProfiles = computed(() => profile.value.profiles.filter(item => !i
 				</p>
 			</div>
 			<nav aria-label="Elsewhere" class="footer-links">
+				<RouterLink to="/extra">Galleries &amp; games</RouterLink>
 				<a :href="`mailto:${profile.email}`">Email</a>
 				<a v-for="item in externalProfiles" :key="item.href" :href="item.href" rel="noopener" target="_blank">
 					{{ item.label }}

@@ -23,17 +23,20 @@ describe("production route surface", () => {
 		}
 	});
 
-	it("keeps the other-project index and admin controls out of primary navigation", () => {
+	it("keeps supplemental pages and admin controls out of primary navigation", () => {
 		const header = readFileSync(resolve(process.cwd(), "src/components/TheHeader.vue"), "utf8");
 		const footer = readFileSync(resolve(process.cwd(), "src/components/TheFooter.vue"), "utf8");
 		const projects = readFileSync(resolve(process.cwd(), "src/pages/projects.vue"), "utf8");
 		const admin = readFileSync(resolve(process.cwd(), "src/pages/admin.vue"), "utf8");
 
 		expect(header).not.toContain('path: "/other-projects"');
+		expect(header).not.toContain('path: "/extra"');
 		expect(header).not.toContain('path: "/admin"');
 		expect(footer).not.toContain('to: "/other-projects"');
 		expect(footer).not.toContain('to: "/admin"');
 		expect(projects).toContain('to="/other-projects"');
+		expect(projects).toContain('to="/extra"');
+		expect(footer).toContain('to="/extra"');
 		expect(admin).toContain('autocomplete="current-password"');
 		expect(admin).toContain('<form method="post" action="/admin"');
 	});

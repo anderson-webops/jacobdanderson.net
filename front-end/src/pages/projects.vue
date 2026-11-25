@@ -65,13 +65,10 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", openLinkedProject
 			</article>
 		</section>
 
-		<footer class="other-projects-callout">
-			<div>
-				<h2>Other projects</h2>
-				<p>Experiments, tools, and work in progress.</p>
-			</div>
-			<RouterLink class="section-link" to="/other-projects">Browse other projects</RouterLink>
-		</footer>
+		<nav class="related-links" aria-label="Related pages">
+			<RouterLink class="section-link" to="/other-projects">Other projects</RouterLink>
+			<RouterLink class="section-link" to="/extra">Galleries &amp; games</RouterLink>
+		</nav>
 	</div>
 </template>
 
@@ -166,24 +163,18 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", openLinkedProject
 	color: var(--color-accent);
 }
 
-.other-projects-callout {
+.related-links {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	justify-content: space-between;
-	gap: 0.75rem 1.5rem;
-	padding: 1.4rem 1.6rem;
+	gap: 0.5rem clamp(1.25rem, 5vw, 3rem);
+	padding: 0.65rem 1.15rem;
 	border-radius: var(--radius-lg);
 	background: var(--color-surface-accent);
 }
 
-.other-projects-callout h2 {
-	font-size: 1.35rem;
-	line-height: 1.25;
-}
-
-.other-projects-callout p {
-	color: var(--color-text-muted);
+.related-links a {
+	min-height: 44px;
 }
 
 @media (max-width: 640px) {
