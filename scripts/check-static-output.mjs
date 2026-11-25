@@ -68,7 +68,7 @@ requireMatch(
 	/<meta[^>]*(?:name="robots"[^>]*content="noindex,follow"|content="noindex,follow"[^>]*name="robots")[^>]*>/,
 	"noindex metadata missing"
 );
-requireMatch("admin/index.html", /<title>Project Visibility \| Jacob Anderson<\/title>/, "route title missing");
+requireMatch("admin/index.html", /<title>Site Admin \| Jacob Anderson<\/title>/, "route title missing");
 requireMatch(
 	"admin/index.html",
 	/<meta[^>]*(?:name="robots"[^>]*content="noindex,nofollow"|content="noindex,nofollow"[^>]*name="robots")[^>]*>/,

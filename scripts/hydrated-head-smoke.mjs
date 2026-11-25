@@ -68,7 +68,7 @@ try {
 		}
 	});
 	const errors = [];
-	page.on("pageerror", error => errors.push(error.message));
+	page.on("pageerror", error => errors.push({ url: page.url(), stack: error.stack || error.message }));
 	async function observe(label, admin) {
 		await new Promise(resolveSettled => setTimeout(resolveSettled, 400));
 		const snapshot = await page.evaluate(url => ({

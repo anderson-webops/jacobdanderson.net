@@ -61,13 +61,17 @@ server {
 		return 404;
 	}
 
-	# The admin interface has no application login. Nginx authenticates the
-	# browser before serving the unlisted page or proxying a mutation.
+	location ~* ^/admin(?:/index\.html|/)?$ {
+		return 308 /admin;
+	}
+
+	location = /admin/index.html {
+		return 308 /admin;
+	}
+
 	location = /admin {
+		if ($uri != "/admin") { return 308 /admin; }
 		if ($request_method !~ ^(GET|HEAD)$) { return 405; }
-		auth_basic "Project administration";
-		auth_basic_user_file /etc/nginx/jacobdanderson-admin.htpasswd;
-		auth_delay 750ms;
 		limit_conn jacobdanderson_per_ip 4;
 		limit_req zone=jacobdanderson_admin burst=3 nodelay;
 		try_files /admin/index.html =404;
@@ -87,12 +91,10 @@ server {
 
 	location ^~ /admin/ {
 		if ($request_method !~ ^(GET|HEAD)$) { return 405; }
-		auth_basic "Project administration";
-		auth_basic_user_file /etc/nginx/jacobdanderson-admin.htpasswd;
-		auth_delay 750ms;
 		limit_conn jacobdanderson_per_ip 4;
 		limit_req zone=jacobdanderson_admin burst=3 nodelay;
-		try_files $uri $uri/index.html =404;
+		if ($uri !~ ^/admin/(index\.html)?$) { return 404; }
+		try_files /admin/index.html =404;
 		# Nginx does not inherit server-level add_header directives when a
 		# location declares one, so preserve the complete security policy here.
 		add_header Cache-Control "no-store" always;
@@ -208,11 +210,89 @@ server {
 		proxy_pass http://jacobdanderson_api;
 	}
 
+	location ^~ /api/gallery/ {
+		if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+		limit_conn jacobdanderson_per_ip 10;
+		limit_req zone=jacobdanderson_public burst=20 nodelay;
+		proxy_http_version 1.1;
+		proxy_connect_timeout 3s;
+		proxy_read_timeout 5s;
+		proxy_send_timeout 5s;
+		proxy_set_header Connection "";
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $remote_addr;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header Authorization "";
+		proxy_set_header X-Portfolio-Admin-Actor "";
+		proxy_set_header X-Portfolio-Admin-Key "";
+		proxy_set_header X-Portfolio-Request-Id "";
+		proxy_hide_header X-Powered-By;
+		proxy_pass http://jacobdanderson_api;
+	}
+
+	location @admin_denied {
+		return 403;
+	}
+
+	location = /api/admin/access {
+		if ($request_method != GET) { return 405; }
+		auth_basic "Project administration";
+		auth_basic_user_file /etc/nginx/jacobdanderson-admin.htpasswd;
+		auth_delay 750ms;
+		error_page 401 = @admin_denied;
+		client_max_body_size 2k;
+		limit_conn jacobdanderson_per_ip 2;
+		limit_req zone=jacobdanderson_admin burst=3 nodelay;
+		proxy_http_version 1.1;
+		proxy_connect_timeout 3s;
+		proxy_read_timeout 5s;
+		proxy_send_timeout 5s;
+		proxy_set_header Connection "";
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $remote_addr;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header Authorization "";
+		proxy_set_header X-Portfolio-Admin-Actor $remote_user;
+		proxy_set_header X-Portfolio-Request-Id $request_id;
+		include /etc/nginx/snippets/jacobdanderson-admin-secret.conf;
+		proxy_hide_header X-Powered-By;
+		proxy_pass http://jacobdanderson_api;
+	}
+
+	location ^~ /api/admin/gallery/ {
+		if ($request_method != POST) { return 405; }
+		auth_basic "Project administration";
+		auth_basic_user_file /etc/nginx/jacobdanderson-admin.htpasswd;
+		auth_delay 750ms;
+		error_page 401 = @admin_denied;
+		client_max_body_size 4m;
+		limit_conn jacobdanderson_per_ip 2;
+		limit_req zone=jacobdanderson_admin burst=3 nodelay;
+		proxy_http_version 1.1;
+		proxy_connect_timeout 3s;
+		proxy_read_timeout 5s;
+		proxy_send_timeout 5s;
+		proxy_set_header Connection "";
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $remote_addr;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header Authorization "";
+		proxy_set_header X-Portfolio-Admin-Actor $remote_user;
+		proxy_set_header X-Portfolio-Request-Id $request_id;
+		include /etc/nginx/snippets/jacobdanderson-admin-secret.conf;
+		proxy_hide_header X-Powered-By;
+		proxy_pass http://jacobdanderson_api;
+	}
+
 	location ^~ /api/admin/projects/ {
 		if ($request_method != PATCH) { return 405; }
 		auth_basic "Project administration";
 		auth_basic_user_file /etc/nginx/jacobdanderson-admin.htpasswd;
 		auth_delay 750ms;
+		error_page 401 = @admin_denied;
 		client_max_body_size 2k;
 		limit_conn jacobdanderson_per_ip 2;
 		limit_req zone=jacobdanderson_admin burst=3 nodelay;

@@ -4,7 +4,7 @@ import { ViteSSG } from "vite-ssg";
 
 import { routes } from "vue-router/auto-routes";
 import App from "./App.vue";
-import { installAnalyticsPrivacy } from "./config/analytics";
+import { installAnalyticsPrivacy, isAdministrationRoute } from "./config/analytics";
 import { installAnalyticsPageviews } from "./utils/analytics";
 import { installSsgHeadBridge } from "./utils/ssgHead";
 // Assuming you have styles defined in these files
@@ -28,6 +28,14 @@ export const createApp = ViteSSG(
 	},
 	ctx => {
 		if (ctx.isClient) {
+			const adminDocument = /^\/admin\/?$/iu.test(window.location.pathname);
+			ctx.router.beforeEach(to => {
+				if (isAdministrationRoute(to) === adminDocument) return true;
+				const destination = new URL(to.fullPath, window.location.origin);
+				if (destination.origin === window.location.origin)
+					window.location.assign(isAdministrationRoute(to) ? "/admin" : destination.href);
+				return false;
+			});
 			installAnalyticsPrivacy(window);
 			ctx.app.onUnmount(installAnalyticsPageviews(ctx.router, window));
 		}

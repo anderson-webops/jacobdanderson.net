@@ -209,6 +209,9 @@ http {
 	access_log off;
 	client_body_temp_path ${path.join(workDirectory, "client-body")};
 	proxy_temp_path ${path.join(workDirectory, "proxy")};
+	fastcgi_temp_path ${path.join(workDirectory, "fastcgi")};
+	uwsgi_temp_path ${path.join(workDirectory, "uwsgi")};
+	scgi_temp_path ${path.join(workDirectory, "scgi")};
 	${limits}
 	${virtualHost}
 }
@@ -273,7 +276,31 @@ http {
 		requestId: null
 	});
 
-	assert.equal((await request(httpsPort, "/api/admin/projects/oscre", { method: "PATCH" })).status, 401);
+	for (const pathname of ["/ADMIN", "/admin/index.html"]) {
+		const redirect = await request(httpsPort, pathname);
+		assert.equal(redirect.status, 308);
+		assert.equal(new URL(redirect.headers.location).pathname, "/admin");
+	}
+	for (const pathname of ["/admin", "/admin/"]) {
+		const page = await request(httpsPort, pathname);
+		assert.equal(page.status, 200);
+		assert.equal(page.headers["www-authenticate"], undefined);
+		assert.equal(page.headers["cache-control"], "no-store");
+	}
+	assert.equal((await request(httpsPort, "/api/admin/access")).status, 403);
+	assert.equal((await request(httpsPort, "/api/admin/gallery/photos", { method: "POST" })).status, 403);
+	assert.equal((await request(httpsPort, "/api/admin/projects/oscre", { method: "PATCH" })).status, 403);
+	const adminAuthorization = { Authorization: `Basic ${Buffer.from("jacob:test-password").toString("base64")}` };
+	for (const [pathname, method] of [["/api/admin/access", "GET"], ["/api/admin/gallery/photos", "POST"]]) {
+		await new Promise(resolveSlot => setTimeout(resolveSlot, 550));
+		const accepted = await request(httpsPort, pathname, { method, headers: adminAuthorization });
+		assert.equal(accepted.status, 200);
+		assert.equal(JSON.parse(accepted.body).headers.actor, "jacob");
+		assert.equal(JSON.parse(accepted.body).headers.authorization, null);
+	}
+	const gallery = await request(httpsPort, "/api/gallery/drawings", { headers: adminAuthorization });
+	assert.equal(gallery.status, 200);
+	assert.deepEqual(JSON.parse(gallery.body).headers, { actor: null, authorization: null, key: null, requestId: null });
 	const adminResponse = await request(httpsPort, "/api/admin/projects/oscre", {
 		body: JSON.stringify({ visible: false }),
 		headers: {

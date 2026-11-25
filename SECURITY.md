@@ -14,7 +14,11 @@ The loopback-only API exposes:
 
 The public visibility list is bounded to the source-controlled project catalog. Unknown slugs and extra JSON fields are rejected. The browser fails closed and displays no project cards when saved visibility cannot be loaded.
 
-Production Nginx authenticates `/admin` and mutations with Basic authentication, delays failed authentication, and enforces connection/request limits. It removes caller-supplied authorization and internal headers. For an accepted mutation it injects:
+The unlisted `/admin` serves only a public sign-in form. Nginx verifies the existing credentials on `GET /api/admin/access` and every write. The admin document keeps authorization in memory for at most 15 minutes and clears it on sign-out or departure. Requests omit browser-managed credentials and refuse redirects. Rejected credentials receive an inline error. Crossing the admin boundary loads a new document with its own script policy.
+
+Public `GET /api/gallery/{photos,drawings}` returns paginated metadata. Individual images are served as PNG with nosniff. Authenticated `POST /api/admin/gallery/{photos,drawings}` accepts only a bounded pixel buffer and description. The API encodes a new PNG and stores it with the verified actor, request ID and timestamp in MongoDB. Original filenames, location metadata and uploaded containers are never published.
+
+Nginx delays failed authentication and enforces connection/request limits. It removes caller-supplied authorization and internal headers. For an accepted mutation it injects:
 
 - a separate host-only proxy key
 - the authenticated Basic-auth username as the bounded audit actor

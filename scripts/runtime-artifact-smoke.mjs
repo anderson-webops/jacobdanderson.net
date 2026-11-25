@@ -279,6 +279,30 @@ try {
 				assert.equal(response.headers.get("location"), null);
 				assert.equal((await fetch(`${apiBaseUrl}${pathname}`, { method: "HEAD" })).status, 200);
 			}
+			if (process.env.RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE26 !== "true" && process.env.RUNTIME_ARTIFACT_ALLOW_RETAINED_NODE24 !== "true") {
+				const headers = { "X-Portfolio-Admin-Actor": "artifact-test", "X-Portfolio-Admin-Key": adminKey, "X-Portfolio-Request-Id": requestId };
+				assert.equal((await fetch(`${apiBaseUrl}/api/admin/access`, { headers })).status, 204);
+				assert.equal((await fetch(`${apiBaseUrl}/api/admin/access`)).status, 403);
+				for (const category of ["photos", "drawings"]) {
+					const path = `${apiBaseUrl}/api/admin/gallery/${category}`;
+					const body = Buffer.from([18, 52, 86, 255]);
+					const upload = { method: "POST", body, headers: { ...headers, "Content-Type": "application/octet-stream", "X-Image-Width": "1", "X-Image-Height": "1", "X-Image-Description": "Test%20pixel" } };
+					assert.equal((await fetch(path, { method: "POST", body })).status, 403);
+					assert.equal((await fetch(path, { ...upload, body: Buffer.from([1]) })).status, 400);
+					const created = await fetch(path, upload);
+					assert.equal(created.status, 201);
+					const { id } = await created.json();
+					const publicPath = `${apiBaseUrl}/api/gallery/${category}`;
+					assert.deepEqual(await (await fetch(publicPath)).json(), { items: [{ id, description: "Test pixel", width: 1, height: 1 }], next: null });
+					const media = await fetch(`${publicPath}/${id}`);
+					assert.equal(media.headers.get("content-type"), "image/png");
+					assert.equal(Buffer.from(await media.arrayBuffer()).subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
+					assert.equal((await fetch(`${apiBaseUrl}/api/gallery/${category === "photos" ? "drawings" : "photos"}/${id}`)).status, 404);
+					const record = await databaseClient.db().collection("gallery_images").findOne({ gallery: category });
+					assert.equal(record.actor, "artifact-test");
+					assert.equal(record.requestId, requestId);
+				}
+			}
 			const mutation = await fetch(`${apiBaseUrl}/api/admin/projects/oscre`, {
 				body: JSON.stringify({ visible: false }),
 				headers: {

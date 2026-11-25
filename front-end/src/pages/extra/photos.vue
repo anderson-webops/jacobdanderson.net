@@ -1,8 +1,12 @@
+<script setup lang="ts">
+import GalleryGrid from "~/components/GalleryGrid.vue";
+</script>
+
 <template>
 	<div class="page-intro">
 		<RouterLink class="section-link" to="/extra">Extra</RouterLink>
 		<h1>Top Photos</h1>
-		<p>No photos yet.</p>
+		<GalleryGrid gallery="photos" />
 	</div>
 </template>
 

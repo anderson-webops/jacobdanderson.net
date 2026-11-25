@@ -27,7 +27,7 @@
   },
   "state": {
     "writableReleasePaths": [],
-    "external": ["MongoDB project visibility", "semantic audit records", "protected environment configuration"]
+    "external": ["MongoDB project visibility", "MongoDB gallery images and descriptions", "semantic audit records", "protected environment configuration"]
   },
   "retainedRelease": {
     "tag": "v2.14.7",

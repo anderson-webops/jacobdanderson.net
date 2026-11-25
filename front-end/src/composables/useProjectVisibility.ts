@@ -37,7 +37,7 @@ function isVisibilityResponse(value: unknown): value is VisibilityResponse {
 	return true;
 }
 
-export function useProjectVisibility() {
+export function useProjectVisibility(adminFetch: typeof fetch = fetch) {
 	const errorMessage = ref("");
 	const hasLoadedVisibility = ref(false);
 	const isLoading = ref(false);
@@ -82,7 +82,7 @@ export function useProjectVisibility() {
 		}
 
 		try {
-			const response = await fetch(`/api/admin/projects/${encodeURIComponent(project.slug)}`, {
+			const response = await adminFetch(`/api/admin/projects/${encodeURIComponent(project.slug)}`, {
 				body: JSON.stringify({ visible }),
 				credentials: "same-origin",
 				headers: {

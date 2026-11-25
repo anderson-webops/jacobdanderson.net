@@ -82,6 +82,7 @@ function emptyCollection() {
 
 function responseFor(url) {
 	const pathname = url.pathname.replace(/\/+/g, "/");
+	if (pathname.startsWith("/api/gallery/")) return { items: [], next: null };
 	if (pathname.endsWith("/projects/visibility")) return { items: [] };
 	if (pathname.endsWith("/pageview")) return { pageview: 0, startAt: Date.now() };
 	if (pathname.includes("/session")) return { authenticated: false, user: null, admin: null };
@@ -111,6 +112,19 @@ function responseFor(url) {
 function createMockApiServer() {
 	return http.createServer((req, res) => {
 		const url = new URL(req.url || "/", `http://127.0.0.1:${apiPort}`);
+		if (url.pathname.startsWith("/api/admin/")) {
+			const authorized = req.headers.authorization === `Basic ${btoa("fixture:gallery-test")}`;
+			if (!authorized) return sendJson(res, {}, 403);
+			if (url.pathname === "/api/admin/access") return sendJson(res, {}, 204);
+			if (req.method === "POST" && /^\/api\/admin\/gallery\/(?:photos|drawings)$/.test(url.pathname)) {
+				let bytes = 0;
+				req.on("data", (chunk) => {
+					bytes += chunk.length;
+				});
+				req.on("end", () => sendJson(res, {}, bytes === 4 && req.headers["x-image-description"] === "Blue%20pixel" ? 201 : 400));
+				return;
+			}
+		}
 		if (req.method === "OPTIONS") {
 			sendJson(res, {}, 204);
 			return;
@@ -278,6 +292,54 @@ async function analyzePage(browser, route, scheme) {
 	};
 }
 
+async function checkGalleryPublishing(browser) {
+	const page = await browser.newPage();
+	try {
+		await page.setViewport({ width: 390, height: 844 });
+		await page.goto(`${baseUrl}/admin`, { waitUntil: "networkidle0" });
+		await page.type("[name=username]", "fixture");
+		await page.type("[name=password]", "incorrect");
+		await page.click("form button");
+		await page.waitForSelector("[role=alert]");
+		assert.equal(await page.$("input[type=file]"), null);
+		await page.type("[name=password]", "gallery-test");
+		await page.click("form button");
+		for (const gallery of ["photos", "drawings"]) {
+			if (gallery === "drawings") await page.locator("::-p-text(Drawings)").click();
+			await page.waitForSelector("input[type=file]");
+			await page.evaluate(async () => {
+				const canvas = document.createElement("canvas");
+				canvas.width = canvas.height = 1;
+				const context = canvas.getContext("2d");
+				context.fillStyle = "blue";
+				context.fillRect(0, 0, 1, 1);
+				const png = await new Promise(resolveBlob => canvas.toBlob(resolveBlob));
+				const transfer = new DataTransfer();
+				transfer.items.add(new File([png], "example.png", { type: "image/png" }));
+				const input = document.querySelector("input[type=file]");
+				input.files = transfer.files;
+				input.dispatchEvent(new Event("change", { bubbles: true }));
+			});
+			await page.waitForSelector("input[maxlength='200']");
+			await page.type("input[maxlength='200']", "Blue pixel");
+			await page.addScriptTag({ path: axeSourcePath });
+			const violations = await page.evaluate(async () => (await globalThis.axe.run(document, {
+				runOnly: { type: "tag", values: ["wcag2a", "wcag2aa"] }
+			})).violations.map(issue => issue.id));
+			assert.deepEqual(violations, []);
+			const request = page.waitForResponse(response => new URL(response.url()).pathname === `/api/admin/gallery/${gallery}` && response.status() === 201);
+			await page.click("form button");
+			await request;
+			await page.waitForFunction(() => document.querySelector("form [role=status]")?.textContent.includes("published"));
+		}
+		await page.locator("::-p-text(Sign out)").click();
+		await page.waitForSelector("[name=password]");
+		assert.equal(await page.$("input[type=file]"), null);
+		console.log("Gallery sign-in, both uploads, accessibility and sign-out passed.");
+	}
+	finally { await page.close(); }
+}
+
 async function checkReadingLayout(browser, route) {
 	const page = await browser.newPage();
 	try {
@@ -390,6 +452,7 @@ try {
 		args: ["--no-sandbox", "--disable-dev-shm-usage"]
 	});
 	await checkResumePrint(browser);
+	await checkGalleryPublishing(browser);
 
 	const failures = [];
 	for (const route of routes) {

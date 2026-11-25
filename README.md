@@ -4,7 +4,7 @@ Public Vite SSG portfolio plus a small loopback-only Express API for health, rea
 
 ## Layout
 
-- `front-end/`: Vue static site, unlisted project index, and Basic-auth-gated administration UI.
+- `front-end/`: Vue site with public photo and drawing galleries and an unlisted in-page sign-in at `/admin` for publishing images and managing project visibility.
 - `back-end/`: direct MongoDB-driver API with bounded reads, one serialized mutation path, and durable semantic audit records.
 - `deploy/`: direct Nginx and systemd contracts. Production does not use Docker.
 - `HEALTHCHECKS.md`: monitor behavior.

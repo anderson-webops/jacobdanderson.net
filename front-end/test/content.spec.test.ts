@@ -1,8 +1,8 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia } from "pinia";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import ProjectVisibilityControls from "../src/components/ProjectVisibilityControls.vue";
 import About from "../src/pages/about.vue";
-import Admin from "../src/pages/admin.vue";
 import Classes from "../src/pages/classes.vue";
 import Contact from "../src/pages/contact.vue";
 import Experience from "../src/pages/experience.vue";
@@ -134,7 +134,7 @@ describe("visibility page states", () => {
 				.mockRejectedValueOnce(new TypeError("lost response"))
 				.mockResolvedValueOnce(new Response('{"items":[{"slug":"oscre","visible":false}]}'))
 		);
-		const wrapper = mount(Admin, { global });
+		const wrapper = mount(ProjectVisibilityControls, { global, props: { adminFetch: fetch } });
 		await flushPromises();
 		await wrapper.get('button[aria-label="Hide OSCRE Circuit Simulation"]').trigger("click");
 		await flushPromises();

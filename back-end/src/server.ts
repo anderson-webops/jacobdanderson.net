@@ -1,5 +1,7 @@
 import type { Server } from "node:http";
+import type { GalleryStore } from "./models/gallery.js";
 import type { ProjectVisibilityMutation, ProjectVisibilityRecord } from "./models/projectVisibility.js";
+import { Buffer } from "node:buffer";
 import { realpathSync } from "node:fs";
 import { isIP } from "node:net";
 import path from "node:path";
@@ -9,6 +11,7 @@ import express from "express";
 import helmet from "helmet";
 import { MongoClient } from "mongodb";
 import { z } from "zod";
+import { createGalleryStore, encodePixels, isGallery, isImageId, MAX_SIDE } from "./models/gallery.js";
 import { createProjectVisibilityStore } from "./models/projectVisibility.js";
 import { isProjectSlug } from "./projectCatalog.js";
 import {
@@ -46,6 +49,7 @@ export interface DatabaseInfo {
 }
 
 export interface BackendServices {
+	gallery?: GalleryStore;
 	getDatabaseInfo: () => DatabaseInfo;
 	getDatabaseState: () => number;
 	listProjectVisibility: () => Promise<ProjectVisibilityRecord[]>;
@@ -228,35 +232,99 @@ export function createApp({
 	});
 	const parseProjectAdminJson = express.json({ limit: "2kb", strict: true, type: "application/json" });
 
+	const requireAdmin: express.RequestHandler = (request, response, next) => {
+		if (!projectAdminEnabled) {
+			response.status(404).set("Cache-Control", "no-store").json({ ok: false, error: "not_found" });
+			return;
+		}
+		if (
+			!isLoopbackRemoteAddress(request.socket.remoteAddress)
+			|| !canUseProjectAdmin({
+				configuredKey: projectAdminKey,
+				enabled: projectAdminEnabled,
+				providedKey: request.get(PROJECT_ADMIN_HEADER)
+			})
+		) {
+			response.status(403).set("Cache-Control", "no-store").json({ ok: false, error: "forbidden" });
+			return;
+		}
+		const auditContext = parseProjectAdminAuditContext(
+			request.get(PROJECT_ADMIN_ACTOR_HEADER),
+			request.get(PROJECT_ADMIN_REQUEST_ID_HEADER)
+		);
+		if (!auditContext) {
+			response.status(403).set("Cache-Control", "no-store").json({ ok: false, error: "forbidden" });
+			return;
+		}
+		response.locals.projectAdminAudit = auditContext;
+		next();
+	};
+	app.get("/api/admin/access", requireAdmin, (_request, response) => {
+		response.set("Cache-Control", "no-store").sendStatus(204);
+	});
+
+	app.post("/api/admin/gallery/:gallery", requireAdmin, async (request, response, next) => {
+		response.set("Cache-Control", "no-store");
+		const gallery = request.params.gallery;
+		if (!isGallery(gallery)) return response.sendStatus(404);
+		if (!services.gallery) return response.sendStatus(503);
+		if (!request.is("application/octet-stream") || request.get("Content-Encoding")) return response.sendStatus(415);
+		const width = Number(request.get("X-Image-Width"));
+		const height = Number(request.get("X-Image-Height"));
+		let description: string;
+		try {
+			description = decodeURIComponent(request.get("X-Image-Description") || "").trim();
+		}
+		catch {
+			return response.sendStatus(400);
+		}
+		if (![width, height].every(side => Number.isInteger(side) && side >= 1 && side <= MAX_SIDE)
+			|| !description || description.length > 200 || /\p{Cc}/u.test(description)) {
+			return response.sendStatus(400);
+		}
+		const release = adminDatabaseCapacity.tryAcquire();
+		if (!release) return sendDatabaseBusy(response);
+		try {
+			await new Promise<void>((resolve, reject) => express.raw({
+				type: "application/octet-stream",
+				limit: width * height * 4,
+				inflate: false
+			})(request, response, error => error ? reject(error) : resolve()));
+			if (!Buffer.isBuffer(request.body) || request.body.length !== width * height * 4) return response.sendStatus(400);
+			const png = await encodePixels(width, height, request.body);
+			const { actor, requestId } = response.locals.projectAdminAudit;
+			const id = await services.gallery.publish({ gallery, width, height, description, actor, requestId }, png);
+			return response.status(201).json({ id });
+		}
+		catch (error) { return next(error); }
+		finally { release(); }
+	});
+
+	app.get(["/api/gallery/:gallery", "/api/gallery/:gallery/:id"], async (request, response) => {
+		response.set("Cache-Control", "no-store");
+		const { gallery, id } = request.params;
+		const before = request.query.before;
+		if (!isGallery(gallery) || (id !== undefined && !isImageId(id))) return response.sendStatus(404);
+		if (before !== undefined && !isImageId(before)) return response.sendStatus(400);
+		if (!services.gallery) return response.sendStatus(503);
+		const release = publicDatabaseCapacity.tryAcquire();
+		if (!release) return sendDatabaseBusy(response);
+		try {
+			if (!id) return response.json(await services.gallery.list(gallery, before));
+			const image = await services.gallery.image(gallery, id);
+			if (!image) return response.sendStatus(404);
+			return response.type("image/png").set("Cache-Control", "public, max-age=86400").send(image);
+		}
+		catch (error) {
+			logError("Gallery read failed", error);
+			return response.sendStatus(503);
+		}
+		finally { release(); }
+	});
+
 	app.patch(
 		"/api/admin/projects/:slug",
-		(request, response, next) => {
-			if (!projectAdminEnabled) {
-				response.status(404).set("Cache-Control", "no-store").json({ ok: false, error: "not_found" });
-				return;
-			}
-			if (
-				!isLoopbackRemoteAddress(request.socket.remoteAddress)
-				|| !canUseProjectAdmin({
-					configuredKey: projectAdminKey,
-					enabled: projectAdminEnabled,
-					providedKey: request.get(PROJECT_ADMIN_HEADER)
-				})
-			) {
-				response.status(403).set("Cache-Control", "no-store").json({ ok: false, error: "forbidden" });
-				return;
-			}
-			const auditContext = parseProjectAdminAuditContext(
-				request.get(PROJECT_ADMIN_ACTOR_HEADER),
-				request.get(PROJECT_ADMIN_REQUEST_ID_HEADER)
-			);
-			if (!auditContext) {
-				response.status(403).set("Cache-Control", "no-store").json({ ok: false, error: "forbidden" });
-				return;
-			}
-			response.locals.projectAdminAudit = auditContext;
-			next();
-		},
+		requireAdmin,
 		parseProjectAdminJson,
 		async (request, response) => {
 			const slug = typeof request.params.slug === "string" ? request.params.slug : "";
@@ -415,7 +483,9 @@ export async function main() {
 		await projectVisibility.ensureIndexes();
 		let databaseReady = true;
 
+		await database.collection("gallery_images").createIndex({ gallery: 1, _id: -1 });
 		const services: BackendServices = {
+			gallery: createGalleryStore(database),
 			getDatabaseInfo: () => ({
 				databaseName: database.databaseName,
 				host: null,

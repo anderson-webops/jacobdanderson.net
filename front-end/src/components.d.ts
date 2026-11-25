@@ -13,6 +13,9 @@ declare module 'vue' {
   export interface GlobalComponents {
     EducationComponent: typeof import('./components/EducationComponent.vue')['default']
     ExperienceEntry: typeof import('./components/ExperienceEntry.vue')['default']
+    GalleryGrid: typeof import('./components/GalleryGrid.vue')['default']
+    GalleryPublisher: typeof import('./components/GalleryPublisher.vue')['default']
+    ProjectVisibilityControls: typeof import('./components/ProjectVisibilityControls.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TheFooter: typeof import('./components/TheFooter.vue')['default']
