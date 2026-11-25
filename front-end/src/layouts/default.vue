@@ -1,8 +1,17 @@
+<script setup lang="ts">
+const route = useRoute();
+</script>
+
 <template>
 	<a class="skip-link" href="#main-content">Skip to main content</a>
 	<div class="site-shell">
 		<TheHeader />
-		<main id="main-content" class="site-main" tabindex="-1">
+		<main
+			id="main-content"
+			class="site-main"
+			:class="{ 'wide-gallery': route.meta.wideGallery === true }"
+			tabindex="-1"
+		>
 			<RouterView />
 		</main>
 		<TheFooter />
@@ -10,6 +19,13 @@
 </template>
 
 <style scoped>
+@media screen {
+	.site-main.wide-gallery {
+		width: min(1920px, calc(100% - 2 * clamp(10px, 1.25vw, 24px)));
+		padding-top: clamp(1rem, 2.5vw, 2rem);
+	}
+}
+
 .skip-link {
 	position: absolute;
 	top: 0.9rem;

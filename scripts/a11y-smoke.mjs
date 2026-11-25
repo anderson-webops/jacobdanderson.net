@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { Buffer } from "node:buffer";
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import http from "node:http";
@@ -82,6 +83,17 @@ function emptyCollection() {
 
 function responseFor(url) {
 	const pathname = url.pathname.replace(/\/+/g, "/");
+	if (pathname === "/api/gallery/photos") {
+		const secondPage = url.searchParams.has("before");
+		const items = Array.from({ length: secondPage ? 4 : 24 }, (_, index) => ({
+			id: (index + (secondPage ? 25 : 1)).toString(16).padStart(24, "0"),
+			description: `Test photo ${index + (secondPage ? 25 : 1)}`,
+			width: 1,
+			height: 1,
+			...(!secondPage && index < 3 ? { favorite: true } : {})
+		}));
+		return { items, next: secondPage ? null : items.at(-1).id };
+	}
 	if (pathname.startsWith("/api/gallery/")) return { items: [], next: null };
 	if (pathname.endsWith("/projects/visibility")) return { items: [] };
 	if (pathname.endsWith("/pageview")) return { pageview: 0, startAt: Date.now() };
@@ -112,6 +124,11 @@ function responseFor(url) {
 function createMockApiServer() {
 	return http.createServer((req, res) => {
 		const url = new URL(req.url || "/", `http://127.0.0.1:${apiPort}`);
+		if (/^\/api\/gallery\/photos\/[0-9a-f]{24}$/.test(url.pathname)) {
+			res.writeHead(200, { "Content-Type": "image/png" });
+			res.end(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jgF8AAAAASUVORK5CYII=", "base64"));
+			return;
+		}
 		if (url.pathname.startsWith("/api/admin/")) {
 			const authorized = req.headers.authorization === `Basic ${btoa("fixture:gallery-test")}`;
 			if (!authorized) return sendJson(res, {}, 403);
@@ -340,6 +357,41 @@ async function checkGalleryPublishing(browser) {
 	finally { await page.close(); }
 }
 
+async function checkPhotoGallery(browser) {
+	const page = await browser.newPage();
+	try {
+		await page.setViewport({ width: 1440, height: 960 });
+		await page.goto(`${baseUrl}/extra/photos`, { waitUntil: "networkidle0" });
+		assert.equal((await page.$$(".photo-tile")).length, 24);
+		const dimensions = await page.evaluate(() => {
+			const bounds = selector => document.querySelector(selector).getBoundingClientRect();
+			return { width: bounds(".photo-gallery").width, lead: bounds(".lead").width, favorite: bounds(".favorites .photo-tile").width, regular: bounds(".photo-grid:not(.favorites) .photo-tile").width };
+		});
+		assert.ok(dimensions.width > 1380 && dimensions.lead > dimensions.favorite && dimensions.favorite > dimensions.regular);
+		await page.click(".lead");
+		await page.waitForSelector("dialog[open]");
+		assert.equal(await page.$eval("dialog img", image => image.alt), "Test photo 1");
+		await page.keyboard.press("ArrowRight");
+		await page.waitForFunction(() => document.querySelector("dialog img")?.alt === "Test photo 4");
+		assert.equal(await page.$eval("dialog", dialog => dialog.clientWidth), 1440);
+		await page.keyboard.press("Escape");
+		await page.waitForFunction(() => !document.querySelector("dialog").open && document.activeElement.matches(".lead"));
+		await page.locator("::-p-aria(Next)").click();
+		await page.waitForFunction(() => document.querySelector(".pagination").textContent.includes("Page 2"));
+		assert.equal((await page.$$(".photo-tile")).length, 4);
+		await page.locator("::-p-aria(Previous)").click();
+		await page.waitForFunction(() => document.querySelector(".pagination").textContent.includes("Page 1"));
+		assert.equal((await page.$$(".photo-tile")).length, 24);
+		await page.setViewport({ width: 390, height: 844 });
+		assert.ok(await page.$eval(".photo-gallery", gallery => gallery.getBoundingClientRect().left <= 10));
+		assert.ok(await page.$eval(".photo-grid:not(.favorites)", grid => getComputedStyle(grid).gridTemplateColumns.split(" ").length === 2));
+		console.log("Wide photo gallery, 24-photo pages, mobile grid, and lightbox navigation passed.");
+	}
+	finally {
+		await page.close();
+	}
+}
+
 async function checkReadingLayout(browser, route) {
 	const page = await browser.newPage();
 	try {
@@ -453,6 +505,7 @@ try {
 	});
 	await checkResumePrint(browser);
 	await checkGalleryPublishing(browser);
+	await checkPhotoGallery(browser);
 
 	const failures = [];
 	for (const route of routes) {

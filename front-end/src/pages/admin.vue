@@ -35,8 +35,14 @@ function signOut(message = "") {
 }
 
 const adminFetch: typeof fetch = async (path, init = {}) => {
-	if (typeof path !== "string" || !/^\/api\/admin\/(?:access|(?:gallery|projects)\/[a-z0-9-]+)$/.test(path))
+	if (
+		typeof path !== "string" ||
+		!/^\/api\/admin\/(?:access|(?:gallery|projects)\/[a-z0-9-]+|gallery\/photos\/[a-f0-9]{24}\/favorite)$/.test(
+			path
+		)
+	) {
 		throw new Error("Invalid admin path");
+	}
 	if (!authorization || Date.now() >= expires) {
 		signOut("Please sign in again.");
 		throw new Error("Sign-in expired");

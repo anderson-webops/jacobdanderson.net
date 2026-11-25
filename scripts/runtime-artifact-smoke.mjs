@@ -301,6 +301,36 @@ try {
 					const record = await databaseClient.db().collection("gallery_images").findOne({ gallery: category });
 					assert.equal(record.actor, "artifact-test");
 					assert.equal(record.requestId, requestId);
+					const favoritePath = `${apiBaseUrl}/api/admin/gallery/photos/${id}/favorite`;
+					const update = { method: "POST", headers: { ...headers, "Content-Type": "application/json" }, body: "{\"favorite\":true}" };
+					assert.equal((await fetch(favoritePath, { ...update, headers: { "Content-Type": "application/json" } })).status, 403);
+					assert.equal((await fetch(favoritePath, { ...update, body: "{\"favorite\":1}" })).status, 400);
+					assert.equal((await fetch(favoritePath, update)).status, category === "photos" ? 204 : 404);
+					if (category === "photos") {
+						const collection = databaseClient.db().collection("gallery_images");
+						const fixtures = Array.from({ length: 48 }, (_, index) => ({
+							gallery: "photos",
+							description: `Fixture photo ${index}`,
+							width: 1,
+							height: 1,
+							...(index < 25 ? { favorite: true } : {})
+						}));
+						await collection.insertMany(fixtures);
+						const first = await (await fetch(publicPath)).json();
+						const second = await (await fetch(`${publicPath}?before=${first.next}`)).json();
+						const third = await (await fetch(`${publicPath}?before=${second.next}`)).json();
+						assert.deepEqual([first.items.length, second.items.length, third.items.length], [24, 24, 1]);
+						assert.equal(third.next, null);
+						const all = [...first.items, ...second.items, ...third.items];
+						assert.equal(new Set(all.map(item => item.id)).size, 49);
+						assert.equal(all.find(item => item.id === id)?.favorite, true);
+						assert.ok(all.slice(0, 26).every(item => item.favorite === true));
+						assert.ok(all.slice(26).every(item => item.favorite === undefined));
+						assert.equal((await fetch(favoritePath, { ...update, body: "{\"favorite\":false}" })).status, 204);
+						assert.equal((await collection.findOne({ _id: record._id })).favorite, undefined);
+						const favoriteAudit = await databaseClient.db().collection("gallery_favorite_audit").find({ imageId: record._id, phase: "result" }).toArray();
+						assert.deepEqual(favoriteAudit.map(event => [event.actor, event.previousFavorite, event.requestedFavorite]), [["artifact-test", false, true], ["artifact-test", true, false]]);
+					}
 				}
 			}
 			const mutation = await fetch(`${apiBaseUrl}/api/admin/projects/oscre`, {

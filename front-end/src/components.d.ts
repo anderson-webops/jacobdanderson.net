@@ -15,6 +15,7 @@ declare module 'vue' {
     ExperienceEntry: typeof import('./components/ExperienceEntry.vue')['default']
     GalleryGrid: typeof import('./components/GalleryGrid.vue')['default']
     GalleryPublisher: typeof import('./components/GalleryPublisher.vue')['default']
+    PhotoGallery: typeof import('./components/PhotoGallery.vue')['default']
     ProjectVisibilityControls: typeof import('./components/ProjectVisibilityControls.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

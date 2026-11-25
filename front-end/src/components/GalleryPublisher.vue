@@ -113,7 +113,7 @@ async function publish() {
 			<p v-if="error" role="alert">{{ error }}</p>
 			<p v-if="status" role="status">{{ status }}</p>
 		</form>
-		<GalleryGrid :key="revision" :gallery="gallery" />
+		<GalleryGrid :key="revision" :gallery="gallery" :admin-fetch="adminFetch" />
 	</section>
 </template>
 

@@ -300,6 +300,27 @@ export function createApp({
 		finally { release(); }
 	});
 
+	const favoriteSchema = z.object({ favorite: z.boolean() }).strict();
+	app.post("/api/admin/gallery/photos/:id/favorite", requireAdmin, parseProjectAdminJson, async (request, response) => {
+		response.set("Cache-Control", "no-store");
+		const { id } = request.params;
+		if (!isImageId(id)) return response.sendStatus(404);
+		const payload = favoriteSchema.safeParse(request.body);
+		if (!payload.success) return response.sendStatus(400);
+		if (!services.gallery) return response.sendStatus(503);
+		const release = adminDatabaseCapacity.tryAcquire();
+		if (!release) return sendDatabaseBusy(response);
+		try {
+			const saved = await services.gallery.setFavorite(id, payload.data.favorite, response.locals.projectAdminAudit);
+			return response.sendStatus(saved ? 204 : 404);
+		}
+		catch (error) {
+			logError("Gallery favorite update failed", error);
+			return response.sendStatus(503);
+		}
+		finally { release(); }
+	});
+
 	app.get(["/api/gallery/:gallery", "/api/gallery/:gallery/:id"], async (request, response) => {
 		response.set("Cache-Control", "no-store");
 		const { gallery, id } = request.params;
@@ -483,9 +504,10 @@ export async function main() {
 		await projectVisibility.ensureIndexes();
 		let databaseReady = true;
 
-		await database.collection("gallery_images").createIndex({ gallery: 1, _id: -1 });
+		const gallery = createGalleryStore(database);
+		await gallery.ensureIndexes();
 		const services: BackendServices = {
-			gallery: createGalleryStore(database),
+			gallery,
 			getDatabaseInfo: () => ({
 				databaseName: database.databaseName,
 				host: null,
