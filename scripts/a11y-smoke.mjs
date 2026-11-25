@@ -83,15 +83,20 @@ function emptyCollection() {
 
 function responseFor(url) {
 	const pathname = url.pathname.replace(/\/+/g, "/");
-	if (pathname === "/api/gallery/photos") {
+	if (pathname === "/api/gallery/photos" || pathname === "/api/gallery/drawings") {
+		const photo = pathname.endsWith("/photos");
+		const pageSize = photo ? 24 : 12;
 		const secondPage = url.searchParams.has("before");
-		const items = Array.from({ length: secondPage ? 4 : 24 }, (_, index) => ({
-			id: (index + (secondPage ? 25 : 1)).toString(16).padStart(24, "0"),
-			description: `Test photo ${index + (secondPage ? 25 : 1)}`,
-			width: 1,
-			height: 1,
-			...(!secondPage && index < 3 ? { favorite: true } : {})
-		}));
+		const items = Array.from({ length: secondPage ? 4 : pageSize }, (_, index) => {
+			const number = index + (secondPage ? pageSize : 0) + 1;
+			return {
+				id: number.toString(16).padStart(24, "0"),
+				description: `Test ${photo ? "photo" : "drawing"} ${number}`,
+				width: 4,
+				height: 2,
+				...(photo && !secondPage && index < 3 ? { favorite: true } : {})
+			};
+		});
 		return { items, next: secondPage ? null : items.at(-1).id };
 	}
 	if (pathname.startsWith("/api/gallery/")) return { items: [], next: null };
@@ -121,12 +126,33 @@ function responseFor(url) {
 	return { ok: true, ...emptyCollection() };
 }
 
+let galleryTraffic;
+const fixtureImage = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAYAAAB/qH1jAAAAEklEQVR4nGOwyJ3zHxkzoAsAACghEgEihFfdAAAAAElFTkSuQmCC", "base64");
+
 function createMockApiServer() {
 	return http.createServer((req, res) => {
 		const url = new URL(req.url || "/", `http://127.0.0.1:${apiPort}`);
-		if (/^\/api\/gallery\/photos\/[0-9a-f]{24}$/.test(url.pathname)) {
-			res.writeHead(200, { "Content-Type": "image/png" });
-			res.end(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jgF8AAAAASUVORK5CYII=", "base64"));
+		if (/^\/api\/gallery\/(?:photos|drawings)\/[0-9a-f]{24}$/.test(url.pathname)) {
+			const traffic = galleryTraffic;
+			if (!traffic) {
+				res.writeHead(200, { "Content-Type": "image/png" });
+				res.end(fixtureImage);
+				return;
+			}
+			const requests = (traffic.attempts.get(url.pathname) ?? 0) + 1;
+			traffic.attempts.set(url.pathname, requests);
+			traffic.starts.push(Date.now());
+			traffic.active++;
+			traffic.peak = Math.max(traffic.active, traffic.peak);
+			const delay = setTimeout(() => {
+				const fail = url.pathname.endsWith("/000000000000000000000001") && requests === 1;
+				res.writeHead(fail ? 503 : 200, { "Content-Type": "image/png", "Cache-Control": "no-store" });
+				res.end(fail ? "" : fixtureImage);
+			}, 700);
+			res.once("close", () => {
+				clearTimeout(delay);
+				traffic.active--;
+			});
 			return;
 		}
 		if (url.pathname.startsWith("/api/admin/")) {
@@ -357,37 +383,50 @@ async function checkGalleryPublishing(browser) {
 	finally { await page.close(); }
 }
 
-async function checkPhotoGallery(browser) {
+async function checkScrollingGallery(browser, gallery, width) {
 	const page = await browser.newPage();
+	const traffic = { active: 0, peak: 0, attempts: new Map(), starts: [] };
+	galleryTraffic = traffic;
 	try {
-		await page.setViewport({ width: 1440, height: 960 });
-		await page.goto(`${baseUrl}/extra/photos`, { waitUntil: "networkidle0" });
-		assert.equal((await page.$$(".photo-tile")).length, 24);
+		const photos = gallery === "photos";
+		const label = photos ? "photo" : "drawing";
+		const firstBatch = photos ? 24 : 12;
+		await page.setViewport({ width, height: 960 });
+		await page.goto(`${baseUrl}/extra/${gallery}`, { waitUntil: "domcontentloaded" });
+		await page.waitForFunction(() => document.querySelector(".lead img")?.naturalWidth === 4);
+		assert.equal((await page.$$(".photo-tile")).length, firstBatch);
+		assert.ok(traffic.attempts.size < firstBatch, "Offscreen media requested before scrolling");
+		assert.equal(traffic.attempts.get(`/api/gallery/${gallery}/000000000000000000000001`), 2);
 		const dimensions = await page.evaluate(() => {
-			const bounds = selector => document.querySelector(selector).getBoundingClientRect();
-			return { width: bounds(".photo-gallery").width, lead: bounds(".lead").width, favorite: bounds(".favorites .photo-tile").width, regular: bounds(".photo-grid:not(.favorites) .photo-tile").width };
+			const bounds = selector => document.querySelector(selector)?.getBoundingClientRect();
+			const regular = document.querySelector(".photo-grid:not(.favorites)");
+			return { width: bounds(".photo-gallery").width, lead: bounds(".lead").width, favorite: bounds(".favorites .photo-tile")?.width ?? 0, regular: bounds(".photo-grid:not(.favorites) .photo-tile").width, columns: getComputedStyle(regular).gridTemplateColumns.split(" ").length, fit: getComputedStyle(document.querySelector(".lead img")).objectFit };
 		});
-		assert.ok(dimensions.width > 1380 && dimensions.lead > dimensions.favorite && dimensions.favorite > dimensions.regular);
+		assert.ok(dimensions.width >= width - 48 && dimensions.lead > dimensions.regular);
+		assert.equal(dimensions.columns, width > 760 ? 3 : 2);
+		assert.equal(dimensions.fit, photos ? "cover" : "contain");
+		if (photos && width > 760) assert.ok(dimensions.lead > dimensions.favorite && dimensions.favorite > dimensions.regular);
 		await page.click(".lead");
 		await page.waitForSelector("dialog[open]");
-		assert.equal(await page.$eval("dialog img", image => image.alt), "Test photo 1");
+		assert.equal(await page.$eval("dialog img", image => image.alt), `Test ${label} 1`);
 		await page.keyboard.press("ArrowRight");
-		await page.waitForFunction(() => document.querySelector("dialog img")?.alt === "Test photo 4");
-		assert.equal(await page.$eval("dialog", dialog => dialog.clientWidth), 1440);
+		await page.waitForFunction(expected => document.querySelector("dialog img")?.alt === expected, {}, `Test ${label} ${photos ? 4 : 2}`);
+		assert.equal(await page.$eval("dialog", dialog => dialog.clientWidth), width);
 		await page.keyboard.press("Escape");
 		await page.waitForFunction(() => !document.querySelector("dialog").open && document.activeElement.matches(".lead"));
-		await page.locator("::-p-aria(Next)").click();
-		await page.waitForFunction(() => document.querySelector(".pagination").textContent.includes("Page 2"));
-		assert.equal((await page.$$(".photo-tile")).length, 4);
-		await page.locator("::-p-aria(Previous)").click();
-		await page.waitForFunction(() => document.querySelector(".pagination").textContent.includes("Page 1"));
-		assert.equal((await page.$$(".photo-tile")).length, 24);
-		await page.setViewport({ width: 390, height: 844 });
-		assert.ok(await page.$eval(".photo-gallery", gallery => gallery.getBoundingClientRect().left <= 10));
-		assert.ok(await page.$eval(".photo-grid:not(.favorites)", grid => getComputedStyle(grid).gridTemplateColumns.split(" ").length === 2));
-		console.log("Wide photo gallery, 24-photo pages, mobile grid, and lightbox navigation passed.");
+
+		await page.$eval(".gallery-sentinel", element => element.scrollIntoView());
+		await page.waitForFunction(count => document.querySelectorAll(".photo-tile").length === count, {}, firstBatch + 4);
+		assert.equal(await page.$eval(".lead img", image => image.alt), `Test ${label} 1`);
+		assert.equal(await page.$(".pagination"), null);
+		await page.$$eval(".photo-tile", tiles => tiles.at(-1).scrollIntoView());
+		await page.waitForFunction(() => Array.from(document.querySelectorAll(".photo-tile img")).at(-1)?.naturalWidth === 4);
+		assert.ok(traffic.peak <= 4, `Too many simultaneous image requests: ${traffic.peak}`);
+		assert.ok(traffic.starts.every((start, index) => index < 7 || start - traffic.starts[index - 7] >= 1000), "Image request starts exceeded the paced rate");
+		console.log(`${gallery} continuous scroll at ${width}px, viewer, and 503 recovery passed (peak ${traffic.peak} image requests).`);
 	}
 	finally {
+		galleryTraffic = undefined;
 		await page.close();
 	}
 }
@@ -505,7 +544,8 @@ try {
 	});
 	await checkResumePrint(browser);
 	await checkGalleryPublishing(browser);
-	await checkPhotoGallery(browser);
+	await checkScrollingGallery(browser, "photos", 1440);
+	await checkScrollingGallery(browser, "drawings", 390);
 
 	const failures = [];
 	for (const route of routes) {

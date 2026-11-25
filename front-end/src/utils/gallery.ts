@@ -11,9 +11,10 @@ export interface GalleryItem {
 const validId = (value: unknown) => typeof value === "string" && /^[a-f0-9]{24}$/.test(value);
 const validSide = (value: number) => Number.isInteger(value) && value > 0;
 
-export async function fetchGalleryPage(gallery: Gallery, before: string | null = null) {
+export async function fetchGalleryPage(gallery: Gallery, before: string | null = null, signal?: AbortSignal) {
 	const response = await fetch(`/api/gallery/${gallery}${before ? `?before=${before}` : ""}`, {
-		credentials: "omit"
+		credentials: "omit",
+		signal
 	});
 	if (!response.ok) throw new Error("Gallery request failed");
 	const payload = await response.json();

@@ -24,6 +24,10 @@ const route = useRoute();
 		width: min(1920px, calc(100% - 2 * clamp(10px, 1.25vw, 24px)));
 		padding-top: clamp(1rem, 2.5vw, 2rem);
 	}
+
+	.wide-gallery :deep(.gallery-intro) {
+		margin: 0 8px 1rem;
+	}
 }
 
 .skip-link {

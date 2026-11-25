@@ -1,64 +1,86 @@
 <script setup lang="ts">
-import type { GalleryItem } from "~/utils/gallery";
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import type { Gallery, GalleryItem } from "~/utils/gallery";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { fetchGalleryPage } from "~/utils/gallery";
+import GalleryImage from "./GalleryImage.vue";
 
+const props = defineProps<{ gallery: Gallery }>();
 const items = ref<GalleryItem[]>([]);
-const page = ref(0);
-const cursors = ref<(string | null)[]>([null]);
-const next = ref<string | null>(null);
+const firstBatch = ref<GalleryItem[]>([]);
+const cursor = ref<string | null>(null);
 const loading = ref(true);
 const failed = ref(false);
-const retryPage = ref(0);
-const gallery = ref<HTMLElement>();
 const viewer = ref<HTMLDialogElement>();
-const activeIndex = ref(-1);
+const sentinel = ref<HTMLElement>();
+const activeId = ref<string>();
+const lifetime = new AbortController();
+const seenIds = new Set<string>();
+const seenCursors = new Set<string>();
+let observer: IntersectionObserver | undefined;
+let pending: Promise<boolean> | undefined;
+let started = false;
 let trigger: HTMLElement | undefined;
 let scrollLock: string | undefined;
 let touchStart: { x: number; y: number } | undefined;
 
-const hero = computed(() => items.value.find(photo => photo.favorite) ?? items.value[0]);
-const side = computed(() => items.value.filter(photo => photo !== hero.value && !photo.favorite).slice(0, 2));
-const favorites = computed(() => items.value.filter(photo => photo !== hero.value && photo.favorite));
+const hero = computed(() => firstBatch.value.find(photo => photo.favorite) ?? firstBatch.value[0]);
+const side = computed(() => {
+	const candidates = firstBatch.value.filter(photo => photo !== hero.value);
+	return [...candidates.filter(photo => !photo.favorite), ...candidates.filter(photo => photo.favorite)].slice(0, 2);
+});
+const favorites = computed(() =>
+	items.value.filter(photo => photo !== hero.value && photo.favorite && !side.value.includes(photo))
+);
 const rest = computed(() =>
 	items.value.filter(photo => photo !== hero.value && !photo.favorite && !side.value.includes(photo))
 );
 const photos = computed(() => (hero.value ? [hero.value, ...side.value, ...favorites.value, ...rest.value] : []));
+const activeIndex = computed(() => photos.value.findIndex(photo => photo.id === activeId.value));
 const active = computed(() => photos.value[activeIndex.value]);
-const source = (photo: GalleryItem) => `/api/gallery/photos/${photo.id}`;
+const imageLabel = computed(() => (props.gallery === "photos" ? "photo" : "drawing"));
+const source = (photo: GalleryItem) => `/api/gallery/${props.gallery}/${photo.id}`;
 
-async function load(target: number) {
-	const before = cursors.value[target];
-	if (before === undefined) return;
+async function appendBatch() {
 	loading.value = true;
 	failed.value = false;
-	retryPage.value = target;
 	try {
-		const result = await fetchGalleryPage("photos", before);
-		const changed = page.value !== target;
-		items.value = result.items;
-		next.value = result.next;
-		page.value = target;
-		if (changed) {
-			await nextTick();
-			gallery.value?.focus({ preventScroll: true });
-			gallery.value?.scrollIntoView({ block: "start" });
+		const result = await fetchGalleryPage(props.gallery, cursor.value, lifetime.signal);
+		if (lifetime.signal.aborted) return false;
+		if (result.next && seenCursors.has(result.next)) throw new Error("Repeated gallery cursor");
+		const fresh = result.items.filter(item => {
+			if (seenIds.has(item.id)) return false;
+			seenIds.add(item.id);
+			return true;
+		});
+		if (!started) {
+			firstBatch.value = fresh;
+			started = true;
 		}
+		items.value.push(...fresh);
+		cursor.value = result.next;
+		if (result.next) seenCursors.add(result.next);
+		return true;
 	} catch {
-		failed.value = true;
+		if (!lifetime.signal.aborted) failed.value = true;
+		return false;
 	} finally {
 		loading.value = false;
 	}
 }
-function nextPage() {
-	if (!next.value || loading.value) return;
-	cursors.value[page.value + 1] = next.value;
-	void load(page.value + 1);
+async function loadNext() {
+	if (pending) return pending;
+	if (started && !cursor.value) return false;
+	pending = appendBatch();
+	try {
+		return await pending;
+	} finally {
+		pending = undefined;
+	}
 }
 
 async function open(photo: GalleryItem, event: MouseEvent) {
 	trigger = event.currentTarget as HTMLElement;
-	activeIndex.value = photos.value.indexOf(photo);
+	activeId.value = photo.id;
 	await nextTick();
 	if (!viewer.value || viewer.value.open) return;
 	viewer.value.showModal();
@@ -72,18 +94,22 @@ function unlockScroll() {
 }
 function onClose() {
 	unlockScroll();
-	activeIndex.value = -1;
+	activeId.value = undefined;
 	trigger?.focus({ preventScroll: true });
 	trigger = undefined;
 }
-function move(offset: number) {
+async function move(offset: number) {
+	const original = activeId.value;
+	if (offset === 1 && activeIndex.value === photos.value.length - 1 && cursor.value) {
+		if (!(await loadNext()) || activeId.value !== original) return;
+	}
 	const count = photos.value.length;
-	if (count > 1) activeIndex.value = (activeIndex.value + offset + count) % count;
+	if (count > 1) activeId.value = photos.value[(activeIndex.value + offset + count) % count]?.id;
 }
 function onKey(event: KeyboardEvent) {
 	if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
 	event.preventDefault();
-	move(event.key === "ArrowLeft" ? -1 : 1);
+	void move(event.key === "ArrowLeft" ? -1 : 1);
 }
 function startSwipe(event: TouchEvent) {
 	const touch = event.touches[0];
@@ -94,17 +120,44 @@ function endSwipe(event: TouchEvent) {
 	if (touch && touchStart) {
 		const horizontal = touch.clientX - touchStart.x;
 		if (Math.abs(horizontal) > 60 && Math.abs(horizontal) > Math.abs(touch.clientY - touchStart.y))
-			move(horizontal < 0 ? 1 : -1);
+			void move(horizontal < 0 ? 1 : -1);
 	}
 	touchStart = undefined;
 }
 
-onMounted(() => void load(0));
-onBeforeUnmount(unlockScroll);
+watch(
+	sentinel,
+	(element, previous) => {
+		if (previous) observer?.unobserve(previous);
+		if (element) observer?.observe(element);
+	},
+	{ flush: "post" }
+);
+
+onMounted(() => {
+	if (typeof IntersectionObserver !== "undefined") {
+		observer = new IntersectionObserver(
+			entries => {
+				if (entries.some(entry => entry.isIntersecting && entry.target === sentinel.value)) void loadNext();
+			},
+			{ rootMargin: "450px 0px" }
+		);
+	}
+	void loadNext();
+});
+onBeforeUnmount(() => {
+	observer?.disconnect();
+	lifetime.abort();
+	unlockScroll();
+});
 </script>
 
 <template>
-	<section ref="gallery" class="photo-gallery" :aria-label="`Photos, page ${page + 1}`" tabindex="-1">
+	<section
+		class="photo-gallery"
+		:class="{ artwork: gallery === 'drawings' }"
+		:aria-label="gallery === 'photos' ? 'Photos' : 'Drawings'"
+	>
 		<div v-if="hero" class="opening-grid" :class="{ 'hero-only': !side.length }">
 			<button
 				class="photo-tile lead"
@@ -112,13 +165,7 @@ onBeforeUnmount(unlockScroll);
 				:aria-label="`Enlarge: ${hero.description}`"
 				@click="open(hero, $event)"
 			>
-				<img
-					:src="source(hero)"
-					:alt="hero.description"
-					:width="hero.width"
-					:height="hero.height"
-					fetchpriority="high"
-				/>
+				<GalleryImage :url="source(hero)" :alt="hero.description" :width="hero.width" :height="hero.height" />
 			</button>
 			<div v-if="side.length" class="side-photos">
 				<button
@@ -129,7 +176,12 @@ onBeforeUnmount(unlockScroll);
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
 				>
-					<img :src="source(photo)" :alt="photo.description" :width="photo.width" :height="photo.height" />
+					<GalleryImage
+						:url="source(photo)"
+						:alt="photo.description"
+						:width="photo.width"
+						:height="photo.height"
+					/>
 				</button>
 			</div>
 		</div>
@@ -141,17 +193,16 @@ onBeforeUnmount(unlockScroll);
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
 				>
-					<img
-						:src="source(photo)"
+					<GalleryImage
+						:url="source(photo)"
 						:alt="photo.description"
 						:width="photo.width"
 						:height="photo.height"
-						loading="lazy"
 					/>
 				</button>
 			</li>
 		</ul>
-		<ul v-if="rest.length" aria-label="More photos" class="photo-grid">
+		<ul v-if="rest.length" :aria-label="`More ${gallery}`" class="photo-grid">
 			<li v-for="photo in rest" :key="photo.id">
 				<button
 					class="photo-tile"
@@ -159,28 +210,29 @@ onBeforeUnmount(unlockScroll);
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
 				>
-					<img
-						:src="source(photo)"
+					<GalleryImage
+						:url="source(photo)"
 						:alt="photo.description"
 						:width="photo.width"
 						:height="photo.height"
-						loading="lazy"
 					/>
 				</button>
 			</li>
 		</ul>
 		<div v-if="failed" class="gallery-message" role="alert">
-			Couldn’t load photos. <button class="section-link" type="button" @click="load(retryPage)">Try again</button>
+			Couldn’t load {{ gallery }}. <button class="section-link" type="button" @click="loadNext">Try again</button>
 		</div>
-		<p v-else-if="loading" class="gallery-message" role="status">Loading photos…</p>
-		<p v-else-if="!items.length" class="gallery-message">No photos yet.</p>
-		<nav v-if="page || next" class="pagination" aria-label="Photo pages">
-			<button type="button" :disabled="loading || page === 0" @click="load(page - 1)">Previous</button>
-			<span>Page {{ page + 1 }}</span>
-			<button type="button" :disabled="loading || !next" @click="nextPage">Next</button>
-		</nav>
+		<p v-else-if="loading" class="gallery-message" role="status">Loading {{ gallery }}…</p>
+		<p v-else-if="!items.length" class="gallery-message">No {{ gallery }} yet.</p>
+		<div v-if="cursor && !failed && !loading" ref="sentinel" class="gallery-sentinel" aria-hidden="true" />
 
-		<dialog ref="viewer" class="photo-viewer" aria-label="Photo viewer" @close="onClose" @keydown="onKey">
+		<dialog
+			ref="viewer"
+			class="photo-viewer"
+			:aria-label="`${gallery === 'photos' ? 'Photo' : 'Drawing'} viewer`"
+			@close="onClose"
+			@keydown="onKey"
+		>
 			<div v-if="active" class="viewer-content">
 				<div class="viewer-toolbar">
 					<span aria-live="polite">{{ activeIndex + 1 }} / {{ photos.length }}</span>
@@ -193,17 +245,18 @@ onBeforeUnmount(unlockScroll);
 					@touchend.passive="endSwipe"
 					@touchcancel="touchStart = undefined"
 				>
-					<img
+					<GalleryImage
 						:key="active.id"
-						:src="source(active)"
+						:url="source(active)"
 						:alt="active.description"
 						:width="active.width"
 						:height="active.height"
+						immediate
 					/>
 				</div>
 				<div v-if="photos.length > 1" class="viewer-navigation">
-					<button type="button" @click="move(-1)">Previous photo</button>
-					<button type="button" @click="move(1)">Next photo</button>
+					<button type="button" @click="move(-1)">Previous {{ imageLabel }}</button>
+					<button type="button" @click="move(1)">Next {{ imageLabel }}</button>
 				</div>
 			</div>
 		</dialog>
@@ -214,7 +267,6 @@ onBeforeUnmount(unlockScroll);
 .photo-gallery {
 	--gallery-gap: 12px;
 	--gallery-row: clamp(230px, 29vw, 520px);
-	scroll-margin-top: 6rem;
 }
 
 .opening-grid {
@@ -266,6 +318,14 @@ onBeforeUnmount(unlockScroll);
 	object-fit: cover;
 }
 
+.artwork .photo-tile img {
+	object-fit: contain;
+}
+
+.gallery-sentinel {
+	height: 1px;
+}
+
 .photo-tile:focus-visible {
 	outline-offset: -4px;
 }
@@ -274,7 +334,6 @@ onBeforeUnmount(unlockScroll);
 	padding: 1rem 0;
 }
 
-.pagination,
 .viewer-toolbar,
 .viewer-navigation {
 	display: flex;
@@ -284,20 +343,11 @@ onBeforeUnmount(unlockScroll);
 	flex-wrap: wrap;
 }
 
-.pagination {
-	margin-top: 1rem;
-}
-
-.pagination button,
 .photo-viewer button {
 	padding: 0.55rem 0.85rem;
 	min-height: 44px;
 	border-radius: 6px;
 	border: 1px solid currentColor;
-}
-
-.pagination button:disabled {
-	opacity: 0.6;
 }
 
 .photo-viewer {

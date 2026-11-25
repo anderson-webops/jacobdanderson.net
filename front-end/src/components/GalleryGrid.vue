@@ -2,6 +2,7 @@
 import type { Gallery, GalleryItem } from "~/utils/gallery";
 import { nextTick, onMounted, ref } from "vue";
 import { fetchGalleryPage } from "~/utils/gallery";
+import GalleryImage from "./GalleryImage.vue";
 
 const props = defineProps<{ gallery: Gallery; adminFetch?: typeof fetch }>();
 const items = ref<GalleryItem[]>([]);
@@ -69,12 +70,11 @@ onMounted(load);
 		</div>
 		<ul v-if="items.length">
 			<li v-for="item in items" :key="item.id">
-				<img
-					:src="`/api/gallery/${gallery}/${item.id}`"
+				<GalleryImage
+					:url="`/api/gallery/${gallery}/${item.id}`"
 					:alt="item.description"
 					:width="item.width"
 					:height="item.height"
-					loading="lazy"
 				/>
 				<button
 					v-if="adminFetch && gallery === 'photos'"

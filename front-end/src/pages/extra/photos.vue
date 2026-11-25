@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import PhotoGallery from "~/components/PhotoGallery.vue";
+import MediaGallery from "~/components/MediaGallery.vue";
 </script>
 
 <template>
-	<header class="page-intro photo-intro">
+	<header class="page-intro gallery-intro">
 		<RouterLink class="section-link" to="/extra">Extra</RouterLink>
 		<h1>Top Photos</h1>
 	</header>
-	<PhotoGallery />
+	<MediaGallery key="photos" gallery="photos" />
 </template>
-
-<style scoped>
-.photo-intro {
-	margin: 0 8px 1rem;
-}
-</style>
 
 <route lang="yaml">
 meta:
