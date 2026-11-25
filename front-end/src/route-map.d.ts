@@ -80,6 +80,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/extra/': RouteRecordInfo<
+      '/extra/',
+      '/extra',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/extra/drawings': RouteRecordInfo<
+      '/extra/drawings',
+      '/extra/drawings',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/extra/photos': RouteRecordInfo<
+      '/extra/photos',
+      '/extra/photos',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/other-projects': RouteRecordInfo<
       '/other-projects',
       '/other-projects',
@@ -165,6 +186,30 @@ declare module 'vue-router/auto-routes' {
     'src/pages/experience.vue': {
       routes:
         | '/experience'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/extra/index.vue': {
+      routes:
+        | '/extra/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/extra/drawings.vue': {
+      routes:
+        | '/extra/drawings'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/extra/photos.vue': {
+      routes:
+        | '/extra/photos'
       views:
         | never
       pathParamNames:

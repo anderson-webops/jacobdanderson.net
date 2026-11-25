@@ -31,6 +31,9 @@ const routes = [
 	"/resume",
 	"/classes",
 	"/contact",
+	"/extra",
+	"/extra/photos",
+	"/extra/drawings",
 	"/page-not-found-check"
 ];
 const colorSchemes = (process.env.A11Y_COLOR_SCHEMES || "light,dark")

@@ -10,7 +10,8 @@ const links = [
 	{ name: "Experience", path: "/experience" },
 	{ name: "Projects", path: "/projects" },
 	{ name: "Teaching", path: "/classes" },
-	{ name: "Contact", path: "/contact" }
+	{ name: "Contact", path: "/contact" },
+	{ name: "Extra", path: "/extra" }
 ];
 
 const activePath = computed(() => route.path);
@@ -240,7 +241,7 @@ watch(
 	transform: translateY(-6px) rotate(-45deg);
 }
 
-@media (max-width: 820px) {
+@media (max-width: 920px) {
 	.shell {
 		width: min(var(--content-width), calc(100% - 2rem));
 	}
