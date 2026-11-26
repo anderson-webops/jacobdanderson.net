@@ -19,25 +19,32 @@ const currentGallerySite = import.meta.env.SSR
 	? undefined
 	: GALLERY_SITES.find(site => site.hostname === window.location.hostname);
 
-function standaloneGalleryRoute(site: GallerySite, path = galleryDocumentPath(site)): RouteRecordRaw {
+function standaloneGalleryRoute(site: GallerySite, admin = false, standalone = false): RouteRecordRaw {
+	const base = standalone ? "" : galleryDocumentPath(site);
 	return {
-		path,
-		component: () => import("./components/GalleryPage.vue"),
-		props: { gallery: site.gallery, standalone: true },
+		path: admin ? `${base}/admin` : base || "/",
+		component: admin ? () => import("./pages/admin.vue") : () => import("./components/GalleryPage.vue"),
+		props: admin ? { collection: site.gallery } : { gallery: site.gallery, standalone: true },
 		meta: {
 			layout: "default",
-			wideGallery: true,
+			wideGallery: !admin,
 			standaloneGallery: true,
-			galleryCanonicalUrl: `${galleryOrigin(site)}/`,
-			title: site.title,
-			description: site.description
+			galleryCanonicalUrl: `${galleryOrigin(site)}/${admin ? "admin" : ""}`,
+			title: admin ? `Manage ${site.gallery} | Jacob Anderson` : site.title,
+			description: admin ? `Manage ${site.gallery}.` : site.description,
+			...(admin ? { robots: "noindex,nofollow" } : {})
 		}
 	};
 }
 
 const appRoutes = currentGallerySite
-	? [standaloneGalleryRoute(currentGallerySite, "/")]
-	: [...routes, ...(import.meta.env.SSR ? GALLERY_SITES.map(site => standaloneGalleryRoute(site)) : [])];
+	? [standaloneGalleryRoute(currentGallerySite, false, true), standaloneGalleryRoute(currentGallerySite, true, true)]
+	: [
+			...routes,
+			...(import.meta.env.SSR
+				? GALLERY_SITES.flatMap(site => [standaloneGalleryRoute(site), standaloneGalleryRoute(site, true)])
+				: [])
+		];
 
 // https://github.com/antfu/vite-ssg
 export const createApp = ViteSSG(

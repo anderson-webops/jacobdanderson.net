@@ -23,6 +23,11 @@ const server = http.createServer(async (request, response) => {
 		const url = new URL(request.url, `http://${request.headers.host}`);
 		const pathname = decodeURIComponent(url.pathname);
 		const site = GALLERY_SITES.find(gallery => gallery.hostname === url.hostname);
+		if (site && pathname === "/api/admin/access") {
+			response.writeHead(request.headers.authorization === `Basic ${Buffer.from("gallery:fixture").toString("base64")}` ? 204 : 403);
+			response.end();
+			return;
+		}
 		if (site && pathname === `/api/gallery/${site.gallery}`) {
 			response.writeHead(200, { "content-type": "application/json" });
 			response.end(JSON.stringify({ items: [{ id: fixtureImageId, description: `Fixture ${site.gallery}`, width: 4, height: 2 }], next: null }));
@@ -38,8 +43,8 @@ const server = http.createServer(async (request, response) => {
 			response.end("<!doctype html><html><head><title>Integrity fixture</title></head><body></body></html>");
 			return;
 		}
-		const normalized = site && pathname === "/"
-			? galleryDocumentPath(site)
+		const normalized = site && ["/", "/admin", "/admin/"].includes(pathname)
+			? galleryDocumentPath(site) + (pathname === "/" ? "" : "/admin")
 			: /^\/admin\/?$/iu.test(pathname) ? "/admin/" : pathname;
 		let filepath = resolve(root, `.${normalized}`);
 		assert.ok(filepath === root || filepath.startsWith(root + sep), "Fixture path escapes static root");
@@ -175,6 +180,25 @@ try {
 		await page.click(".lead");
 		await page.waitForSelector("dialog[open]");
 		assert.equal(await page.$eval("dialog[open]", dialog => dialog.getAttribute("aria-label")), site.gallery === "photos" ? "Photo viewer" : "Drawing viewer");
+		const adminUrl = `http://${site.hostname}:${port}/admin`;
+		await page.goto(adminUrl, { waitUntil: "networkidle0" });
+		await page.waitForSelector("form button:not([disabled])");
+		assert.equal(await page.$eval("meta[name=robots]", meta => meta.content), "noindex,nofollow");
+		assert.equal(await page.$eval("link[rel=canonical]", link => link.href), `${galleryOrigin(site)}/admin`);
+		await page.type("[name=username]", "gallery");
+		await page.type("[name=password]", "wrong");
+		await page.click("form button");
+		await page.waitForSelector("form [role=alert]");
+		await page.type("[name=password]", "fixture");
+		await page.click("form button");
+		await page.waitForFunction(expected => document.querySelector("h1")?.textContent === expected, {}, `Manage ${site.gallery}`);
+		assert.equal(page.url(), adminUrl);
+		assert.equal(await page.$(".switcher"), null);
+		assert.equal(await page.$eval(".publisher header a", link => link.getAttribute("href")), "/");
+		await page.waitForSelector(`[aria-label="Favorite: Fixture ${site.gallery}"]`);
+		await page.reload({ waitUntil: "networkidle0" });
+		await page.waitForSelector("input[type=password]");
+		assert.equal(await page.$("input[type=file]"), null);
 		report.gallerySites.push({ hostname: site.hostname, ...snapshot });
 	}
 	assert.equal(report.mockedCollectorRequests, collectorCount, "Standalone galleries must not load analytics.");

@@ -1,5 +1,5 @@
 import type { Server } from "node:http";
-import type { GalleryStore } from "./models/gallery.js";
+import type { GalleryEdit, GalleryStore } from "./models/gallery.js";
 import type { ProjectVisibilityMutation, ProjectVisibilityRecord } from "./models/projectVisibility.js";
 import { Buffer } from "node:buffer";
 import { realpathSync } from "node:fs";
@@ -257,6 +257,13 @@ export function createApp({
 			response.status(403).set("Cache-Control", "no-store").json({ ok: false, error: "forbidden" });
 			return;
 		}
+		const host = request.get("Host")?.toLowerCase().split(":")[0];
+		const collection = host === "photos.jacobdanderson.net" ? "photos" : host === "drawings.jacobdanderson.net" ? "drawings" : undefined;
+		if (collection && request.path !== "/api/admin/access"
+			&& request.path !== `/api/admin/gallery/${collection}` && !request.path.startsWith(`/api/admin/gallery/${collection}/`)) {
+			response.status(404).set("Cache-Control", "no-store").end();
+			return;
+		}
 		response.locals.projectAdminAudit = auditContext;
 		next();
 	};
@@ -301,22 +308,48 @@ export function createApp({
 		finally { release(); }
 	});
 
-	const favoriteSchema = z.object({ favorite: z.boolean() }).strict();
-	app.post("/api/admin/gallery/photos/:id/favorite", requireAdmin, parseProjectAdminJson, async (request, response) => {
+	const edits = new Map<string, z.ZodType<GalleryEdit>>([
+		["favorite", z.strictObject({ favorite: z.boolean() })],
+		["visibility", z.strictObject({ visible: z.boolean() })],
+		["move", z.strictObject({ direction: z.enum(["earlier", "later"]) })],
+		["delete", z.strictObject({ confirm: z.string().regex(/^[a-f0-9]{24}$/) })]
+	]);
+	app.post("/api/admin/gallery/:gallery/:id/:action", requireAdmin, parseProjectAdminJson, async (request, response) => {
 		response.set("Cache-Control", "no-store");
-		const { id } = request.params;
-		if (!isImageId(id)) return response.sendStatus(404);
-		const payload = favoriteSchema.safeParse(request.body);
-		if (!payload.success) return response.sendStatus(400);
+		const { gallery, id, action } = request.params;
+		const schema = typeof action === "string" && edits.get(action);
+		if (!isGallery(gallery) || !isImageId(id) || !schema) return response.sendStatus(404);
+		const payload = schema.safeParse(request.body);
+		if (!payload.success || ("confirm" in payload.data && payload.data.confirm !== id)) return response.sendStatus(400);
 		if (!services.gallery) return response.sendStatus(503);
 		const release = adminDatabaseCapacity.tryAcquire();
 		if (!release) return sendDatabaseBusy(response);
 		try {
-			const saved = await services.gallery.setFavorite(id, payload.data.favorite, response.locals.projectAdminAudit);
-			return response.sendStatus(saved ? 204 : 404);
+			return response.sendStatus(await services.gallery.edit(gallery, id, payload.data, response.locals.projectAdminAudit));
 		}
 		catch (error) {
-			logError("Gallery favorite update failed", error);
+			logError("Gallery edit failed", error);
+			return response.sendStatus(503);
+		}
+		finally { release(); }
+	});
+
+	app.get(["/api/admin/gallery/:gallery/hidden", "/api/admin/gallery/:gallery/hidden/:id"], requireAdmin, async (request, response) => {
+		response.set("Cache-Control", "no-store");
+		const { gallery, id } = request.params;
+		const { before } = request.query;
+		if (!isGallery(gallery) || (id !== undefined && !isImageId(id))) return response.sendStatus(404);
+		if (before !== undefined && (!isImageId(before) || id)) return response.sendStatus(400);
+		if (!services.gallery) return response.sendStatus(503);
+		const release = adminDatabaseCapacity.tryAcquire();
+		if (!release) return sendDatabaseBusy(response);
+		try {
+			if (!id) return response.json(await services.gallery.list(gallery, before, true));
+			const image = await services.gallery.image(gallery, id, true, true);
+			return image ? response.type("image/png").send(image) : response.sendStatus(404);
+		}
+		catch (error) {
+			logError("Hidden gallery read failed", error);
 			return response.sendStatus(503);
 		}
 		finally { release(); }
@@ -336,7 +369,7 @@ export function createApp({
 			if (!id) return response.json(await services.gallery.list(gallery, before));
 			const image = await services.gallery.image(gallery, id, preview === "1");
 			if (!image) return response.sendStatus(404);
-			return response.type("image/png").set("Cache-Control", "public, max-age=86400").send(image);
+			return response.type("image/png").set("Cache-Control", "public, no-cache, must-revalidate").send(image);
 		}
 		catch (error) {
 			logError("Gallery read failed", error);

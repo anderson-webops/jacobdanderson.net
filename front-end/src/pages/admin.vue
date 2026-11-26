@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import type { Gallery } from "~/utils/gallery";
 import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import GalleryPublisher from "~/components/GalleryPublisher.vue";
 import ProjectVisibilityControls from "~/components/ProjectVisibilityControls.vue";
 
+const props = defineProps<{ collection?: Gallery }>();
 const signedIn = ref(false);
 const busy = ref(false);
 const ready = ref(false);
@@ -10,7 +12,7 @@ const error = ref("");
 const username = ref("");
 const password = ref<HTMLInputElement>();
 const heading = ref<HTMLElement>();
-const view = ref<"photos" | "drawings" | "projects">("photos");
+const view = ref<Gallery | "projects">(props.collection ?? "photos");
 let authorization = "";
 let controller = new AbortController();
 let expires = 0;
@@ -35,14 +37,16 @@ function signOut(message = "") {
 }
 
 const adminFetch: typeof fetch = async (path, init = {}) => {
-	if (
-		typeof path !== "string" ||
-		!/^\/api\/admin\/(?:access|(?:gallery|projects)\/[a-z0-9-]+|gallery\/photos\/[a-f0-9]{24}\/favorite)$/.test(
+	if (typeof path !== "string") throw new Error("Invalid admin path");
+	const gallery =
+		/^\/api\/admin\/gallery\/(photos|drawings)(?:\/hidden(?:\/[a-f0-9]{24}|\?before=[a-f0-9]{24})?|\/[a-f0-9]{24}\/(?:favorite|visibility|move|delete))?$/.exec(
 			path
-		)
-	) {
-		throw new Error("Invalid admin path");
-	}
+		);
+	const permitted =
+		path === "/api/admin/access" ||
+		(gallery && (!props.collection || gallery[1] === props.collection)) ||
+		(!props.collection && /^\/api\/admin\/projects\/[a-z0-9-]+$/.test(path));
+	if (!permitted) throw new Error("Invalid admin path");
 	if (!authorization || Date.now() >= expires) {
 		signOut("Please sign in again.");
 		throw new Error("Sign-in expired");
@@ -88,7 +92,7 @@ async function signIn() {
 			return;
 		}
 		signedIn.value = true;
-		view.value = "photos";
+		view.value = props.collection ?? "photos";
 		timer = setTimeout(signOut, Math.max(0, expires - Date.now()), "Please sign in again.");
 		await nextTick();
 		heading.value?.focus();
@@ -130,10 +134,12 @@ onBeforeUnmount(() => {
 	</section>
 	<div v-else class="workspace">
 		<header>
-			<h1 ref="heading" tabindex="-1">Site admin</h1>
+			<h1 ref="heading" tabindex="-1">
+				{{ collection ? (collection === "photos" ? "Manage photos" : "Manage drawings") : "Site admin" }}
+			</h1>
 			<button class="secondary" type="button" @click="signOut()">Sign out</button>
 		</header>
-		<div class="switcher" role="group" aria-label="Manage">
+		<div v-if="!collection" class="switcher" role="group" aria-label="Manage">
 			<button
 				v-for="option in ['photos', 'drawings', 'projects'] as const"
 				:key="option"
@@ -145,7 +151,13 @@ onBeforeUnmount(() => {
 			</button>
 		</div>
 		<ProjectVisibilityControls v-if="view === 'projects'" :admin-fetch="adminFetch" />
-		<GalleryPublisher v-else :key="view" :gallery="view" :admin-fetch="adminFetch" />
+		<GalleryPublisher
+			v-else
+			:key="view"
+			:gallery="view"
+			:admin-fetch="adminFetch"
+			:standalone="Boolean(collection)"
+		/>
 	</div>
 </template>
 

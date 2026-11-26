@@ -166,6 +166,7 @@ for (const relativePath of [
 
 const galleryFiles = Object.values(artifactContract.gallerySites).flatMap(site => [
 	site.document,
+	site.adminDocument,
 	path.posix.join(path.posix.dirname(site.document), "robots.txt"),
 	path.posix.join(path.posix.dirname(site.document), "sitemap.xml")
 ]);

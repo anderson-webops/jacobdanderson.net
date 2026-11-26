@@ -3,7 +3,7 @@ export const GALLERY_DOCUMENTS = "/.gallery-sites";
 export const GALLERY_SITES = [
 	{
 		gallery: "photos",
-		hostname: "pictures.jacobdanderson.net",
+		hostname: "photos.jacobdanderson.net",
 		title: "Top Photos | Jacob Anderson",
 		description: "Jacob Anderson’s photos gallery."
 	},

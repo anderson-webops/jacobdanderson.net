@@ -294,6 +294,11 @@ try {
 					assert.equal(created.status, 201);
 					const { id } = await created.json();
 					const publicPath = `${apiBaseUrl}/api/gallery/${category}`;
+					const change = (image, action, payload) => fetch(`${path}/${image}/${action}`, {
+						method: "POST",
+						headers: { ...headers, "Content-Type": "application/json" },
+						body: JSON.stringify(payload)
+					});
 					assert.deepEqual(await (await fetch(publicPath)).json(), { items: [{ id, description: "Test pixel", width: 1, height: 1 }], next: null });
 					const media = await fetch(`${publicPath}/${id}`);
 					assert.equal(media.headers.get("content-type"), "image/png");
@@ -320,6 +325,14 @@ try {
 						const cached = Buffer.from(await (await fetch(`${fullUrl}?preview=1`)).arrayBuffer());
 						assert.deepEqual(cached, preview);
 						assert.equal((await fetch(`${fullUrl}?preview=2`)).status, 400);
+						assert.equal((await change(largerId, "visibility", { visible: false })).status, 204);
+						assert.equal((await fetch(`${fullUrl}?preview=1`)).status, 404);
+						assert.equal((await fetch(fullUrl)).status, 404);
+						const privateImage = await fetch(`${path}/hidden/${largerId}`, { headers });
+						assert.equal(privateImage.headers.get("cache-control"), "no-store");
+						assert.deepEqual(Buffer.from(await privateImage.arrayBuffer()), preview);
+						assert.equal((await change(largerId, "visibility", { visible: true })).status, 204);
+						assert.equal((await fetch(`${path}/hidden/${largerId}`, { headers })).status, 404);
 					}
 					const record = await databaseClient.db().collection("gallery_images").findOne({ gallery: category });
 					assert.equal(record.actor, "artifact-test");
@@ -354,6 +367,31 @@ try {
 						const favoriteAudit = await databaseClient.db().collection("gallery_favorite_audit").find({ imageId: record._id, phase: "result" }).toArray();
 						assert.deepEqual(favoriteAudit.map(event => [event.actor, event.previousFavorite, event.requestedFavorite]), [["artifact-test", false, true], ["artifact-test", true, false]]);
 					}
+					const pair = [];
+					for (const title of ["First pick", "Second pick"]) {
+						const response = await fetch(path, { ...upload, headers: { ...upload.headers, "X-Image-Description": title } });
+						assert.equal(response.status, 201);
+						const item = (await response.json()).id;
+						assert.equal((await change(item, "favorite", { favorite: true })).status, 204);
+						pair.push(item);
+					}
+					const top = async () => (await (await fetch(publicPath)).json()).items.slice(0, 2).map(item => item.id);
+					assert.deepEqual(await top(), [...pair].reverse());
+					assert.equal((await change(pair[0], "move", { direction: "earlier" })).status, 204);
+					assert.deepEqual(await top(), pair);
+					assert.equal((await change(pair[0], "move", { direction: "earlier" })).status, 409);
+					assert.equal((await change(pair[0], "move", { direction: "later" })).status, 204);
+					assert.deepEqual(await top(), [...pair].reverse());
+					assert.equal((await change(pair[0], "visibility", { visible: false })).status, 204);
+					assert.equal((await fetch(`${path}/hidden`)).status, 403);
+					assert.deepEqual((await (await fetch(`${path}/hidden`, { headers })).json()).items.map(item => item.id), [pair[0]]);
+					assert.equal((await fetch(`${publicPath}/${pair[0]}`)).status, 404);
+					assert.equal((await change(pair[0], "delete", { confirm: pair[1] })).status, 400);
+					assert.equal((await change(pair[0], "delete", { confirm: pair[0] })).status, 204);
+					assert.deepEqual((await (await fetch(`${path}/hidden`, { headers })).json()).items, []);
+					assert.equal((await fetch(`${path}/hidden/${pair[0]}`, { headers })).status, 404);
+					assert.equal((await change(pair[0], "visibility", { visible: true })).status, 404);
+					assert.equal((await fetch(`${publicPath}/${pair[1]}`)).status, 200);
 				}
 			}
 			const mutation = await fetch(`${apiBaseUrl}/api/admin/projects/oscre`, {

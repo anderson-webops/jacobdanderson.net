@@ -20,9 +20,11 @@ The release also publishes the runtime manifest, versioned source contract and d
 
 ## Gallery Sites
 
-The `gallerySites` map in the [runtime contract](deploy/runtime-artifact.json) pairs each gallery origin with its static home document and media path. Both gallery homepages are built into the same release under `front-end/dist/.gallery-sites/` and reuse the existing gallery assets and preview/full-size URLs. Each has its own canonical URL, sitemap and robots policy.
+The `gallerySites` map in the [runtime contract](deploy/runtime-artifact.json) pairs each gallery origin with its static home document and media path. Photos uses `photos.jacobdanderson.net`; `galleryAliases` maps the previous `pictures` hostname to it. Both gallery homepages are built into the same release under `front-end/dist/.gallery-sites/` and reuse the existing gallery assets and preview/full-size URLs. Each has its own canonical URL, sitemap and robots policy.
 
-The [gallery virtual host contract](deploy/nginx/jacobdanderson-gallery-sites.conf.example) exposes each homepage and only its collection’s read-only media paths. The portfolio’s existing gallery URLs and `/admin` remain unchanged. Both hosts read from the same loopback API and MongoDB data, with the existing limits and no schema migration.
+Each [gallery virtual host](deploy/nginx/jacobdanderson-gallery-sites.conf.example) serves its own `/admin` document. Protected access uses the portfolio’s existing Nginx password file, actor, request ID and proxy key. Only the matching collection’s public media and protected gallery operations are routed. Browser credentials stay in memory on the origin where they were entered.
+
+Uploads, favorites, visibility, manual order within favorites or other visible items, and confirmed deletion use the same loopback API and MongoDB collection on all three sites. Existing records retain newest-first order until moved. Hiding an image atomically changes its collection discriminator so prior readers also omit it; showing it restores its position. Public media requires cache revalidation, and hidden previews require authentication. Existing clients may retain media fetched under the previous one-day cache policy. No database backfill or additional credential store is required.
 
 ## Retained Compatibility
 

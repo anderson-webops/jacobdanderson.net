@@ -8,7 +8,7 @@ import { externalScriptsMatchPolicy } from "./static-script-policy.mjs";
 const distDir = fileURLToPath(new URL("../front-end/dist/", import.meta.url));
 
 const galleryFiles = GALLERY_SITES.flatMap(site =>
-	["index.html", "robots.txt", "sitemap.xml"].map(file => `${galleryDocumentPath(site).slice(1)}/${file}`)
+	["index.html", "admin/index.html", "robots.txt", "sitemap.xml"].map(file => `${galleryDocumentPath(site).slice(1)}/${file}`)
 );
 const requiredFiles = [
 	...galleryFiles,
@@ -137,8 +137,13 @@ for (const site of GALLERY_SITES) {
 	const html = readOutput(`${document}/index.html`);
 	const mapping = contract.gallerySites[site.hostname];
 	if (mapping?.collection !== site.gallery || mapping.document !== `front-end/dist/${document}/index.html`
-		|| mapping.mediaPath !== `/api/gallery/${site.gallery}`) {
+		|| mapping.adminDocument !== `front-end/dist/${document}/admin/index.html` || mapping.mediaPath !== `/api/gallery/${site.gallery}`) {
 		throw new Error(`Gallery host mapping drift for ${site.hostname}.`);
+	}
+	const adminHtml = readOutput(`${document}/admin/index.html`);
+	if (!adminHtml.includes(`rel="canonical" href="${origin}/admin"`) || !adminHtml.includes("noindex,nofollow")
+		|| !adminHtml.includes("Admin sign-in") || adminHtml.includes("aria-label=\"Primary\"")) {
+		throw new Error(`Invalid private gallery document for ${site.hostname}.`);
 	}
 	if (!html.includes(`<title>${site.title}</title>`) || !html.includes(`rel="canonical" href="${origin}/"`)
 		|| !html.includes("href=\"https://jacobdanderson.net/extra\"") || html.includes("aria-label=\"Primary\"")) {

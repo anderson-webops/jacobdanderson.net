@@ -1,4 +1,5 @@
-import type { Db, Filter } from "mongodb";
+import type { Db, Document, Filter } from "mongodb";
+import type { ProjectAdminAuditContext } from "../utils/adminAudit.js";
 import { Buffer } from "node:buffer";
 import { Binary, ObjectId } from "mongodb";
 import { createPreview } from "./galleryPng.js";
@@ -14,7 +15,8 @@ export const isImageId = (value: unknown): value is string => typeof value === "
 
 interface ImageDocument {
 	_id: ObjectId;
-	gallery: Gallery;
+	gallery: Gallery | `hidden-${Gallery}`;
+	orderKey?: string;
 	description: string;
 	favorite?: true | null;
 	png: Binary;
@@ -25,12 +27,42 @@ interface ImageDocument {
 	createdAt: Date;
 }
 
+export type GalleryEdit = { favorite: boolean } | { visible: boolean } | { direction: "earlier" | "later" } | { confirm: string };
 export interface GalleryStore {
 	ensureIndexes: () => Promise<void>;
-	list: (gallery: Gallery, before?: string) => Promise<{ items: { id: string; description: string; width: number; height: number; favorite?: true }[]; next: string | null }>;
-	setFavorite: (id: string, favorite: boolean, context: { actor: string; requestId: string }) => Promise<boolean>;
-	image: (gallery: Gallery, id: string, preview?: boolean) => Promise<Buffer | undefined>;
+	list: (gallery: Gallery, before?: string, hidden?: boolean) => Promise<{ items: { id: string; description: string; width: number; height: number; favorite?: true }[]; next: string | null }>;
+	edit: (gallery: Gallery, id: string, change: GalleryEdit, context: ProjectAdminAuditContext) => Promise<204 | 404 | 409>;
+	image: (gallery: Gallery, id: string, preview?: boolean, hidden?: boolean) => Promise<Buffer | undefined>;
 	publish: (image: Omit<ImageDocument, "_id" | "png" | "createdAt">, png: Buffer) => Promise<string>;
+}
+
+const privateGallery = (gallery: Gallery): ImageDocument["gallery"] => `hidden-${gallery}`;
+type Position = Pick<ImageDocument, "_id" | "favorite" | "orderKey">;
+const orderKey = (item: Position) => item.orderKey ?? `${item._id.toHexString()}8`;
+const metadata = {
+	_id: 1,
+	width: 1,
+	height: 1,
+	description: 1,
+	favorite: { $eq: [{ $ifNull: ["$favorite", false] }, true] },
+	orderKey: { $ifNull: ["$orderKey", { $concat: [{ $toString: "$_id" }, "8"] }] }
+};
+const listOptions = { maxTimeMS: 3000, allowDiskUse: false, hint: "gallery_listing_v1" };
+
+function relativeTo(item: Position, earlier: boolean) {
+	const compare = earlier ? "$gt" : "$lt";
+	return [{ orderKey: { [compare]: orderKey(item) } }, { orderKey: orderKey(item), _id: { [compare]: item._id } }];
+}
+
+function between(lower: string, upper?: string): string {
+	let prefix = "";
+	for (let index = 0; ; index++) {
+		const low = Number.parseInt(lower[index] ?? "0", 16);
+		const high = upper?.[index] === undefined ? 16 : Number.parseInt(upper[index]!, 16);
+		if (high - low > 1) return prefix + Math.floor((low + high) / 2).toString(16);
+		if (high > low) return `${prefix + low.toString(16) + lower.slice(index + 1)}8`;
+		prefix += low.toString(16);
+	}
 }
 
 export function createGalleryStore(db: Db): GalleryStore {
@@ -59,7 +91,7 @@ export function createGalleryStore(db: Db): GalleryStore {
 		}
 	}
 
-	async function readPng(gallery: Gallery, id: string) {
+	async function readPng(gallery: ImageDocument["gallery"], id: string) {
 		const doc = await images.findOne({ gallery, _id: new ObjectId(id) }, { projection: { png: 1 } });
 		if (!doc) return undefined;
 		const bytes = doc.png.value();
@@ -81,48 +113,82 @@ export function createGalleryStore(db: Db): GalleryStore {
 		async ensureIndexes() {
 			await images.createIndex({ gallery: 1, _id: -1 });
 			await images.createIndex({ gallery: 1, favorite: -1, _id: -1 });
+			await images.createIndex({ gallery: 1, favorite: -1, orderKey: -1, _id: -1, width: 1, height: 1, description: 1 }, { name: listOptions.hint });
 		},
-		async list(gallery, before) {
-			const photos = gallery === "photos";
-			const pageSize = photos ? PHOTOS_PAGE_SIZE : DRAWINGS_PAGE_SIZE;
-			const query: Filter<ImageDocument> = { gallery };
+		async list(gallery, before, hidden = false) {
+			const pageSize = gallery === "photos" ? PHOTOS_PAGE_SIZE : DRAWINGS_PAGE_SIZE;
+			const scope = hidden ? privateGallery(gallery) : gallery;
+			const pipeline: Document[] = [{ $match: { gallery: scope } }, { $project: metadata }];
 			if (before) {
-				const id = new ObjectId(before);
-				if (photos) {
-					const anchor = await images.findOne({ gallery, _id: id }, { projection: { favorite: 1 } });
-					if (!anchor) return { items: [], next: null };
-					if (anchor.favorite) {
-						query.$or = [{ favorite: true, _id: { $lt: id } }, { favorite: { $eq: null } }];
-					}
-					else {
-						query.favorite = { $eq: null };
-						query._id = { $lt: id };
-					}
-				}
-				else {
-					query._id = { $lt: id };
-				}
+				const anchor = await images.findOne({ gallery: scope, _id: new ObjectId(before) }, { projection: { favorite: 1, orderKey: 1 } });
+				if (!anchor) return { items: [], next: null };
+				pipeline.push({ $match: { $or: [
+					...(anchor.favorite ? [{ favorite: false }] : []),
+					{ favorite: Boolean(anchor.favorite), $or: relativeTo(anchor, false) }
+				] } });
 			}
-			const docs = await images.find(query, { projection: { _id: 1, description: 1, width: 1, height: 1, favorite: 1 } })
-				.sort(photos ? { favorite: -1, _id: -1 } : { _id: -1 })
-				.limit(pageSize + 1)
-				.toArray();
+			pipeline.push({ $sort: { favorite: -1, orderKey: -1, _id: -1 } }, { $limit: pageSize + 1 });
+			const docs = await images.aggregate<ImageDocument>(pipeline, listOptions).toArray();
 			const items = docs.slice(0, pageSize).map(({ _id, description, width, height, favorite }) => ({
 				id: _id.toHexString(),
 				description,
 				width,
 				height,
-				...(photos && favorite ? { favorite } : {})
+				...(favorite ? { favorite } : {})
 			}));
 			return { items, next: docs.length > pageSize ? items[pageSize - 1]!.id : null };
 		},
-		async setFavorite(id, favorite, context) {
-			const filter = { gallery: "photos" as const, _id: new ObjectId(id) };
-			const event = { ...context, imageId: filter._id, requestedFavorite: favorite };
+		async edit(gallery, id, change, context) {
+			const filter: Filter<ImageDocument> = { gallery: { $in: [gallery, privateGallery(gallery)] }, _id: new ObjectId(id) };
+			const event = { ...context, gallery, imageId: filter._id, change, ...("favorite" in change ? { requestedFavorite: change.favorite } : {}) };
 			await audit.insertOne({ ...event, phase: "attempt", occurredAt: new Date() });
-			let previous: Pick<ImageDocument, "favorite"> | null;
+			const projection = { favorite: 1, gallery: 1, orderKey: 1 };
+			let result: 204 | 404 | 409 = 404;
+			let previous: ImageDocument | null = null;
 			try {
-				previous = await images.findOneAndUpdate(filter, favorite ? { $set: { favorite: true } } : { $unset: { favorite: "" } }, { projection: { favorite: 1 }, returnDocument: "before" });
+				if ("direction" in change) {
+					const anchor = await images.findOne({ ...filter, gallery }, { projection });
+					if (anchor) {
+						result = 409;
+						const earlier = change.direction === "earlier";
+						const direction = earlier ? 1 : -1;
+						const [neighbor, beyond] = await images.aggregate<Position>([
+							{ $match: { gallery, favorite: anchor.favorite ? true : null } },
+							{ $project: { orderKey: metadata.orderKey } },
+							{ $match: { $or: relativeTo(anchor, earlier) } },
+							{ $sort: { orderKey: direction, _id: direction } },
+							{ $limit: 2 }
+						], listOptions).toArray();
+						if (neighbor) {
+							const low = earlier ? orderKey(neighbor) : beyond && orderKey(beyond);
+							const high = earlier ? beyond && orderKey(beyond) : orderKey(neighbor);
+							if (!low || !high || low < high) {
+								const rank = between(low ?? "", high);
+								previous = await images.findOneAndUpdate({ ...filter, gallery, favorite: anchor.favorite ?? null, orderKey: anchor.orderKey ?? { $exists: false } }, { $set: { orderKey: rank } }, { projection });
+							}
+						}
+					}
+				}
+				else if ("confirm" in change) {
+					if (change.confirm !== id) throw new Error("Deletion was not confirmed");
+					previous = await images.findOneAndDelete(filter, { projection });
+				}
+				else if ("visible" in change) {
+					previous = await images.findOneAndUpdate(filter, { $set: { gallery: change.visible ? gallery : privateGallery(gallery) } }, { projection });
+				}
+				else {
+					previous = await images.findOneAndUpdate(filter, change.favorite ? { $set: { favorite: true } } : { $unset: { favorite: "" } }, { projection });
+				}
+				if (previous) {
+					result = 204;
+					if ("visible" in change || "confirm" in change) {
+						for (const scope of [gallery, privateGallery(gallery)]) {
+							const key = `${scope}/${id}`;
+							previewBytes -= previews.get(key)?.length ?? 0;
+							previews.delete(key);
+						}
+					}
+				}
 			}
 			catch (error) {
 				await audit.insertOne({ ...event, phase: "result", outcome: "failed", occurredAt: new Date() });
@@ -131,25 +197,27 @@ export function createGalleryStore(db: Db): GalleryStore {
 			await audit.insertOne({
 				...event,
 				phase: "result",
-				outcome: previous ? "succeeded" : "not_found",
+				outcome: result === 204 ? "succeeded" : result === 409 ? "conflict" : "not_found",
+				previousGallery: previous?.gallery ?? null,
+				previousOrder: previous && orderKey(previous),
 				previousFavorite: previous ? Boolean(previous.favorite) : null,
 				occurredAt: new Date()
 			});
-			return previous !== null;
+			return result;
 		},
-		async image(gallery, id, preview) {
-			if (!preview) return readPng(gallery, id);
-			const key = `${gallery}/${id}`;
+		async image(gallery, id, preview, hidden = false) {
+			const scope = hidden ? privateGallery(gallery) : gallery;
+			if (!preview) return readPng(scope, id);
+			const key = `${scope}/${id}`;
 			const cached = previews.get(key);
 			if (cached) {
+				if (!await images.findOne({ gallery: scope, _id: new ObjectId(id) }, { projection: { _id: 1 } })) return undefined;
 				previews.delete(key);
 				previews.set(key, cached);
 				return cached;
 			}
 			return withPreviewSlot(async () => {
-				const recent = previews.get(key);
-				if (recent) return recent;
-				const png = await readPng(gallery, id);
+				const png = await readPng(scope, id);
 				if (!png) return undefined;
 				const resized = await createPreview(png);
 				if (resized !== png) cachePreview(key, resized);

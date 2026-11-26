@@ -2,7 +2,7 @@
 import { nextTick, ref } from "vue";
 import GalleryGrid from "./GalleryGrid.vue";
 
-const props = defineProps<{ gallery: "photos" | "drawings"; adminFetch: typeof fetch }>();
+const props = defineProps<{ gallery: "photos" | "drawings"; adminFetch: typeof fetch; standalone?: boolean }>();
 const description = ref("");
 const picker = ref<HTMLInputElement>();
 const preview = ref<HTMLCanvasElement>();
@@ -87,8 +87,12 @@ async function publish() {
 <template>
 	<section class="publisher">
 		<header>
-			<h2>{{ gallery === "photos" ? "Top Photos" : "Top Drawings" }}</h2>
-			<a class="section-link" :href="`/extra/${gallery}`" target="_blank" rel="noopener noreferrer"
+			<h2>{{ standalone ? "Upload" : gallery === "photos" ? "Top Photos" : "Top Drawings" }}</h2>
+			<a
+				class="section-link"
+				:href="standalone ? '/' : `/extra/${gallery}`"
+				target="_blank"
+				rel="noopener noreferrer"
 				>View gallery<span class="sr-only"> (opens in a new tab)</span></a
 			>
 		</header>

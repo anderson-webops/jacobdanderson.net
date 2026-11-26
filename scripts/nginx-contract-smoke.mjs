@@ -11,6 +11,8 @@ import process from "node:process";
 import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "../front-end/src/config/gallerySites.ts";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
+const { galleryAliases } = JSON.parse(await readFile(path.join(repositoryRoot, "deploy/runtime-artifact.json"), "utf8"));
+assert.deepEqual(galleryAliases, { "pictures.jacobdanderson.net": "photos.jacobdanderson.net" });
 const nginxBinary = process.env.NGINX_BIN || "nginx";
 const nginxVersionResult = spawnSync(nginxBinary, ["-v"], { encoding: "utf8" });
 
@@ -155,7 +157,8 @@ try {
 	await writeFile(path.join(staticRoot, "admin", "index.html"), "admin\n");
 	for (const site of GALLERY_SITES) {
 		const directory = path.join(staticRoot, galleryDocumentPath(site).slice(1));
-		await mkdir(directory, { recursive: true });
+		await mkdir(path.join(directory, "admin"), { recursive: true });
+		await writeFile(path.join(directory, "admin/index.html"), `Manage ${site.gallery}\n`);
 		await writeFile(path.join(directory, "index.html"), `<title>${site.title}</title>\n`);
 		await writeFile(path.join(directory, "robots.txt"), `Sitemap: ${galleryOrigin(site)}/sitemap.xml\n`);
 		await writeFile(path.join(directory, "sitemap.xml"), `<loc>${galleryOrigin(site)}/</loc>\n`);
@@ -176,7 +179,7 @@ try {
 		"-subj",
 		"/CN=jacobdanderson.net",
 		"-addext",
-		`subjectAltName=DNS:jacobdanderson.net,${GALLERY_SITES.map(site => `DNS:${site.hostname}`).join(",")}`,
+		`subjectAltName=DNS:jacobdanderson.net,${[...GALLERY_SITES.map(site => site.hostname), ...Object.keys(galleryAliases)].map(host => `DNS:${host}`).join(",")}`,
 		"-keyout",
 		certificateKey,
 		"-out",
@@ -211,7 +214,9 @@ try {
 		"utf8"
 	);
 	galleryHosts = galleryHosts
-		.replace("proxy_pass http://127.0.0.1:3003;", `proxy_pass http://127.0.0.1:${backendPort};`)
+		.replaceAll("proxy_pass http://127.0.0.1:3003;", `proxy_pass http://127.0.0.1:${backendPort};`)
+		.replaceAll("/etc/nginx/jacobdanderson-admin.htpasswd", passwordFile)
+		.replaceAll("/etc/nginx/snippets/jacobdanderson-admin-secret.conf", secretSnippet)
 		.replace("\tlisten 80;", `\tlisten 127.0.0.1:${httpPort};`)
 		.replace("\tlisten [::]:80;", "")
 		.replace("\tlisten 443 ssl;", `\tlisten 127.0.0.1:${httpsPort} ssl${supportsHttp2Directive ? "" : " http2"};`)
@@ -348,6 +353,14 @@ http {
 	assert.notEqual(adminPayload.headers.requestId, "spoofed-request-id");
 	assert.equal((await request(httpsPort, "/api/not-a-route")).status, 404);
 
+	for (const [hostname, canonical] of Object.entries(galleryAliases)) {
+		const pathname = "/api/gallery/photos?before=0123456789abcdef01234567";
+		for (const response of [await request(httpsPort, pathname, { hostname }), await httpRequest(httpPort, pathname, hostname)]) {
+			assert.ok([301, 307].includes(response.status));
+			assert.equal(response.headers.location, `https://${canonical}${pathname}`);
+		}
+		assert.equal((await request(httpsPort, "/api/admin/access", { hostname, method: "POST" })).status, 405);
+	}
 	for (const site of GALLERY_SITES) {
 		const { hostname } = site;
 		const origin = galleryOrigin(site);
@@ -384,9 +397,31 @@ http {
 		assert.equal((await request(httpsPort, image, { hostname, method: "HEAD" })).status, 200);
 		assert.equal((await request(httpsPort, media, { hostname, method: "POST" })).status, 405);
 		const other = site.gallery === "photos" ? "drawings" : "photos";
+		await new Promise(resolveSlot => setTimeout(resolveSlot, 550));
+		const admin = await request(httpsPort, "/admin", { hostname });
+		assert.equal(admin.status, 200);
+		assert.equal(admin.body, `Manage ${site.gallery}\n`);
+		assert.equal(admin.headers["www-authenticate"], undefined);
+		assert.equal(admin.headers["cache-control"], "no-store");
+		assert.match(admin.headers["x-robots-tag"], /noindex/);
+		const adminBase = `/api/admin/gallery/${site.gallery}`;
+		await new Promise(resolveSlot => setTimeout(resolveSlot, 550));
+		const denied = await request(httpsPort, `${adminBase}/hidden`, { hostname });
+		assert.equal(denied.status, 403);
+		assert.match(denied.headers["cache-control"], /no-store/);
+		for (const [method, pathname] of [["GET", "/api/admin/access"], ["GET", `${adminBase}/hidden`], ["POST", `${adminBase}/0123456789abcdef01234567/visibility`]]) {
+			await new Promise(resolveSlot => setTimeout(resolveSlot, 550));
+			const accepted = await request(httpsPort, pathname, { hostname, method, headers: adminAuthorization });
+			assert.equal(accepted.status, 200);
+			const proof = JSON.parse(accepted.body).headers;
+			assert.equal(proof.actor, "jacob");
+			assert.equal(proof.authorization, null);
+			assert.equal(proof.key, "test-proxy-key-0123456789abcdef");
+		}
+		assert.equal((await request(httpsPort, `/api/admin/gallery/${other}/0123456789abcdef01234567/delete`, { hostname, method: "POST", headers: adminAuthorization })).status, 404);
 		for (const pathname of [
-			"/admin",
-			"/api/admin/access",
+			`/api/admin/gallery/${other}/hidden`,
+			"/api/admin/projects/oscre",
 			"/api/projects/visibility",
 			"/index.html",
 			"/extra/photos",
