@@ -6,6 +6,17 @@
 # Install deploy/nginx/jacobdanderson-rate-limits.conf.example in the Nginx
 # http context before loading this virtual server.
 
+map $uri $jacobdanderson_music_frame {
+	default "'none'";
+	/extra/music https://w.soundcloud.com;
+	/extra/music/ https://w.soundcloud.com;
+	/extra/music/index.html https://w.soundcloud.com;
+}
+map $jacobdanderson_music_frame $jacobdanderson_autoplay {
+	default "()";
+	https://w.soundcloud.com '(self "https://w.soundcloud.com")';
+}
+
 upstream jacobdanderson_api {
 	server 127.0.0.1:3003;
 	keepalive 16;
@@ -44,10 +55,10 @@ server {
 	limit_conn_status 503;
 	limit_req_status 429;
 
-	add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://analytics.jacobdanderson.net; script-src-attr 'none'; connect-src 'self' https://analytics.jacobdanderson.net; frame-src 'none'; media-src 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests" always;
+	add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://analytics.jacobdanderson.net; script-src-attr 'none'; connect-src 'self' https://analytics.jacobdanderson.net; frame-src $jacobdanderson_music_frame; media-src 'self'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests" always;
 	add_header Cross-Origin-Opener-Policy "same-origin" always;
 	add_header Cross-Origin-Resource-Policy "same-origin" always;
-	add_header Permissions-Policy "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=(), xr-spatial-tracking=()" always;
+	add_header Permissions-Policy "accelerometer=(), autoplay=$jacobdanderson_autoplay, camera=(), display-capture=(), encrypted-media=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=(), xr-spatial-tracking=()" always;
 	add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 	add_header X-Content-Type-Options "nosniff" always;
@@ -343,6 +354,8 @@ server {
 		add_header X-Frame-Options "DENY" always;
 		return 307 /deployment.json;
 	}
+
+	include /etc/nginx/snippets/jacobdanderson-music.locations.conf;
 
 	location /assets/ {
 		if ($request_method !~ ^(GET|HEAD)$) { return 405; }

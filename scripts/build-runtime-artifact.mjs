@@ -170,7 +170,9 @@ const galleryFiles = Object.values(artifactContract.gallerySites).flatMap(site =
 	path.posix.join(path.posix.dirname(site.document), "robots.txt"),
 	path.posix.join(path.posix.dirname(site.document), "sitemap.xml")
 ]);
-for (const relativePath of galleryFiles) await assertFile(relativePath);
+const musicDocument = artifactContract.musicSite.document;
+const musicFiles = [musicDocument, ...["robots.txt", "sitemap.xml"].map(file => path.posix.join(path.posix.dirname(musicDocument), file)), "front-end/dist/extra/music/index.html"];
+for (const relativePath of [...galleryFiles, ...musicFiles]) await assertFile(relativePath);
 
 await rm(artifactRoot, { force: true, recursive: true });
 await Promise.all([
@@ -203,7 +205,7 @@ await rm(path.join(artifactRoot, "back-end/node_modules/.bin"), { force: true, r
 await removeSourceMaps(path.join(artifactRoot, "back-end/dist"));
 await normalizeTree(artifactRoot);
 
-for (const relativePath of [...requiredPaths, ...galleryFiles]) {
+for (const relativePath of [...requiredPaths, ...galleryFiles, ...musicFiles]) {
 	const metadata = await lstat(path.join(artifactRoot, relativePath));
 	if (!metadata.isFile()) throw new Error(`Runtime artifact is missing required file: ${relativePath}`);
 }

@@ -35,6 +35,7 @@ const routes = [
 	"/extra",
 	"/extra/photos",
 	"/extra/drawings",
+	"/extra/music",
 	"/page-not-found-check"
 ];
 const colorSchemes = (process.env.A11Y_COLOR_SCHEMES || "light,dark")

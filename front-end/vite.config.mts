@@ -15,6 +15,7 @@ import generateSitemap from "vite-ssg-sitemap";
 import { VueRouterAutoImports } from "vue-router/unplugin";
 import VueRouter from "vue-router/vite";
 import { createCriticalCssRenderer } from "./scripts/critical-css.mts";
+import { MUSIC_DOCUMENT, MUSIC_ORIGIN } from "./src/config/musicSite.ts";
 import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "./src/config/gallerySites.ts";
 import { renderSsgDocumentHead } from "./src/utils/ssgHead.ts";
 
@@ -102,7 +103,7 @@ export default defineConfig(({ command }) => ({
 		},
 		async onFinished() {
 			await generateSitemap({
-				exclude: ["/admin", "/other-projects", ...GALLERY_SITES.flatMap(site => [galleryDocumentPath(site), `${galleryDocumentPath(site)}/admin`])],
+				exclude: [MUSIC_DOCUMENT, "/admin", "/other-projects", ...GALLERY_SITES.flatMap(site => [galleryDocumentPath(site), `${galleryDocumentPath(site)}/admin`])],
 				hostname: "https://jacobdanderson.net",
 				robots: [
 					{ userAgent: "GPTBot", disallow: "/" },
@@ -119,9 +120,12 @@ export default defineConfig(({ command }) => ({
 				]
 			});
 			const robots = await readFile(path.join(distDir, "robots.txt"), "utf8");
-			await Promise.all(GALLERY_SITES.map(async site => {
-				const origin = galleryOrigin(site);
-				const directory = path.join(distDir, galleryDocumentPath(site).slice(1));
+			const standaloneSites = [
+				...GALLERY_SITES.map(site => ({ origin: galleryOrigin(site), document: galleryDocumentPath(site) })),
+				{ origin: MUSIC_ORIGIN, document: MUSIC_DOCUMENT }
+			];
+			await Promise.all(standaloneSites.map(async ({ origin, document }) => {
+				const directory = path.join(distDir, document.slice(1));
 				await Promise.all([
 					writeFile(path.join(directory, "robots.txt"), robots.replace("https://jacobdanderson.net/sitemap.xml", `${origin}/sitemap.xml`)),
 					writeFile(path.join(directory, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${origin}/</loc></url></urlset>\n`)

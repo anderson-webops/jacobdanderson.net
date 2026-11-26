@@ -8,10 +8,10 @@ defineProps<{ gallery: Gallery; standalone?: boolean }>();
 <template>
 	<header class="page-intro gallery-intro">
 		<a v-if="standalone" class="section-link" href="https://jacobdanderson.net/extra">
-			<span aria-hidden="true">←</span> Galleries &amp; games
+			<span aria-hidden="true">←</span> Galleries, music &amp; games
 		</a>
 		<RouterLink v-else class="section-link" to="/extra">
-			<span aria-hidden="true">←</span> Galleries &amp; games
+			<span aria-hidden="true">←</span> Galleries, music &amp; games
 		</RouterLink>
 		<h1>{{ gallery === "photos" ? "Top Photos" : "Top Drawings" }}</h1>
 	</header>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="768" viewBox="0 0 768 768" fill="none">
+<defs>
+ <linearGradient id="paper" x2=".85" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#eed6b1"/><stop offset="1" stop-color="#e3a878"/></linearGradient>
+ <pattern id="lines" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 8 8 0" stroke="#81563a" opacity=".16"/></pattern>
+ <clipPath id="grooves"><circle cx="384" cy="368" r="262"/></clipPath>
+</defs>
+<path fill="url(#paper)" d="M0 0h768v768H0z"/><path fill="url(#lines)" d="M0 0h768v768H0z"/>
+<path d="M51 51h666v666H51z" stroke="#775d45" opacity=".6"/>
+<circle cx="384" cy="368" r="271" fill="#173e43"/><circle cx="384" cy="368" r="260" stroke="#a0b4a0" stroke-width="2"/>
+<g clip-path="url(#grooves)" stroke="#80a89e" opacity=".74" stroke-width="2">
+<circle cx="384" cy="368" r="76"/><circle cx="384" cy="368" r="88"/><circle cx="384" cy="368" r="100"/><circle cx="384" cy="368" r="112"/><circle cx="384" cy="368" r="124"/><circle cx="384" cy="368" r="136"/><circle cx="384" cy="368" r="148"/><circle cx="384" cy="368" r="160"/><circle cx="384" cy="368" r="172"/><circle cx="384" cy="368" r="184"/><circle cx="384" cy="368" r="196"/><circle cx="384" cy="368" r="208"/><circle cx="384" cy="368" r="220"/><circle cx="384" cy="368" r="232"/><circle cx="384" cy="368" r="244"/><circle cx="384" cy="368" r="256"/>
+</g>
+<circle cx="384" cy="368" r="80" fill="#e7ac77"/><path d="M310 393q47-58 83-25t66-22a80 80 0 0 1-149 47Z" fill="#b65e40"/>
+<circle cx="384" cy="368" r="9" fill="#193e40"/>
+<g fill="#24474a"><path d="M82 674h13v3H82zm493 0h111v3H575z"/><circle cx="105" cy="675.5" r="2.5"/></g>
+</svg>

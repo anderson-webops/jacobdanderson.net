@@ -8,7 +8,9 @@ import process from "node:process";
 import puppeteer from "puppeteer";
 import { TRACKER_INTEGRITY, TRACKER_URL } from "../front-end/src/config/analytics.ts";
 import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "../front-end/src/config/gallerySites.ts";
+import { MUSIC_DOCUMENT, MUSIC_HOST } from "../front-end/src/config/musicSite.ts";
 import { checkEditor, editorFixture } from "./gallery-editor-smoke.mjs";
+import { checkMusic, serveMusicFixture } from "./music-player-smoke.mjs";
 import { fetchPinnedTracker } from "./tracker-integrity.mjs";
 
 const root = resolve(process.env.HEAD_SMOKE_STATIC_ROOT || "front-end/dist");
@@ -24,6 +26,7 @@ const server = http.createServer(async (request, response) => {
 	try {
 		const url = new URL(request.url, `http://${request.headers.host}`);
 		const pathname = decodeURIComponent(url.pathname);
+		if (serveMusicFixture(request, response, pathname)) return;
 		const site = GALLERY_SITES.find(gallery => gallery.hostname === url.hostname);
 		if (site && editing && await editing.serve(request, response, url)) return;
 		if (site && pathname === "/api/admin/access") {
@@ -46,9 +49,11 @@ const server = http.createServer(async (request, response) => {
 			response.end("<!doctype html><html><head><title>Integrity fixture</title></head><body></body></html>");
 			return;
 		}
-		const normalized = site && ["/", "/admin", "/admin/"].includes(pathname)
-			? galleryDocumentPath(site) + (pathname === "/" ? "" : "/admin")
-			: /^\/admin\/?$/iu.test(pathname) ? "/admin/" : pathname;
+		const normalized = url.hostname === MUSIC_HOST && pathname === "/"
+			? MUSIC_DOCUMENT
+			: site && ["/", "/admin", "/admin/"].includes(pathname)
+				? galleryDocumentPath(site) + (pathname === "/" ? "" : "/admin")
+				: /^\/admin\/?$/iu.test(pathname) ? "/admin/" : pathname;
 		let filepath = resolve(root, `.${normalized}`);
 		assert.ok(filepath === root || filepath.startsWith(root + sep), "Fixture path escapes static root");
 		if ((await stat(filepath)).isDirectory()) filepath = resolve(filepath, "index.html");
@@ -64,11 +69,11 @@ const server = http.createServer(async (request, response) => {
 await new Promise(resolveListen => server.listen(0, "127.0.0.1", resolveListen));
 const port = server.address().port;
 const origin = `http://127.0.0.1:${port}`;
-const galleryFixtureOrigins = new Set(GALLERY_SITES.map(site => `http://${site.hostname}:${port}`));
+const galleryFixtureOrigins = new Set([...GALLERY_SITES.map(site => site.hostname), MUSIC_HOST].map(host => `http://${host}:${port}`));
 let browser;
 try {
 	const executable = [process.env.PUPPETEER_EXECUTABLE_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/usr/bin/google-chrome", "/usr/bin/chromium"].find(filepath => filepath && existsSync(filepath));
-	const localGalleryMappings = GALLERY_SITES.map(site => `MAP ${site.hostname} 127.0.0.1`).join(", ");
+	const localGalleryMappings = [...GALLERY_SITES.map(site => site.hostname), MUSIC_HOST].map(host => `MAP ${host} 127.0.0.1`).join(", ");
 	browser = await puppeteer.launch({
 		executablePath: executable,
 		userDataDir: profile,
@@ -81,6 +86,10 @@ try {
 	await page.setRequestInterception(true);
 	page.on("request", (request) => {
 		const url = new URL(request.url());
+		if (url.origin === "https://w.soundcloud.com") {
+			void request.abort("blockedbyclient", 0);
+			return;
+		}
 		const cors = { "access-control-allow-origin": origin, "access-control-allow-headers": "content-type", "access-control-allow-methods": "GET,POST,OPTIONS" };
 		if (request.url() === TRACKER_URL) {
 			void request.respond({ status: 200, contentType: "application/javascript", headers: cors, body: provider.body });
@@ -216,6 +225,7 @@ try {
 		report.gallerySites.push({ hostname: site.hostname, ...snapshot });
 	}
 	assert.equal(report.mockedCollectorRequests, collectorCount, "Standalone galleries must not load analytics.");
+	report.music = await checkMusic(page, origin, port, output);
 	await page.goto(`${origin}/integrity-fixture`, { waitUntil: "networkidle0" });
 	report.wrongIntegrityRejected = await page.evaluate(async url => new Promise((resolveProbe, rejectProbe) => {
 		const script = document.createElement("script");

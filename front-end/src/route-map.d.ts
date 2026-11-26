@@ -94,6 +94,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/extra/music': RouteRecordInfo<
+      '/extra/music',
+      '/extra/music',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/extra/photos': RouteRecordInfo<
       '/extra/photos',
       '/extra/photos',
@@ -202,6 +209,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/extra/drawings.vue': {
       routes:
         | '/extra/drawings'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/extra/music.vue': {
+      routes:
+        | '/extra/music'
       views:
         | never
       pathParamNames:

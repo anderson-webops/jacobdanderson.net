@@ -8,6 +8,14 @@ import { routes } from "vue-router/auto-routes";
 import App from "./App.vue";
 import { installAnalyticsPrivacy, isAdministrationRoute } from "./config/analytics";
 import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "./config/gallerySites";
+import {
+	MUSIC_DESCRIPTION,
+	MUSIC_DOCUMENT,
+	MUSIC_HOST,
+	MUSIC_ORIGIN,
+	MUSIC_ROUTE,
+	MUSIC_TITLE
+} from "./config/musicSite";
 import { installAnalyticsPageviews } from "./utils/analytics";
 import { installSsgHeadBridge } from "./utils/ssgHead";
 // Assuming you have styles defined in these files
@@ -37,14 +45,36 @@ function standaloneGalleryRoute(site: GallerySite, admin = false, standalone = f
 	};
 }
 
-const appRoutes = currentGallerySite
-	? [standaloneGalleryRoute(currentGallerySite, false, true), standaloneGalleryRoute(currentGallerySite, true, true)]
-	: [
-			...routes,
-			...(import.meta.env.SSR
-				? GALLERY_SITES.flatMap(site => [standaloneGalleryRoute(site), standaloneGalleryRoute(site, true)])
-				: [])
-		];
+const currentMusicSite = !import.meta.env.SSR && window.location.hostname === MUSIC_HOST;
+function standaloneMusicRoute(path: string): RouteRecordRaw {
+	return {
+		path,
+		component: () => import("./components/MusicRoom.vue"),
+		props: { standalone: true },
+		meta: {
+			layout: "default",
+			standaloneGallery: true,
+			galleryCanonicalUrl: `${MUSIC_ORIGIN}/`,
+			title: MUSIC_TITLE,
+			description: MUSIC_DESCRIPTION
+		}
+	};
+}
+
+const appRoutes = currentMusicSite
+	? [standaloneMusicRoute("/")]
+	: currentGallerySite
+		? [
+				standaloneGalleryRoute(currentGallerySite, false, true),
+				standaloneGalleryRoute(currentGallerySite, true, true)
+			]
+		: [
+				...routes,
+				...(import.meta.env.SSR ? [standaloneMusicRoute(MUSIC_DOCUMENT)] : []),
+				...(import.meta.env.SSR
+					? GALLERY_SITES.flatMap(site => [standaloneGalleryRoute(site), standaloneGalleryRoute(site, true)])
+					: [])
+			];
 
 // https://github.com/antfu/vite-ssg
 export const createApp = ViteSSG(
@@ -61,10 +91,16 @@ export const createApp = ViteSSG(
 		}
 	},
 	ctx => {
-		if (ctx.isClient && !currentGallerySite) {
+		if (ctx.isClient && !currentGallerySite && !currentMusicSite) {
 			const adminDocument = /^\/admin\/?$/iu.test(window.location.pathname);
+			const musicDocument = [MUSIC_ROUTE, `${MUSIC_ROUTE}/`, `${MUSIC_ROUTE}/index.html`].includes(
+				window.location.pathname
+			);
 			ctx.router.beforeEach(to => {
-				if (isAdministrationRoute(to) === adminDocument) return true;
+				if (to.path === `${MUSIC_ROUTE}/index.html`)
+					return { path: MUSIC_ROUTE, hash: to.hash, query: to.query, replace: true };
+				const musicDestination = to.path === MUSIC_ROUTE || to.path === `${MUSIC_ROUTE}/`;
+				if (isAdministrationRoute(to) === adminDocument && musicDestination === musicDocument) return true;
 				const destination = new URL(to.fullPath, window.location.origin);
 				if (destination.origin === window.location.origin)
 					window.location.assign(isAdministrationRoute(to) ? "/admin" : destination.href);

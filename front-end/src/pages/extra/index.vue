@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const galleries = [
 	{ title: "Top Photos", path: "/extra/photos", cover: "/images/gallery-photos.svg" },
-	{ title: "Top Drawings", path: "/extra/drawings", cover: "/images/gallery-drawings.svg" }
+	{ title: "Top Drawings", path: "/extra/drawings", cover: "/images/gallery-drawings.svg" },
+	{ title: "Music", path: "/extra/music", cover: "/images/music-sleeve.svg" }
 ];
 
 const collections = [
@@ -27,10 +28,10 @@ const collections = [
 <template>
 	<div class="explore-page">
 		<header class="page-intro">
-			<h1>Galleries &amp; games</h1>
+			<h1>Galleries, music &amp; games</h1>
 		</header>
 
-		<nav aria-label="Galleries">
+		<nav aria-label="Galleries and music">
 			<ul class="gallery-links">
 				<li v-for="gallery in galleries" :key="gallery.path">
 					<RouterLink class="gallery-card" :to="gallery.path">
@@ -73,6 +74,10 @@ const collections = [
 	gap: clamp(0.9rem, 2.5vw, 1.65rem);
 }
 
+.gallery-links {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .gallery-card {
 	display: block;
 	color: var(--color-text);
@@ -87,6 +92,7 @@ const collections = [
 	display: block;
 	width: 100%;
 	height: auto;
+	object-fit: cover;
 	aspect-ratio: 768 / 336;
 	border-radius: calc(var(--radius-lg) - 1px) calc(var(--radius-lg) - 1px) 0 0;
 }
@@ -154,6 +160,6 @@ const collections = [
 <route lang="yaml">
 meta:
     layout: default
-    title: Galleries & Games | Jacob Anderson
-    description: Jacob Anderson’s photography and drawings, browser games, and strategy guides.
+    title: Galleries, Music & Games | Jacob Anderson
+    description: Jacob Anderson’s photography, drawings, music, browser games, and strategy guides.
 </route>

@@ -45,3 +45,22 @@ Host-controlled users, paths, protected configuration, loopback binding, exact p
 MongoDB visibility and semantic audit records remain external to releases. Existing supported schemas and the unique `slug_1` index retain their compatibility contract; this toolchain release includes no production data transformation.
 
 Installed-helper support and protected current/rollback acceptance remain host prerequisites. Source publication, host activation and independent public acceptance are recorded separately.
+
+## Music library
+
+The release contains the player at `/extra/music` and a standalone document for
+`music.jacobdanderson.net/`. Both use the same read-only library outside the
+application release. The host mapping is in `deploy/runtime-artifact.json`;
+the virtual host and shared media locations are in `deploy/nginx/`. The music
+host has no API, sign-in, database, or write endpoints.
+
+The separately supplied archive contains `music-library/catalog.json`,
+`audio/` under that directory, and file hashes in `SHA256SUMS`. The example
+edge configuration resolves these below `/srv/jacobdanderson.net/media/` on both
+origins. Verify the archive and its file hashes before serving a library;
+publish audio before switching the catalog and retain the previous library
+until rollback is no longer needed. Serve MP3s as `audio/mpeg` with byte ranges.
+The version-1 catalog orders tracks within `finished`, `in-progress`, and
+`older`; it contains no personal filesystem paths. The bundled site catalog
+also renders before any network request. SoundCloud players load only on
+selection. Unreleased session and score files stay outside the public media tree.

@@ -67,7 +67,7 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", openLinkedProject
 
 		<nav class="related-links" aria-label="Related pages">
 			<RouterLink class="section-link" to="/other-projects">Other projects</RouterLink>
-			<RouterLink class="section-link" to="/extra">Galleries &amp; games</RouterLink>
+			<RouterLink class="section-link" to="/extra">Galleries, music &amp; games</RouterLink>
 		</nav>
 	</div>
 </template>

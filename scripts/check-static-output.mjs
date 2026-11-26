@@ -3,6 +3,7 @@ import { join } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { GALLERY_DOCUMENTS, GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "../front-end/src/config/gallerySites.ts";
+import { MUSIC_DOCUMENT, MUSIC_HOST, MUSIC_ORIGIN, MUSIC_ROUTE } from "../front-end/src/config/musicSite.ts";
 import { externalScriptsMatchPolicy } from "./static-script-policy.mjs";
 
 const distDir = fileURLToPath(new URL("../front-end/dist/", import.meta.url));
@@ -10,7 +11,11 @@ const distDir = fileURLToPath(new URL("../front-end/dist/", import.meta.url));
 const galleryFiles = GALLERY_SITES.flatMap(site =>
 	["index.html", "admin/index.html", "robots.txt", "sitemap.xml"].map(file => `${galleryDocumentPath(site).slice(1)}/${file}`)
 );
+const musicFiles = ["index.html", "robots.txt", "sitemap.xml"].map(file => `${MUSIC_DOCUMENT.slice(1)}/${file}`);
 const requiredFiles = [
+	...musicFiles,
+	"extra/music/index.html",
+	"images/music-sleeve.svg",
 	...galleryFiles,
 	"index.html",
 	"about/index.html",
@@ -85,7 +90,7 @@ requireMatch(
 	"noindex metadata missing"
 );
 for (const file of requiredFiles.filter(name => name.endsWith("index.html"))) {
-	const localScriptsOnly = file === "admin/index.html" || galleryFiles.includes(file);
+	const localScriptsOnly = file === "admin/index.html" || galleryFiles.includes(file) || musicFiles.includes(file);
 	if (!externalScriptsMatchPolicy(readOutput(file), localScriptsOnly)) {
 		console.error(`Static output check failed for front-end/dist/${file}: external scripts must be absent from admin and standalone galleries, or exactly one integrity-pinned analytics tracker on other public pages.`);
 		process.exit(1);
@@ -153,5 +158,17 @@ for (const site of GALLERY_SITES) {
 		|| !readOutput(`${document}/sitemap.xml`).includes(`<loc>${origin}/</loc>`)) {
 		throw new Error(`Invalid gallery robots or sitemap for ${site.hostname}.`);
 	}
+}
+for (const [file, canonical] of [[musicFiles[0], `${MUSIC_ORIGIN}/`], ["extra/music/index.html", `https://jacobdanderson.net${MUSIC_ROUTE}`]]) {
+	const html = readOutput(file);
+	if (!html.includes(`rel="canonical" href="${canonical}"`) || !["finished", "in-progress", "older"].every(id => html.includes(`id="${id}"`))
+		|| /<(?:audio|iframe)\b/u.test(html)) {
+		throw new Error(`Invalid music document: ${file}`);
+	}
+}
+if (contract.musicSite?.hostname !== MUSIC_HOST || contract.musicSite.document !== `front-end/dist/${musicFiles[0]}`
+	|| readOutput(musicFiles[1]) !== robots.replace("https://jacobdanderson.net/sitemap.xml", `${MUSIC_ORIGIN}/sitemap.xml`)
+	|| !readOutput(musicFiles[2]).includes(`<loc>${MUSIC_ORIGIN}/</loc>`)) {
+	throw new Error("Invalid music host mapping");
 }
 console.log("Static output shape and metadata ok.");

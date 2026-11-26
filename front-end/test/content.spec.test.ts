@@ -60,11 +60,10 @@ describe("focused public content", () => {
 
 	it("leads with the galleries and keeps games separate from strategy guides", () => {
 		const wrapper = mount(GalleriesAndGames, { global });
-		expect(wrapper.get("h1").text()).toBe("Galleries & games");
-		expect(wrapper.findAll('nav[aria-label="Galleries"] a').map(link => link.attributes("href"))).toEqual([
-			"/extra/photos",
-			"/extra/drawings"
-		]);
+		expect(wrapper.get("h1").text()).toBe("Galleries, music & games");
+		expect(wrapper.findAll('nav[aria-label="Galleries and music"] a').map(link => link.attributes("href"))).toEqual(
+			["/extra/photos", "/extra/drawings", "/extra/music"]
+		);
 		expect(wrapper.findAll(".gallery-links img").every(image => image.attributes("alt") === "")).toBe(true);
 		expect(wrapper.findAll("h2").map(heading => heading.text())).toEqual(["Games", "Strategy guides"]);
 		expect(wrapper.findAll("section a").map(link => link.attributes("href"))).toEqual([

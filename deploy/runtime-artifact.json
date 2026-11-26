@@ -34,6 +34,13 @@
       "mediaPath": "/api/gallery/drawings"
     }
   },
+  "musicSite": {
+    "hostname": "music.jacobdanderson.net",
+    "document": "front-end/dist/.gallery-sites/music/index.html",
+    "portfolioPath": "/extra/music",
+    "catalog": "/music-library/catalog.json",
+    "audioPath": "/music-library/audio/"
+  },
   "galleryAliases": {
     "pictures.jacobdanderson.net": "photos.jacobdanderson.net"
   },

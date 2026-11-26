@@ -10,6 +10,8 @@ import path from "node:path";
 import process from "node:process";
 import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "../front-end/src/config/gallerySites.ts";
 
+import { MUSIC_DOCUMENT, MUSIC_HOST } from "../front-end/src/config/musicSite.ts";
+
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
 const { galleryAliases } = JSON.parse(await readFile(path.join(repositoryRoot, "deploy/runtime-artifact.json"), "utf8"));
 assert.deepEqual(galleryAliases, { "pictures.jacobdanderson.net": "photos.jacobdanderson.net" });
@@ -149,6 +151,19 @@ try {
 	const passwordFile = path.join(workDirectory, "admin.htpasswd");
 	const secretSnippet = path.join(workDirectory, "admin-secret.conf");
 	const nginxConfig = path.join(workDirectory, "nginx.conf");
+	const mediaRoot = path.join(workDirectory, "media");
+	const musicSnippet = path.join(workDirectory, "music.locations.conf");
+	const musicFile = "/music-library/audio/recording-ab9876543210.mp3";
+	const musicDirectory = path.join(staticRoot, MUSIC_DOCUMENT.slice(1));
+	await mkdir(musicDirectory, { recursive: true });
+	await mkdir(path.join(staticRoot, "extra/music"), { recursive: true });
+	await mkdir(path.join(mediaRoot, "music-library/audio"), { recursive: true });
+	await writeFile(path.join(mediaRoot, musicFile), "0123456789");
+	await writeFile(path.join(mediaRoot, "music-library/catalog.json"), "{\"version\":1}");
+	await writeFile(path.join(mediaRoot, "music-library/SHA256SUMS"), "private");
+	await writeFile(path.join(staticRoot, "extra/music/index.html"), "embedded music");
+	await writeFile(path.join(musicDirectory, "index.html"), "standalone music");
+	await writeFile(musicSnippet, (await readFile(path.join(repositoryRoot, "deploy/nginx/jacobdanderson-music.locations.conf"), "utf8")).replaceAll("/srv/jacobdanderson.net/media", mediaRoot));
 
 	await mkdir(path.join(staticRoot, "admin"), { recursive: true });
 	await mkdir(path.join(acmeRoot, ".well-known", "acme-challenge"), { recursive: true });
@@ -179,7 +194,7 @@ try {
 		"-subj",
 		"/CN=jacobdanderson.net",
 		"-addext",
-		`subjectAltName=DNS:jacobdanderson.net,${[...GALLERY_SITES.map(site => site.hostname), ...Object.keys(galleryAliases)].map(host => `DNS:${host}`).join(",")}`,
+		`subjectAltName=DNS:jacobdanderson.net,${[...GALLERY_SITES.map(site => site.hostname), ...Object.keys(galleryAliases), MUSIC_HOST].map(host => `DNS:${host}`).join(",")}`,
 		"-keyout",
 		certificateKey,
 		"-out",
@@ -192,6 +207,7 @@ try {
 		"utf8"
 	);
 	virtualHost = virtualHost
+		.replace("/etc/nginx/snippets/jacobdanderson-music.locations.conf", musicSnippet)
 		.replace("server 127.0.0.1:3003;", `server 127.0.0.1:${backendPort};`)
 		.replace("\tlisten 80;", `\tlisten 127.0.0.1:${httpPort};`)
 		.replace("\tlisten [::]:80;", "")
@@ -227,6 +243,18 @@ try {
 		.replace("root /var/www/acme;", `root ${acmeRoot};`);
 	if (!supportsHttp2Directive) galleryHosts = galleryHosts.replace("\thttp2 on;", "");
 
+	let musicHost = (await readFile(path.join(repositoryRoot, "deploy/nginx/jacobdanderson-music.conf.example"), "utf8"))
+		.replace("/etc/nginx/snippets/jacobdanderson-music.locations.conf", musicSnippet)
+		.replace("\tlisten 80;", `\tlisten 127.0.0.1:${httpPort};`)
+		.replace("\tlisten [::]:80;", "")
+		.replace("\tlisten 443 ssl;", `\tlisten 127.0.0.1:${httpsPort} ssl${supportsHttp2Directive ? "" : " http2"};`)
+		.replace("\tlisten [::]:443 ssl;", "")
+		.replace("# ssl_certificate /etc/letsencrypt/live/music.jacobdanderson.net/fullchain.pem;", `ssl_certificate ${certificate};`)
+		.replace("# ssl_certificate_key /etc/letsencrypt/live/music.jacobdanderson.net/privkey.pem;", `ssl_certificate_key ${certificateKey};`)
+		.replace("root /srv/jacobdanderson.net/current/front-end/dist;", `root ${staticRoot};`)
+		.replace("root /var/www/acme;", `root ${acmeRoot};`);
+	if (!supportsHttp2Directive) musicHost = musicHost.replace("\thttp2 on;", "");
+
 	const limits = await readFile(
 		path.join(repositoryRoot, "deploy/nginx/jacobdanderson-rate-limits.conf.example"),
 		"utf8"
@@ -246,6 +274,7 @@ http {
 	${limits}
 	${virtualHost}
 	${galleryHosts}
+	${musicHost}
 }
 `);
 	await mkdir(path.join(workDirectory, "client-body"));
@@ -262,6 +291,28 @@ http {
 	const redirect = await httpRequest(httpPort, "/projects?from=http");
 	assert.equal(redirect.status, 301);
 	assert.equal(redirect.headers.location, "https://jacobdanderson.net/projects?from=http");
+
+	assert.equal((await httpRequest(httpPort, "/", MUSIC_HOST)).headers.location, `https://${MUSIC_HOST}/`);
+	for (const [hostname, page, expected] of [[MUSIC_HOST, "/", "standalone music"], ["jacobdanderson.net", "/extra/music/", "embedded music"]]) {
+		const served = await request(httpsPort, page, { hostname });
+		assert.equal(served.body, expected);
+		assert.ok(served.headers["content-security-policy"].includes("frame-src https://w.soundcloud.com;"));
+		const catalog = await request(httpsPort, "/music-library/catalog.json", { hostname });
+		assert.equal(catalog.status, 200);
+		assert.equal(catalog.headers["content-type"], "application/json");
+		const partial = await request(httpsPort, musicFile, { hostname, headers: { Range: "bytes=2-5" } });
+		assert.equal(partial.status, 206);
+		assert.equal(partial.body, "2345");
+		assert.equal(partial.headers["content-type"], "audio/mpeg");
+		assert.equal(partial.headers["content-range"], "bytes 2-5/10");
+		assert.equal((await request(httpsPort, musicFile, { hostname, method: "HEAD" })).headers["content-length"], "10");
+		assert.equal((await request(httpsPort, musicFile, { hostname, method: "POST" })).status, 405);
+		assert.equal((await request(httpsPort, "/music-library/SHA256SUMS", { hostname })).status, 404);
+	}
+	for (const pathname of ["/api/admin/access", "/admin", "/extra", `${MUSIC_DOCUMENT}/index.html`]) {
+		assert.equal((await request(httpsPort, pathname, { hostname: MUSIC_HOST })).status, 404);
+	}
+	assert.ok((await request(httpsPort, "/")).headers["content-security-policy"].includes("frame-src 'none';"));
 
 	const canonicalRelease = await request(httpsPort, "/deployment.json");
 	assert.equal(canonicalRelease.status, 200);
@@ -435,7 +486,7 @@ http {
 		}
 	}
 
-	console.log(`Nginx ${nginxVersion.join(".")} edge contract passed for the portfolio and both gallery hosts.`);
+	console.log(`Nginx ${nginxVersion.join(".")} edge contract passed for the portfolio, music and both gallery hosts.`);
 }
 finally {
 	if (nginxProcess && nginxProcess.exitCode === null) {
