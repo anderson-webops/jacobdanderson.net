@@ -65,6 +65,7 @@ onBeforeUnmount(() => {
 		:alt="loaded ? alt : ''"
 		:width="width"
 		:height="height"
+		:style="{ aspectRatio: `${width} / ${height}` }"
 		:class="{ pending: !loaded }"
 		decoding="async"
 	/>

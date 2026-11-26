@@ -92,8 +92,8 @@ function responseFor(url) {
 			return {
 				id: number.toString(16).padStart(24, "0"),
 				description: `Test ${photo ? "photo" : "drawing"} ${number}`,
-				width: !photo && number % 2 === 0 ? 2 : 4,
-				height: !photo && number % 2 === 0 ? 4 : 2,
+				width: number % (photo ? 4 : 2) === 0 ? 2 : 4,
+				height: number % (photo ? 4 : 2) === 0 ? 4 : 2,
 				...(photo && !secondPage && index < 3 ? { favorite: true } : {})
 			};
 		});
@@ -134,7 +134,7 @@ function createMockApiServer() {
 	return http.createServer((req, res) => {
 		const url = new URL(req.url || "/", `http://127.0.0.1:${apiPort}`);
 		if (/^\/api\/gallery\/(?:photos|drawings)\/[0-9a-f]{24}$/.test(url.pathname)) {
-			const image = url.pathname.startsWith("/api/gallery/drawings/") && (Number.parseInt(url.pathname.slice(-1), 16) % 2 === 0) ? portraitFixture : fixtureImage;
+			const image = Number.parseInt(url.pathname.split("/").at(-1), 16) % (url.pathname.startsWith("/api/gallery/photos/") ? 4 : 2) === 0 ? portraitFixture : fixtureImage;
 			const traffic = galleryTraffic;
 			if (!traffic) {
 				res.writeHead(200, { "Content-Type": "image/png" });
@@ -393,6 +393,11 @@ async function checkScrollingGallery(browser, gallery, width) {
 		const photos = gallery === "photos";
 		const label = photos ? "photo" : "drawing";
 		const firstBatch = photos ? 24 : 12;
+		const pages = [];
+		page.on("response", (response) => {
+			const url = new URL(response.url());
+			if (url.pathname === `/api/gallery/${gallery}`) pages.push(url.search);
+		});
 		await page.setViewport({ width, height: width > 760 ? 960 : 760 });
 		await page.goto(`${baseUrl}/extra/${gallery}`, { waitUntil: "domcontentloaded" });
 		await page.waitForSelector(".lead img[src]");
@@ -405,16 +410,36 @@ async function checkScrollingGallery(browser, gallery, width) {
 		assert.equal(pending.opacity, "0");
 		assert.match(pending.source, /\?preview=1$/);
 		await page.waitForFunction(() => document.querySelector(".lead img")?.alt);
-		assert.equal((await page.$$(".photo-tile")).length, firstBatch);
-		assert.ok(traffic.attempts.size < firstBatch, "Offscreen media requested before scrolling");
+		assert.ok((await page.$$(".photo-tile")).length >= firstBatch);
+		const distant = await page.$$eval(".photo-tile img", images => images
+			.filter(image => image.getBoundingClientRect().top > window.innerHeight + 310)
+			.map(image => image.hasAttribute("src")));
+		if (photos) assert.ok(distant.length, "Expected offscreen images in the photo fixture");
+		assert.ok(distant.every(requested => !requested), "Distant media requested before scrolling");
 		assert.equal(traffic.attempts.get(`/api/gallery/${gallery}/000000000000000000000001`), 2);
 		const dimensions = await page.evaluate(() => {
 			const bounds = selector => document.querySelector(selector)?.getBoundingClientRect();
-			const regular = document.querySelector(".photo-grid:not(.favorites)");
-			return { width: bounds(".photo-gallery").width, lead: bounds(".lead").width, favorite: bounds(".favorites .photo-tile")?.width ?? 0, regular: bounds(".photo-grid:not(.favorites) .photo-tile").width, columns: getComputedStyle(regular).gridTemplateColumns.split(" ").length, fit: getComputedStyle(document.querySelector(".lead img")).objectFit };
+			const grid = document.querySelector(".photo-grid:not(.favorites)");
+			const groups = [...grid.querySelectorAll("button")].reduce((rows, button) => {
+				const box = button.getBoundingClientRect();
+				const image = button.querySelector("img");
+				const item = { left: box.left, right: box.right, top: box.top, bottom: box.bottom, width: box.width, height: box.height, ratio: Number(image.getAttribute("width")) / Number(image.getAttribute("height")) };
+				if (!rows.length || Math.abs(rows.at(-1)[0].top - item.top) > 1) rows.push([]);
+				rows.at(-1).push(item);
+				return rows;
+			}, []);
+			return { width: bounds(".photo-gallery").width, lead: bounds(".lead").width, favorite: bounds(".favorites .photo-tile")?.width ?? 0, regular: groups[0][0].width, gap: Number.parseFloat(getComputedStyle(grid).gap), groups, fit: getComputedStyle(document.querySelector(".lead img")).objectFit };
 		});
-		assert.ok(dimensions.width >= width - 48 && dimensions.lead > dimensions.regular);
-		assert.equal(dimensions.columns, width > 760 ? 3 : 2);
+		assert.ok(dimensions.width >= width - 48 && dimensions.lead >= dimensions.regular);
+		for (const [index, row] of dimensions.groups.entries()) {
+			for (const [column, tile] of row.entries()) {
+				assert.ok(Math.abs(tile.width - tile.height * tile.ratio) < 1, "Preview lost its canvas proportions");
+				if (column) assert.ok(Math.abs(tile.left - row[column - 1].right - dimensions.gap) < 1);
+				assert.ok(Math.abs(tile.bottom - row[0].bottom) < 1, "Uneven row of canvases");
+			}
+			if (index < dimensions.groups.length - 1) assert.ok(Math.abs(row.at(-1).right - row[0].left - dimensions.width) < 1, "Unused space in a full row");
+			if (index) assert.ok(Math.abs(row[0].top - dimensions.groups[index - 1][0].bottom - dimensions.gap) < 1, "Unused space between rows");
+		}
 		assert.equal(dimensions.fit, photos ? "cover" : "contain");
 		if (!photos) {
 			const [landscape, portrait] = await page.$$eval(".lead, .side-photos button:first-child", buttons =>
@@ -433,8 +458,9 @@ async function checkScrollingGallery(browser, gallery, width) {
 		await page.keyboard.press("Escape");
 		await page.waitForFunction(() => !document.querySelector("dialog").open && document.activeElement.matches(".lead"));
 
-		await page.$eval(".gallery-sentinel", element => element.scrollIntoView());
+		await page.evaluate(() => document.querySelector(".gallery-sentinel")?.scrollIntoView());
 		await page.waitForFunction(count => document.querySelectorAll(".photo-tile").length === count, {}, firstBatch + 4);
+		assert.deepEqual(pages, ["", `?before=${firstBatch.toString(16).padStart(24, "0")}`]);
 		assert.equal(await page.$eval(".lead img", image => image.alt), `Test ${label} 1`);
 		assert.equal(await page.$(".pagination"), null);
 		await page.$$eval(".photo-tile", tiles => tiles.at(-1).scrollIntoView());
@@ -563,6 +589,8 @@ try {
 	await checkResumePrint(browser);
 	await checkGalleryPublishing(browser);
 	await checkScrollingGallery(browser, "photos", 1440);
+	await checkScrollingGallery(browser, "photos", 390);
+	await checkScrollingGallery(browser, "drawings", 1440);
 	await checkScrollingGallery(browser, "drawings", 390);
 
 	const failures = [];

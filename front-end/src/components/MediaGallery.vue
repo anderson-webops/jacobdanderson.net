@@ -2,6 +2,7 @@
 import type { Gallery, GalleryItem } from "~/utils/gallery";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { fetchGalleryPage } from "~/utils/gallery";
+import { drawingOpening, galleryRowWidths } from "~/utils/galleryLayout";
 import GalleryImage from "./GalleryImage.vue";
 
 const props = defineProps<{ gallery: Gallery }>();
@@ -11,12 +12,16 @@ const cursor = ref<string | null>(null);
 const loading = ref(true);
 const failed = ref(false);
 const viewer = ref<HTMLDialogElement>();
+const wall = ref<HTMLElement>();
+const wallWidth = ref(0);
+const viewportHeight = ref(0);
 const sentinel = ref<HTMLElement>();
 const activeId = ref<string>();
 const lifetime = new AbortController();
 const seenIds = new Set<string>();
 const seenCursors = new Set<string>();
 let observer: IntersectionObserver | undefined;
+let resizeObserver: ResizeObserver | undefined;
 let pending: Promise<boolean> | undefined;
 let started = false;
 let trigger: HTMLElement | undefined;
@@ -41,8 +46,25 @@ const imageLabel = computed(() => (props.gallery === "photos" ? "photo" : "drawi
 function source(photo: GalleryItem, preview = true) {
 	return `/api/gallery/${props.gallery}/${photo.id}${preview ? "?preview=1" : ""}`;
 }
-function drawingTileStyle(photo: GalleryItem) {
-	return props.gallery === "drawings" ? { "--drawing-ratio": photo.width / photo.height } : undefined;
+const gap = computed(() => (wallWidth.value <= 700 ? 8 : 12));
+const targetHeight = computed(() =>
+	wallWidth.value <= 700
+		? Math.min(205, Math.max(100, wallWidth.value * 0.31))
+		: Math.min(360, Math.max(175, wallWidth.value * 0.2))
+);
+const opening = computed(() =>
+	props.gallery === "drawings" && hero.value && wallWidth.value
+		? drawingOpening(hero.value, side.value, wallWidth.value, viewportHeight.value * 0.8, gap.value)
+		: undefined
+);
+const favoriteWidths = computed(() =>
+	galleryRowWidths(favorites.value, wallWidth.value, targetHeight.value * 1.65, gap.value)
+);
+const regularWidths = computed(() => galleryRowWidths(rest.value, wallWidth.value, targetHeight.value, gap.value));
+const tileWidth = (width?: number) => (width === undefined ? undefined : `${width}px`);
+function measureWall() {
+	wallWidth.value = wall.value?.getBoundingClientRect().width ?? 0;
+	viewportHeight.value = window.innerHeight;
 }
 
 async function appendBatch() {
@@ -140,6 +162,12 @@ watch(
 );
 
 onMounted(() => {
+	measureWall();
+	window.addEventListener("resize", measureWall);
+	if (wall.value && typeof ResizeObserver !== "undefined") {
+		resizeObserver = new ResizeObserver(measureWall);
+		resizeObserver.observe(wall.value);
+	}
 	if (typeof IntersectionObserver !== "undefined") {
 		observer = new IntersectionObserver(
 			entries => {
@@ -151,6 +179,8 @@ onMounted(() => {
 	void loadNext();
 });
 onBeforeUnmount(() => {
+	window.removeEventListener("resize", measureWall);
+	resizeObserver?.disconnect();
 	observer?.disconnect();
 	lifetime.abort();
 	unlockScroll();
@@ -159,14 +189,16 @@ onBeforeUnmount(() => {
 
 <template>
 	<section
+		ref="wall"
 		class="photo-gallery"
 		:class="{ artwork: gallery === 'drawings' }"
+		:style="{ '--gallery-gap': `${gap}px` }"
 		:aria-label="gallery === 'photos' ? 'Photos' : 'Drawings'"
 	>
-		<div v-if="hero" class="opening-grid" :class="{ 'hero-only': !side.length }">
+		<div v-if="hero" class="opening-grid" :class="{ 'hero-only': !side.length, stacked: opening?.stacked }">
 			<button
 				class="photo-tile lead"
-				:style="drawingTileStyle(hero)"
+				:style="{ width: tileWidth(opening?.widths[0]) }"
 				type="button"
 				:aria-label="`Enlarge: ${hero.description}`"
 				@click="open(hero, $event)"
@@ -175,10 +207,10 @@ onBeforeUnmount(() => {
 			</button>
 			<div v-if="side.length" class="side-photos">
 				<button
-					v-for="photo in side"
+					v-for="(photo, index) in side"
 					:key="photo.id"
 					class="photo-tile"
-					:style="drawingTileStyle(photo)"
+					:style="{ width: tileWidth(opening?.widths[index + 1]) }"
 					type="button"
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
@@ -193,10 +225,13 @@ onBeforeUnmount(() => {
 			</div>
 		</div>
 		<ul v-if="favorites.length" aria-label="Favorites" class="photo-grid favorites">
-			<li v-for="photo in favorites" :key="photo.id">
+			<li
+				v-for="(photo, index) in favorites"
+				:key="photo.id"
+				:style="{ width: tileWidth(favoriteWidths[index]) }"
+			>
 				<button
 					class="photo-tile"
-					:style="drawingTileStyle(photo)"
 					type="button"
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
@@ -211,10 +246,9 @@ onBeforeUnmount(() => {
 			</li>
 		</ul>
 		<ul v-if="rest.length" :aria-label="`More ${gallery}`" class="photo-grid">
-			<li v-for="photo in rest" :key="photo.id">
+			<li v-for="(photo, index) in rest" :key="photo.id" :style="{ width: tileWidth(regularWidths[index]) }">
 				<button
 					class="photo-tile"
-					:style="drawingTileStyle(photo)"
 					type="button"
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
@@ -275,11 +309,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.photo-gallery {
-	--gallery-gap: 12px;
-	--gallery-row: clamp(230px, 29vw, 520px);
-}
-
 .opening-grid {
 	display: grid;
 	grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
@@ -299,16 +328,16 @@ onBeforeUnmount(() => {
 }
 
 .photo-grid {
-	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
-	grid-auto-rows: var(--gallery-row);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
 	gap: var(--gallery-gap);
 	margin-top: var(--gallery-gap);
 }
 
-.photo-grid.favorites {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	grid-auto-rows: clamp(270px, 42vw, 710px);
+.photo-grid > li {
+	flex: none;
+	max-width: 100%;
 }
 
 .photo-tile {
@@ -327,6 +356,18 @@ onBeforeUnmount(() => {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+}
+
+.photo-grid .photo-tile,
+.photo-grid .photo-tile img,
+.artwork .photo-tile,
+.artwork .photo-tile img {
+	height: auto;
+}
+
+.photo-grid .photo-tile img,
+.artwork .photo-tile img {
+	object-fit: contain;
 }
 
 .gallery-sentinel {
@@ -399,11 +440,6 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 760px) {
-	.photo-gallery {
-		--gallery-gap: 8px;
-		--gallery-row: 46vw;
-	}
-
 	.opening-grid {
 		grid-template-columns: minmax(0, 1fr);
 		height: auto;
@@ -413,8 +449,7 @@ onBeforeUnmount(() => {
 		height: clamp(320px, 65svh, 740px);
 	}
 
-	.side-photos,
-	.photo-grid {
+	.side-photos {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
@@ -425,32 +460,28 @@ onBeforeUnmount(() => {
 	.side-photos > :only-child {
 		grid-column: 1 / -1;
 	}
-
-	.photo-grid.favorites {
-		grid-template-columns: minmax(0, 1fr);
-		grid-auto-rows: 78vw;
-	}
 }
-.artwork .opening-grid,
-.artwork .side-photos {
+
+.artwork .opening-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: flex-start;
 	height: auto;
-	align-items: start;
-	grid-auto-rows: auto;
 }
 
-.artwork .photo-grid {
-	grid-auto-rows: auto;
+.artwork .side-photos {
+	display: contents;
+}
+
+.artwork .stacked .side-photos {
+	display: flex;
+	flex-direction: column;
+	height: auto;
 }
 
 .artwork .photo-tile {
-	width: min(100%, calc(80svh * var(--drawing-ratio)));
-	height: auto;
-	aspect-ratio: var(--drawing-ratio);
 	background: transparent;
 	border-radius: 0;
-}
-
-.artwork .photo-tile img {
-	object-fit: contain;
 }
 </style>
