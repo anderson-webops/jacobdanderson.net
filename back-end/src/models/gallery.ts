@@ -27,7 +27,8 @@ interface ImageDocument {
 	createdAt: Date;
 }
 
-export type GalleryEdit = { favorite: boolean } | { visible: boolean } | { direction: "earlier" | "later" } | { confirm: string };
+export type GalleryEdit = { favorite: boolean } | { visible: boolean } | { direction: "earlier" | "later" }
+	| { targetId: string; placement: "before" | "after" } | { description: string } | { confirm: string };
 export interface GalleryStore {
 	ensureIndexes: () => Promise<void>;
 	list: (gallery: Gallery, before?: string, hidden?: boolean) => Promise<{ items: { id: string; description: string; width: number; height: number; favorite?: true }[]; next: string | null }>;
@@ -142,23 +143,31 @@ export function createGalleryStore(db: Db): GalleryStore {
 			const filter: Filter<ImageDocument> = { gallery: { $in: [gallery, privateGallery(gallery)] }, _id: new ObjectId(id) };
 			const event = { ...context, gallery, imageId: filter._id, change, ...("favorite" in change ? { requestedFavorite: change.favorite } : {}) };
 			await audit.insertOne({ ...event, phase: "attempt", occurredAt: new Date() });
-			const projection = { favorite: 1, gallery: 1, orderKey: 1 };
+			const projection = { favorite: 1, gallery: 1, orderKey: 1, ...("description" in change ? { description: 1 } : {}) };
 			let result: 204 | 404 | 409 = 404;
 			let previous: ImageDocument | null = null;
 			try {
-				if ("direction" in change) {
+				if ("direction" in change || "targetId" in change) {
 					const anchor = await images.findOne({ ...filter, gallery }, { projection });
 					if (anchor) {
 						result = 409;
-						const earlier = change.direction === "earlier";
+						const targeted = "targetId" in change;
+						const earlier = targeted ? change.placement === "before" : change.direction === "earlier";
 						const direction = earlier ? 1 : -1;
-						const [neighbor, beyond] = await images.aggregate<Position>([
-							{ $match: { gallery, favorite: anchor.favorite ? true : null } },
-							{ $project: { orderKey: metadata.orderKey } },
-							{ $match: { $or: relativeTo(anchor, earlier) } },
-							{ $sort: { orderKey: direction, _id: direction } },
-							{ $limit: 2 }
-						], listOptions).toArray();
+						const group = { gallery, favorite: anchor.favorite ? true as const : null };
+						const pivot = targeted
+							? await images.findOne({ ...group, _id: new ObjectId(change.targetId) }, { projection })
+							: anchor;
+						const candidates = pivot && (!targeted || !pivot._id.equals(anchor._id))
+							? await images.aggregate<Position>([
+									{ $match: { ...group, _id: { $ne: anchor._id } } },
+									{ $project: { orderKey: metadata.orderKey } },
+									{ $match: { $or: relativeTo(pivot, earlier) } },
+									{ $sort: { orderKey: direction, _id: direction } },
+									{ $limit: targeted ? 1 : 2 }
+								], listOptions).toArray()
+							: [];
+						const [neighbor, beyond] = targeted && pivot && !pivot._id.equals(anchor._id) ? [pivot, ...candidates] : candidates;
 						if (neighbor) {
 							const low = earlier ? orderKey(neighbor) : beyond && orderKey(beyond);
 							const high = earlier ? beyond && orderKey(beyond) : orderKey(neighbor);
@@ -175,6 +184,9 @@ export function createGalleryStore(db: Db): GalleryStore {
 				}
 				else if ("visible" in change) {
 					previous = await images.findOneAndUpdate(filter, { $set: { gallery: change.visible ? gallery : privateGallery(gallery) } }, { projection });
+				}
+				else if ("description" in change) {
+					previous = await images.findOneAndUpdate(filter, { $set: { description: change.description } }, { projection });
 				}
 				else {
 					previous = await images.findOneAndUpdate(filter, change.favorite ? { $set: { favorite: true } } : { $unset: { favorite: "" } }, { projection });
@@ -201,6 +213,7 @@ export function createGalleryStore(db: Db): GalleryStore {
 				previousGallery: previous?.gallery ?? null,
 				previousOrder: previous && orderKey(previous),
 				previousFavorite: previous ? Boolean(previous.favorite) : null,
+				...("description" in change ? { previousDescription: previous?.description ?? null } : {}),
 				occurredAt: new Date()
 			});
 			return result;

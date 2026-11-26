@@ -281,7 +281,7 @@ export function createApp({
 		const height = Number(request.get("X-Image-Height"));
 		let description: string;
 		try {
-			description = decodeURIComponent(request.get("X-Image-Description") || "").trim();
+			description = decodeURIComponent(request.get("X-Image-Description") || "").trim() || (gallery === "photos" ? "Untitled photo" : "Untitled drawing");
 		}
 		catch {
 			return response.sendStatus(400);
@@ -311,7 +311,11 @@ export function createApp({
 	const edits = new Map<string, z.ZodType<GalleryEdit>>([
 		["favorite", z.strictObject({ favorite: z.boolean() })],
 		["visibility", z.strictObject({ visible: z.boolean() })],
-		["move", z.strictObject({ direction: z.enum(["earlier", "later"]) })],
+		["move", z.union([z.strictObject({ direction: z.enum(["earlier", "later"]) }), z.strictObject({
+			targetId: z.string().regex(/^[a-f0-9]{24}$/),
+			placement: z.enum(["before", "after"])
+		})])],
+		["rename", z.strictObject({ description: z.string().trim().min(1).max(200).refine(value => !/\p{Cc}/u.test(value)) })],
 		["delete", z.strictObject({ confirm: z.string().regex(/^[a-f0-9]{24}$/) })]
 	]);
 	app.post("/api/admin/gallery/:gallery/:id/:action", requireAdmin, parseProjectAdminJson, async (request, response) => {
@@ -320,7 +324,10 @@ export function createApp({
 		const schema = typeof action === "string" && edits.get(action);
 		if (!isGallery(gallery) || !isImageId(id) || !schema) return response.sendStatus(404);
 		const payload = schema.safeParse(request.body);
-		if (!payload.success || ("confirm" in payload.data && payload.data.confirm !== id)) return response.sendStatus(400);
+		if (!payload.success || ("confirm" in payload.data && payload.data.confirm !== id)
+			|| ("targetId" in payload.data && payload.data.targetId === id)) {
+			return response.sendStatus(400);
+		}
 		if (!services.gallery) return response.sendStatus(503);
 		const release = adminDatabaseCapacity.tryAcquire();
 		if (!release) return sendDatabaseBusy(response);

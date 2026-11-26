@@ -72,6 +72,7 @@
     "useAttrs": true,
     "useCssModule": true,
     "useCssVars": true,
+    "useGalleryReorder": true,
     "useHead": true,
     "useHeadSafe": true,
     "useId": true,

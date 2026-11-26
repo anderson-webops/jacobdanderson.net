@@ -11,13 +11,13 @@ map "$request_method:$uri" $jacobdanderson_gallery_admin_scope {
 	default "";
 	GET:/api/admin/access $jacobdanderson_gallery_collection;
 	"~^GET:/api/admin/gallery/(?<read_collection>photos|drawings)/hidden(?:/[a-f0-9]{24})?$" $read_collection;
-	"~^POST:/api/admin/gallery/(?<edit_collection>photos|drawings)(?:/[a-f0-9]{24}/(?:favorite|visibility|move|delete))?$" $edit_collection;
+	"~^POST:/api/admin/gallery/(?<edit_collection>photos|drawings)(?:/[a-f0-9]{24}/(?:favorite|visibility|move|rename|delete))?$" $edit_collection;
 }
 
 map "$request_method:$host:$uri" $jacobdanderson_gallery_method {
 	default 0;
 	~^(GET|HEAD): 1;
-	"~^POST:(?:photos|drawings)\.jacobdanderson\.net:/api/admin/gallery/(photos|drawings)(?:/[a-f0-9]{24}/(?:favorite|visibility|move|delete))?$" 1;
+	"~^POST:(?:photos|drawings)\.jacobdanderson\.net:/api/admin/gallery/(photos|drawings)(?:/[a-f0-9]{24}/(?:favorite|visibility|move|rename|delete))?$" 1;
 }
 
 map $request_uri $jacobdanderson_gallery_private {

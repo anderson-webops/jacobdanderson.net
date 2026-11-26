@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import type { Gallery } from "~/utils/gallery";
 import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import GalleryPage from "~/components/GalleryPage.vue";
 import GalleryPublisher from "~/components/GalleryPublisher.vue";
 import ProjectVisibilityControls from "~/components/ProjectVisibilityControls.vue";
+import { probeAdminGateway } from "~/utils/adminGateway";
 
 const props = defineProps<{ collection?: Gallery }>();
 const signedIn = ref(false);
@@ -13,6 +15,19 @@ const username = ref("");
 const password = ref<HTMLInputElement>();
 const heading = ref<HTMLElement>();
 const view = ref<Gallery | "projects">(props.collection ?? "photos");
+const previewing = ref(false);
+const previewButton = ref<HTMLButtonElement>();
+const returnButton = ref<HTMLButtonElement>();
+const gateway = ref<"basic" | "login" | "unavailable">("basic");
+let csrf = "";
+let editorY = 0;
+async function swapPreview(show: boolean) {
+	if (show) editorY = window.scrollY;
+	previewing.value = show;
+	await nextTick();
+	window.scrollTo({ top: show ? 0 : editorY, behavior: "instant" });
+	(show ? returnButton.value : previewButton.value)?.focus({ preventScroll: true });
+}
 let authorization = "";
 let controller = new AbortController();
 let expires = 0;
@@ -24,6 +39,8 @@ function clearAccess() {
 	clearTimeout(timer);
 	authorization = "";
 	expires = 0;
+	csrf = "";
+	previewing.value = false;
 	signedIn.value = false;
 	busy.value = false;
 	error.value = "";
@@ -39,7 +56,7 @@ function signOut(message = "") {
 const adminFetch: typeof fetch = async (path, init = {}) => {
 	if (typeof path !== "string") throw new Error("Invalid admin path");
 	const gallery =
-		/^\/api\/admin\/gallery\/(photos|drawings)(?:\/hidden(?:\/[a-f0-9]{24}|\?before=[a-f0-9]{24})?|\/[a-f0-9]{24}\/(?:favorite|visibility|move|delete))?$/.exec(
+		/^\/api\/admin\/gallery\/(photos|drawings)(?:\/hidden(?:\/[a-f0-9]{24}|\?before=[a-f0-9]{24})?|\/[a-f0-9]{24}\/(?:favorite|visibility|move|rename|delete))?$/.exec(
 			path
 		);
 	const permitted =
@@ -47,16 +64,17 @@ const adminFetch: typeof fetch = async (path, init = {}) => {
 		(gallery && (!props.collection || gallery[1] === props.collection)) ||
 		(!props.collection && /^\/api\/admin\/projects\/[a-z0-9-]+$/.test(path));
 	if (!permitted) throw new Error("Invalid admin path");
-	if (!authorization || Date.now() >= expires) {
+	if ((!authorization && !csrf) || Date.now() >= expires) {
 		signOut("Please sign in again.");
 		throw new Error("Sign-in expired");
 	}
 	const headers = new Headers(init.headers);
-	headers.set("Authorization", authorization);
+	if (authorization) headers.set("Authorization", authorization);
+	else if (!["GET", "HEAD"].includes((init.method || "GET").toUpperCase())) headers.set("X-Portfolio-CSRF", csrf);
 	const response = await fetch(path, {
 		...init,
 		cache: "no-store",
-		credentials: "omit",
+		credentials: csrf ? "same-origin" : "omit",
 		redirect: "error",
 
 		mode: "same-origin",
@@ -68,7 +86,7 @@ const adminFetch: typeof fetch = async (path, init = {}) => {
 };
 
 async function signIn() {
-	if (busy.value || !password.value) return;
+	if (!ready.value || gateway.value !== "basic" || busy.value || !password.value) return;
 	clearTimeout(timer);
 	const signal = controller.signal;
 	error.value = "";
@@ -102,12 +120,57 @@ async function signIn() {
 		if (!signal.aborted) busy.value = false;
 	}
 }
-onMounted(() => {
+async function detectGateway() {
+	ready.value = false;
+	const signal = controller.signal;
+	const state = await probeAdminGateway(window.location.origin, signal);
+	if (signal.aborted) return;
+	if (state.mode === "session") {
+		csrf = state.csrf;
+		gateway.value = "login";
+		signedIn.value = true;
+		expires = Date.now() + 15 * 60_000;
+		timer = setTimeout(signOut, 15 * 60_000, "Please sign in again.");
+	} else {
+		gateway.value = state.mode;
+	}
 	ready.value = true;
+}
+async function logout() {
+	if (busy.value) return;
+	if (csrf) {
+		busy.value = true;
+		try {
+			const response = await fetch("/api/admin/logout", {
+				method: "POST",
+				headers: { "X-Portfolio-CSRF": csrf },
+				credentials: "same-origin",
+				mode: "same-origin",
+				redirect: "error",
+				cache: "no-store",
+				signal: controller.signal
+			});
+			if (response.status !== 204) throw new Error();
+		} catch {
+			error.value = "Couldn’t confirm sign-out. Try again.";
+			return;
+		} finally {
+			busy.value = false;
+		}
+	}
+	signOut();
+}
+function restore(event: PageTransitionEvent) {
+	if (event.persisted) void detectGateway();
+}
+onMounted(() => {
+	void detectGateway();
+	window.addEventListener("pageshow", restore);
 	window.addEventListener("pagehide", clearAccess);
 });
 onBeforeUnmount(() => {
 	window.removeEventListener("pagehide", clearAccess);
+	window.removeEventListener("pageshow", restore);
 	clearAccess();
 });
 </script>
@@ -115,7 +178,9 @@ onBeforeUnmount(() => {
 <template>
 	<section v-if="!signedIn" class="sign-in section-panel">
 		<h1 ref="heading" tabindex="-1">Admin sign-in</h1>
-		<form method="post" action="/admin" @submit.prevent="signIn">
+		<a v-if="gateway === 'login'" class="button-primary" href="/api/admin/login">Sign in</a>
+		<button v-else-if="gateway === 'unavailable'" type="button" @click="detectGateway">Retry sign-in</button>
+		<form v-else method="post" action="/admin" @submit.prevent="signIn">
 			<label
 				>Username<input v-model="username" name="username" autocomplete="username" maxlength="128" required
 			/></label>
@@ -132,36 +197,54 @@ onBeforeUnmount(() => {
 			<button class="button-primary" :disabled="!ready || busy">{{ busy ? "Signing in…" : "Sign in" }}</button>
 		</form>
 	</section>
-	<div v-else class="workspace">
-		<header>
-			<h1 ref="heading" tabindex="-1">
-				{{ collection ? (collection === "photos" ? "Manage photos" : "Manage drawings") : "Site admin" }}
-			</h1>
-			<button class="secondary" type="button" @click="signOut()">Sign out</button>
-		</header>
-		<div v-if="!collection" class="switcher" role="group" aria-label="Manage">
-			<button
-				v-for="option in ['photos', 'drawings', 'projects'] as const"
-				:key="option"
-				type="button"
-				:aria-pressed="view === option"
-				@click="view = option"
-			>
-				{{ { photos: "Photos", drawings: "Drawings", projects: "Projects" }[option] }}
-			</button>
+	<template v-else>
+		<div v-show="!previewing" class="workspace">
+			<header>
+				<h1 ref="heading" tabindex="-1">
+					{{ collection ? (collection === "photos" ? "Manage photos" : "Manage drawings") : "Site admin" }}
+				</h1>
+				<div class="switcher">
+					<button
+						v-if="view !== 'projects'"
+						ref="previewButton"
+						class="secondary"
+						type="button"
+						data-visitor
+						@click="swapPreview(true)"
+					>
+						View as visitor
+					</button>
+					<button class="secondary" type="button" :disabled="busy" @click="logout">Sign out</button>
+				</div>
+			</header>
+			<p v-if="error" role="alert">{{ error }}</p>
+			<div v-if="!collection" class="switcher" role="group" aria-label="Manage">
+				<button
+					v-for="option in ['photos', 'drawings', 'projects'] as const"
+					:key="option"
+					type="button"
+					:aria-pressed="view === option"
+					@click="view = option"
+				>
+					{{ { photos: "Photos", drawings: "Drawings", projects: "Projects" }[option] }}
+				</button>
+			</div>
+			<ProjectVisibilityControls v-if="view === 'projects'" :admin-fetch="adminFetch" />
+			<GalleryPublisher v-else :key="view" :gallery="view" :admin-fetch="adminFetch" />
 		</div>
-		<ProjectVisibilityControls v-if="view === 'projects'" :admin-fetch="adminFetch" />
-		<GalleryPublisher
-			v-else
-			:key="view"
-			:gallery="view"
-			:admin-fetch="adminFetch"
-			:standalone="Boolean(collection)"
-		/>
-	</div>
+		<section v-if="previewing && view !== 'projects'" class="visitor-preview">
+			<button ref="returnButton" class="secondary" type="button" data-editor @click="swapPreview(false)">
+				Back to editing
+			</button>
+			<GalleryPage :gallery="view" :standalone="Boolean(collection)" />
+		</section>
+	</template>
 </template>
 
 <style scoped>
+.visitor-preview > button {
+	margin: 0 0 1rem 8px;
+}
 .sign-in {
 	max-width: 26rem;
 	margin: clamp(1rem, 6vh, 5rem) auto;

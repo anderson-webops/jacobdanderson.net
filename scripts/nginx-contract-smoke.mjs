@@ -323,7 +323,7 @@ http {
 	assert.equal((await request(httpsPort, "/api/admin/gallery/photos", { method: "POST" })).status, 403);
 	assert.equal((await request(httpsPort, "/api/admin/projects/oscre", { method: "PATCH" })).status, 403);
 	const adminAuthorization = { Authorization: `Basic ${Buffer.from("jacob:test-password").toString("base64")}` };
-	for (const [pathname, method] of [["/api/admin/access", "GET"], ["/api/admin/gallery/photos", "POST"]]) {
+	for (const [pathname, method] of [["/api/admin/access", "GET"], ["/api/admin/gallery/photos", "POST"], ["/api/admin/gallery/photos/0123456789abcdef01234567/rename", "POST"]]) {
 		await new Promise(resolveSlot => setTimeout(resolveSlot, 550));
 		const accepted = await request(httpsPort, pathname, { method, headers: adminAuthorization });
 		assert.equal(accepted.status, 200);
@@ -409,7 +409,7 @@ http {
 		const denied = await request(httpsPort, `${adminBase}/hidden`, { hostname });
 		assert.equal(denied.status, 403);
 		assert.match(denied.headers["cache-control"], /no-store/);
-		for (const [method, pathname] of [["GET", "/api/admin/access"], ["GET", `${adminBase}/hidden`], ["POST", `${adminBase}/0123456789abcdef01234567/visibility`]]) {
+		for (const [method, pathname] of [["GET", "/api/admin/access"], ["GET", `${adminBase}/hidden`], ["POST", `${adminBase}/0123456789abcdef01234567/visibility`], ["POST", `${adminBase}/0123456789abcdef01234567/rename`]]) {
 			await new Promise(resolveSlot => setTimeout(resolveSlot, 550));
 			const accepted = await request(httpsPort, pathname, { hostname, method, headers: adminAuthorization });
 			assert.equal(accepted.status, 200);
@@ -419,6 +419,7 @@ http {
 			assert.equal(proof.key, "test-proxy-key-0123456789abcdef");
 		}
 		assert.equal((await request(httpsPort, `/api/admin/gallery/${other}/0123456789abcdef01234567/delete`, { hostname, method: "POST", headers: adminAuthorization })).status, 404);
+		assert.equal((await request(httpsPort, `/api/admin/gallery/${other}/0123456789abcdef01234567/rename`, { hostname, method: "POST", headers: adminAuthorization })).status, 404);
 		for (const pathname of [
 			`/api/admin/gallery/${other}/hidden`,
 			"/api/admin/projects/oscre",

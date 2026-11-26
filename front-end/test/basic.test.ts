@@ -38,7 +38,9 @@ describe("production route surface", () => {
 		expect(projects).toContain('to="/extra"');
 		expect(footer).toContain('to="/extra"');
 		expect(admin).toContain('autocomplete="current-password"');
-		expect(admin).toContain('<form method="post" action="/admin"');
+		const signInForm = admin.match(/<form\s[^>]+>/)?.[0];
+		expect(signInForm).toContain('method="post"');
+		expect(signInForm).toContain('action="/admin"');
 	});
 
 	it("ships the downloadable professional résumé", () => {

@@ -9,6 +9,33 @@ const response = (items: unknown[]) => new Response(JSON.stringify({ items, next
 afterEach(() => vi.unstubAllGlobals());
 
 describe("photo favorites", () => {
+	it.each(["photos", "drawings"] as const)("renames %s inline, with cancellation and one save", async gallery => {
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(() => response([photo]))
+		);
+		const adminFetch = vi.fn(() => new Response(null, { status: 204 }));
+		const wrapper = mount(GalleryGrid, { props: { gallery, adminFetch: adminFetch as unknown as typeof fetch } });
+		await flushPromises();
+		await wrapper.get(".name").trigger("click");
+		await wrapper.get("li input").setValue("Discard");
+		await wrapper.get("li input").trigger("keydown.esc");
+		expect(wrapper.get(".name").text()).toBe(photo.description);
+		expect(adminFetch).not.toHaveBeenCalled();
+		await wrapper.get(".name").trigger("click");
+		await wrapper.get("li input").setValue("  Afternoon light  ");
+		await wrapper.get("li input").trigger("keydown.enter");
+		await flushPromises();
+		expect(wrapper.get(".name").text()).toBe("Afternoon light");
+		expect(adminFetch).toHaveBeenCalledExactlyOnceWith(
+			`/api/admin/gallery/${gallery}/${photo.id}/rename`,
+
+			expect.objectContaining({ method: "POST", body: JSON.stringify({ description: "Afternoon light" }) })
+		);
+		expect(wrapper.find("details").exists()).toBe(false);
+		expect(wrapper.get(".actions").text()).toBe("");
+		wrapper.unmount();
+	});
 	it("saves favorites and refreshes their persisted state", async () => {
 		vi.stubGlobal(
 			"fetch",
@@ -78,7 +105,10 @@ describe("photo favorites", () => {
 			);
 			const adminFetch = vi.fn(async (path: string, init?: RequestInit) => {
 				if (path === `${base}/hidden`) return response(hidden);
-				if (path === `${base}/${photo.id}/move` && init?.body === '{"direction":"later"}') {
+				if (
+					path === `${base}/${photo.id}/move` &&
+					init?.body === JSON.stringify({ targetId: other.id, placement: "after" })
+				) {
 					visible.reverse();
 				} else if (path === `${base}/${photo.id}/visibility`) {
 					if (init?.body === '{"visible":false}') hidden.push(...visible.splice(visible.indexOf(photo), 1));
@@ -96,29 +126,30 @@ describe("photo favorites", () => {
 			const wrapper = mount(GalleryGrid, { props: { gallery, adminFetch: adminFetch as typeof fetch } });
 			await flushPromises();
 			const click = async (label: string, card?: string) => {
-				const area = card ? wrapper.findAll("li").find(item => item.get("strong").text() === card)! : wrapper;
+				const area = card ? wrapper.findAll("li").find(item => item.get(".name").text() === card)! : wrapper;
 				await area
 					.findAll("button")
-					.find(button => button.text() === label)!
+					.find(button => button.text() === label || button.attributes("aria-label") === label)!
 					.trigger("click");
 				await flushPromises();
 			};
-			await click("Move later", "Photo");
-			expect(wrapper.findAll("li strong").map(item => item.text())).toEqual(["Other", "Photo"]);
-			await click("Hide from gallery", "Photo");
+			await click("Reorder: Photo");
+			await click("Reorder: Other");
+			expect(wrapper.findAll("li .name").map(item => item.text())).toEqual(["Other", "Photo"]);
+			await click("Hide: Photo", "Photo");
 			expect(wrapper.findAll("li")).toHaveLength(1);
 			await click("Hidden");
-			expect(wrapper.get("li strong").text()).toBe("Photo");
+			expect(wrapper.get("li .name").text()).toBe("Photo");
 			expect(wrapper.find("li img").exists()).toBe(false);
-			await click("Show in gallery", "Photo");
+			await click("Show: Photo", "Photo");
 			expect(wrapper.find("li").exists()).toBe(false);
 			await click("Visible");
-			await click("Hide from gallery", "Photo");
+			await click("Hide: Photo", "Photo");
 			await click("Hidden");
-			await click("Delete…", "Photo");
+			await click("Delete: Photo", "Photo");
 			await click("Cancel", "Photo");
 			expect(hidden).toEqual([photo]);
-			await click("Delete…", "Photo");
+			await click("Delete: Photo", "Photo");
 			await click("Delete permanently", "Photo");
 			expect(hidden).toEqual([]);
 			expect(visible).toEqual([other]);

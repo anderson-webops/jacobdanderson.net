@@ -383,7 +383,37 @@ try {
 					assert.equal((await change(pair[0], "move", { direction: "earlier" })).status, 409);
 					assert.equal((await change(pair[0], "move", { direction: "later" })).status, 204);
 					assert.deepEqual(await top(), [...pair].reverse());
+					const optional = { ...upload.headers };
+					delete optional["X-Image-Description"];
+					const withoutDescription = await fetch(path, { ...upload, headers: optional });
+					assert.equal(withoutDescription.status, 201);
+					const third = (await withoutDescription.json()).id;
+					const allItems = async () => (await (await fetch(publicPath)).json()).items;
+					const thirdDoc = await databaseClient.db().collection("gallery_images").findOne({ _id: new mongodbModule.ObjectId(third) });
+					assert.equal(thirdDoc.description, category === "photos" ? "Untitled photo" : "Untitled drawing");
+					assert.equal((await change(pair[0], "move", { targetId: third, placement: "after" })).status, 409);
+					assert.equal((await change(third, "favorite", { favorite: true })).status, 204);
+					assert.equal((await change(pair[0], "move", { targetId: third, placement: "before" })).status, 204);
+					assert.deepEqual((await allItems()).slice(0, 3).map(image => image.id), [pair[0], third, pair[1]]);
+					assert.equal((await change(pair[0], "move", { targetId: pair[1], placement: "after" })).status, 204);
+					assert.deepEqual((await allItems()).slice(0, 3).map(image => image.id), [third, pair[1], pair[0]]);
+					assert.equal((await change(pair[0], "move", { targetId: pair[0], placement: "after" })).status, 400);
+					assert.equal((await change(pair[0], "move", { targetId: "bad", placement: "before" })).status, 400);
+					for (const description of [" ", "a".repeat(201), "bad\u0000name"]) {
+						assert.equal((await change(pair[0], "rename", { description })).status, 400);
+					}
+					const pixels = await (await fetch(`${publicPath}/${pair[0]}`)).arrayBuffer();
+					assert.equal((await change(pair[0], "rename", { description: "  Evening light  " })).status, 204);
+					assert.equal((await allItems()).find(image => image.id === pair[0]).description, "Evening light");
+					assert.deepEqual(await (await fetch(`${publicPath}/${pair[0]}`)).arrayBuffer(), pixels);
+					const savedName = await databaseClient.db().collection("gallery_favorite_audit").findOne({ "imageId": new mongodbModule.ObjectId(pair[0]), "change.description": "Evening light", "phase": "result" });
+					assert.equal(savedName.previousDescription, "First pick");
+					assert.equal((await change(third, "delete", { confirm: third })).status, 204);
+					assert.equal((await change(pair[0], "move", { targetId: third, placement: "before" })).status, 409);
 					assert.equal((await change(pair[0], "visibility", { visible: false })).status, 204);
+					assert.equal((await change(pair[1], "move", { targetId: pair[0], placement: "after" })).status, 409);
+					assert.equal((await change(pair[0], "rename", { description: "Private caption" })).status, 204);
+					assert.equal((await (await fetch(`${path}/hidden`, { headers })).json()).items[0].description, "Private caption");
 					assert.equal((await fetch(`${path}/hidden`)).status, 403);
 					assert.deepEqual((await (await fetch(`${path}/hidden`, { headers })).json()).items.map(item => item.id), [pair[0]]);
 					assert.equal((await fetch(`${publicPath}/${pair[0]}`)).status, 404);

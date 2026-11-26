@@ -14,6 +14,7 @@ declare module 'vue' {
     EducationComponent: typeof import('./components/EducationComponent.vue')['default']
     ExperienceEntry: typeof import('./components/ExperienceEntry.vue')['default']
     GalleryGrid: typeof import('./components/GalleryGrid.vue')['default']
+    GalleryIcon: typeof import('./components/GalleryIcon.vue')['default']
     GalleryImage: typeof import('./components/GalleryImage.vue')['default']
     GalleryPage: typeof import('./components/GalleryPage.vue')['default']
     GalleryPublisher: typeof import('./components/GalleryPublisher.vue')['default']

@@ -8,6 +8,7 @@ import process from "node:process";
 import puppeteer from "puppeteer";
 import { TRACKER_INTEGRITY, TRACKER_URL } from "../front-end/src/config/analytics.ts";
 import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "../front-end/src/config/gallerySites.ts";
+import { checkEditor, editorFixture } from "./gallery-editor-smoke.mjs";
 import { fetchPinnedTracker } from "./tracker-integrity.mjs";
 
 const root = resolve(process.env.HEAD_SMOKE_STATIC_ROOT || "front-end/dist");
@@ -18,11 +19,13 @@ const profile = await mkdtemp(`${output}/profile-`);
 const report = { passed: false, tracker: provider.receipt, pages: [], gallerySites: [], externalRequestsSent: 0, mockedCollectorRequests: 0, privateCollectorRequests: 0 };
 const fixtureImageId = "0123456789abcdef01234567";
 const fixtureImage = Buffer.from("89504e470d0a1a0a0000000d49484452000000040000000208060000007fa87d630000001249444154789c63b0c89df31f1933a00b000028211201228457dd0000000049454e44ae426082", "hex");
+let editing;
 const server = http.createServer(async (request, response) => {
 	try {
 		const url = new URL(request.url, `http://${request.headers.host}`);
 		const pathname = decodeURIComponent(url.pathname);
 		const site = GALLERY_SITES.find(gallery => gallery.hostname === url.hostname);
+		if (site && editing && await editing.serve(request, response, url)) return;
 		if (site && pathname === "/api/admin/access") {
 			response.writeHead(request.headers.authorization === `Basic ${Buffer.from("gallery:fixture").toString("base64")}` ? 204 : 403);
 			response.end();
@@ -180,6 +183,9 @@ try {
 		await page.click(".lead");
 		await page.waitForSelector("dialog[open]");
 		assert.equal(await page.$eval("dialog[open]", dialog => dialog.getAttribute("aria-label")), site.gallery === "photos" ? "Photo viewer" : "Drawing viewer");
+		const mobile = site.gallery === "drawings";
+		editing = editorFixture(site.gallery, fixtureImageId, fixtureImage);
+		await page.setViewport({ width: mobile ? 390 : 1440, height: mobile ? 844 : 1000, isMobile: mobile, hasTouch: mobile });
 		const adminUrl = `http://${site.hostname}:${port}/admin`;
 		await page.goto(adminUrl, { waitUntil: "networkidle0" });
 		await page.waitForSelector("form button:not([disabled])");
@@ -193,9 +199,17 @@ try {
 		await page.click("form button");
 		await page.waitForFunction(expected => document.querySelector("h1")?.textContent === expected, {}, `Manage ${site.gallery}`);
 		assert.equal(page.url(), adminUrl);
-		assert.equal(await page.$(".switcher"), null);
-		assert.equal(await page.$eval(".publisher header a", link => link.getAttribute("href")), "/");
+		assert.equal(await page.$(".switcher[aria-label=Manage]"), null);
+		await page.click("[data-visitor]");
+		await page.waitForSelector(".visitor-preview .photo-tile");
+		assert.equal(page.url(), adminUrl);
+		assert.equal(await page.$eval(".workspace", node => node.getClientRects().length), 0);
+		await page.click("[data-editor]");
+		await page.waitForSelector(".workspace input[type=file]", { visible: true });
+		assert.equal(page.url(), adminUrl);
 		await page.waitForSelector(`[aria-label="Favorite: Fixture ${site.gallery}"]`);
+		await checkEditor(page, editing, mobile);
+		editing = undefined;
 		await page.reload({ waitUntil: "networkidle0" });
 		await page.waitForSelector("input[type=password]");
 		assert.equal(await page.$("input[type=file]"), null);

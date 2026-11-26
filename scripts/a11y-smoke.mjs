@@ -166,7 +166,12 @@ function createMockApiServer() {
 				req.on("data", (chunk) => {
 					bytes += chunk.length;
 				});
-				req.on("end", () => sendJson(res, {}, bytes === 4 && req.headers["x-image-description"] === "Blue%20pixel" ? 201 : 400));
+				const drawing = url.pathname.endsWith("/drawings");
+				const expected = drawing ? "Untitled%20drawing" : "Blue%20pixel";
+				const width = Number(req.headers["x-image-width"]);
+				const height = Number(req.headers["x-image-height"]);
+				const bounded = drawing ? height === 1024 && width > 670 && width < 690 : width === 1 && height === 1;
+				req.on("end", () => sendJson(res, {}, bounded && bytes === width * height * 4 && req.headers["x-image-description"] === expected ? 201 : 400));
 				return;
 			}
 		}
@@ -349,24 +354,53 @@ async function checkGalleryPublishing(browser) {
 		assert.equal(await page.$("input[type=file]"), null);
 		await page.type("[name=password]", "gallery-test");
 		await page.click("form button");
+		const documentPage = await browser.newPage();
+		let pdf;
+		try {
+			await documentPage.setContent("<style>@page { size:200px 300px; margin:0 } * { margin:0 } div { width:200px; height:300px; background:red; } div+div { break-before:page; background:blue }</style><div></div><div></div>");
+			pdf = Array.from(await documentPage.pdf({ printBackground: true, preferCSSPageSize: true }));
+		}
+		finally { await documentPage.close(); }
 		for (const gallery of ["photos", "drawings"]) {
 			if (gallery === "drawings") await page.locator("::-p-text(Drawings)").click();
 			await page.waitForSelector("input[type=file]");
-			await page.evaluate(async () => {
-				const canvas = document.createElement("canvas");
-				canvas.width = canvas.height = 1;
-				const context = canvas.getContext("2d");
-				context.fillStyle = "blue";
-				context.fillRect(0, 0, 1, 1);
-				const png = await new Promise(resolveBlob => canvas.toBlob(resolveBlob));
+			await page.evaluate((pdf) => {
+				const target = document.querySelector(".dropzone");
 				const transfer = new DataTransfer();
-				transfer.items.add(new File([png], "example.png", { type: "image/png" }));
-				const input = document.querySelector("input[type=file]");
-				input.files = transfer.files;
+				transfer.items.add(new File([new Uint8Array(pdf)], "Art.pdf", { type: "application/pdf" }));
+				target.dispatchEvent(new DragEvent("drop", { bubbles: true, dataTransfer: transfer }));
+			}, pdf);
+			await page.waitForSelector("input[type=number]:not([disabled])");
+			await page.waitForFunction(() => {
+				const canvas = document.querySelector(".publisher canvas");
+				return canvas.getContext("2d").getImageData(canvas.width >> 1, canvas.height >> 1, 1, 1).data[0] > 240;
+			});
+			await page.$eval("input[type=number]", (input) => {
+				input.value = "2";
+				input.dispatchEvent(new Event("input", { bubbles: true }));
 				input.dispatchEvent(new Event("change", { bubbles: true }));
 			});
+			await page.waitForFunction(() => {
+				const canvas = document.querySelector(".publisher canvas");
+				const pixel = canvas.getContext("2d").getImageData(canvas.width >> 1, canvas.height >> 1, 1, 1).data;
+				return pixel[2] > 240 && pixel[0] < 16 && Math.max(canvas.width, canvas.height) === 1024;
+			});
+			if (gallery === "photos") {
+				await page.evaluate(async () => {
+					const canvas = document.createElement("canvas");
+					canvas.width = canvas.height = 1;
+					const context = canvas.getContext("2d");
+					context.fillStyle = "blue";
+					context.fillRect(0, 0, 1, 1);
+					const png = await new Promise(resolveBlob => canvas.toBlob(resolveBlob));
+					const transfer = new DataTransfer();
+					transfer.items.add(new File([png, new Uint8Array(17 * 1024 * 1024)], "example.png", { type: "image/png" }));
+					const input = document.querySelector("input[type=file]");
+					input.closest("label").dispatchEvent(new DragEvent("drop", { bubbles: true, dataTransfer: transfer }));
+				});
+			}
 			await page.waitForSelector("input[maxlength='200']");
-			await page.type("input[maxlength='200']", "Blue pixel");
+			if (gallery === "photos") await page.type("input[maxlength='200']", "Blue pixel");
 			await page.addScriptTag({ path: axeSourcePath });
 			const violations = await page.evaluate(async () => (await globalThis.axe.run(document, {
 				runOnly: { type: "tag", values: ["wcag2a", "wcag2aa"] }
@@ -375,7 +409,7 @@ async function checkGalleryPublishing(browser) {
 			const request = page.waitForResponse(response => new URL(response.url()).pathname === `/api/admin/gallery/${gallery}` && response.status() === 201);
 			await page.click("form button");
 			await request;
-			await page.waitForFunction(() => document.querySelector("form [role=status]")?.textContent.includes("published"));
+			await page.waitForFunction(() => !document.querySelector("form input[maxlength=\'200\']"));
 		}
 		await page.locator("::-p-text(Sign out)").click();
 		await page.waitForSelector("[name=password]");

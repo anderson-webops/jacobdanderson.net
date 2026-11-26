@@ -18,22 +18,24 @@ const route = useRoute();
 	</div>
 </template>
 
-<style scoped>
+<style>
 @media screen {
-	.site-main.wide-gallery {
+	.site-main:is(.wide-gallery, :has(.visitor-preview)) {
 		width: min(1920px, calc(100% - 2 * clamp(10px, 1.25vw, 24px)));
 		padding-top: clamp(1rem, 2.5vw, 2rem);
 	}
 
-	.wide-gallery :deep(.gallery-intro) {
+	.site-main:is(.wide-gallery, :has(.visitor-preview)) .gallery-intro {
 		margin: 0 8px 1rem;
 	}
 
-	.wide-gallery :deep(.gallery-intro .section-link::after) {
+	.site-main:is(.wide-gallery, :has(.visitor-preview)) .gallery-intro .section-link::after {
 		content: none;
 	}
 }
+</style>
 
+<style scoped>
 .skip-link {
 	position: absolute;
 	top: 0.9rem;
