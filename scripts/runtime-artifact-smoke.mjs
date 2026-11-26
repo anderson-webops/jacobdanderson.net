@@ -345,6 +345,7 @@ try {
 					if (category === "photos") {
 						const collection = databaseClient.db().collection("gallery_images");
 						const fixtures = Array.from({ length: 48 }, (_, index) => ({
+							_id: new mongodbModule.ObjectId((index + 1).toString(16).padStart(24, "0")),
 							gallery: "photos",
 							description: `Fixture photo ${index}`,
 							width: 1,
