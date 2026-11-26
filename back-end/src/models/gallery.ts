@@ -1,10 +1,11 @@
 import type { Db, Filter } from "mongodb";
 import { Buffer } from "node:buffer";
-import { promisify } from "node:util";
-import { crc32, deflate } from "node:zlib";
 import { Binary, ObjectId } from "mongodb";
+import { createPreview } from "./galleryPng.js";
 
-export const MAX_SIDE = 1024;
+const PREVIEW_CACHE_BYTES = 4 * 1024 * 1024;
+const PREVIEW_CACHE_ITEMS = 128;
+const COLD_PREVIEW_LIMIT = 2;
 const DRAWINGS_PAGE_SIZE = 12;
 const PHOTOS_PAGE_SIZE = 24;
 export type Gallery = "photos" | "drawings";
@@ -28,41 +29,54 @@ export interface GalleryStore {
 	ensureIndexes: () => Promise<void>;
 	list: (gallery: Gallery, before?: string) => Promise<{ items: { id: string; description: string; width: number; height: number; favorite?: true }[]; next: string | null }>;
 	setFavorite: (id: string, favorite: boolean, context: { actor: string; requestId: string }) => Promise<boolean>;
-	image: (gallery: Gallery, id: string) => Promise<Buffer | undefined>;
+	image: (gallery: Gallery, id: string, preview?: boolean) => Promise<Buffer | undefined>;
 	publish: (image: Omit<ImageDocument, "_id" | "png" | "createdAt">, png: Buffer) => Promise<string>;
-}
-
-function chunk(name: string, data: Buffer) {
-	const output = Buffer.alloc(12 + data.length);
-	output.writeUInt32BE(data.length);
-	output.write(name, 4, 4, "ascii");
-	data.copy(output, 8);
-	output.writeUInt32BE(crc32(output.subarray(4, -4)), output.length - 4);
-	return output;
-}
-
-const compress = promisify(deflate);
-
-export async function encodePixels(width: number, height: number, pixels: Buffer) {
-	if (![width, height].every(side => Number.isInteger(side) && side >= 1 && side <= MAX_SIDE)
-		|| pixels.length !== width * height * 4) {
-		throw new RangeError("Invalid dimensions");
-	}
-	const stride = width * 4;
-	const rows = Buffer.alloc((stride + 1) * height);
-	for (let row = 0; row < height; row++)
-		pixels.copy(rows, row * (stride + 1) + 1, row * stride, (row + 1) * stride);
-	const header = Buffer.alloc(13);
-	header.writeUInt32BE(width);
-	header.writeUInt32BE(height, 4);
-	header[8] = 8;
-	header[9] = 6;
-	return Buffer.concat([Buffer.from("89504e470d0a1a0a", "hex"), chunk("IHDR", header), chunk("IDAT", await compress(rows)), chunk("IEND", Buffer.alloc(0))]);
 }
 
 export function createGalleryStore(db: Db): GalleryStore {
 	const images = db.collection<ImageDocument>("gallery_images");
 	const audit = db.collection("gallery_favorite_audit");
+	const previews = new Map<string, Buffer>();
+	let previewBytes = 0;
+	let activePreviews = 0;
+	const waitingPreviews: (() => void)[] = [];
+
+	async function withPreviewSlot<T>(operation: () => Promise<T>) {
+		if (activePreviews < COLD_PREVIEW_LIMIT) {
+			activePreviews++;
+		}
+		else {
+			if (waitingPreviews.length >= COLD_PREVIEW_LIMIT) throw new Error("Gallery preview capacity exhausted");
+			await new Promise<void>(resolve => waitingPreviews.push(resolve));
+		}
+		try {
+			return await operation();
+		}
+		finally {
+			const next = waitingPreviews.shift();
+			if (next) next();
+			else activePreviews--;
+		}
+	}
+
+	async function readPng(gallery: Gallery, id: string) {
+		const doc = await images.findOne({ gallery, _id: new ObjectId(id) }, { projection: { png: 1 } });
+		if (!doc) return undefined;
+		const bytes = doc.png.value();
+		return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+	}
+
+	function cachePreview(key: string, bytes: Buffer) {
+		if (bytes.length > PREVIEW_CACHE_BYTES || previews.has(key)) return;
+		previews.set(key, bytes);
+		previewBytes += bytes.length;
+		while (previewBytes > PREVIEW_CACHE_BYTES || previews.size > PREVIEW_CACHE_ITEMS) {
+			const oldest = previews.entries().next().value;
+			if (!oldest) break;
+			previews.delete(oldest[0]);
+			previewBytes -= oldest[1].length;
+		}
+	}
 	return {
 		async ensureIndexes() {
 			await images.createIndex({ gallery: 1, _id: -1 });
@@ -123,9 +137,24 @@ export function createGalleryStore(db: Db): GalleryStore {
 			});
 			return previous !== null;
 		},
-		async image(gallery, id) {
-			const doc = await images.findOne({ gallery, _id: new ObjectId(id) }, { projection: { png: 1 } });
-			return doc ? Buffer.from(doc.png.value()) : undefined;
+		async image(gallery, id, preview) {
+			if (!preview) return readPng(gallery, id);
+			const key = `${gallery}/${id}`;
+			const cached = previews.get(key);
+			if (cached) {
+				previews.delete(key);
+				previews.set(key, cached);
+				return cached;
+			}
+			return withPreviewSlot(async () => {
+				const recent = previews.get(key);
+				if (recent) return recent;
+				const png = await readPng(gallery, id);
+				if (!png) return undefined;
+				const resized = await createPreview(png);
+				if (resized !== png) cachePreview(key, resized);
+				return resized;
+			});
 		},
 		async publish(image, png) {
 			const result = await images.insertOne({ ...image, _id: new ObjectId(), png: new Binary(png), createdAt: new Date() });

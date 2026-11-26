@@ -92,8 +92,8 @@ function responseFor(url) {
 			return {
 				id: number.toString(16).padStart(24, "0"),
 				description: `Test ${photo ? "photo" : "drawing"} ${number}`,
-				width: 4,
-				height: 2,
+				width: !photo && number % 2 === 0 ? 2 : 4,
+				height: !photo && number % 2 === 0 ? 4 : 2,
 				...(photo && !secondPage && index < 3 ? { favorite: true } : {})
 			};
 		});
@@ -128,15 +128,17 @@ function responseFor(url) {
 
 let galleryTraffic;
 const fixtureImage = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAYAAAB/qH1jAAAAEklEQVR4nGOwyJ3zHxkzoAsAACghEgEihFfdAAAAAElFTkSuQmCC", "base64");
+const portraitFixture = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAAECAYAAACk7+45AAAAEUlEQVR4nGOwyJ3zH4QZcDMAOiMSAXq7mikAAAAASUVORK5CYII=", "base64");
 
 function createMockApiServer() {
 	return http.createServer((req, res) => {
 		const url = new URL(req.url || "/", `http://127.0.0.1:${apiPort}`);
 		if (/^\/api\/gallery\/(?:photos|drawings)\/[0-9a-f]{24}$/.test(url.pathname)) {
+			const image = url.pathname.startsWith("/api/gallery/drawings/") && (Number.parseInt(url.pathname.slice(-1), 16) % 2 === 0) ? portraitFixture : fixtureImage;
 			const traffic = galleryTraffic;
 			if (!traffic) {
 				res.writeHead(200, { "Content-Type": "image/png" });
-				res.end(fixtureImage);
+				res.end(image);
 				return;
 			}
 			const requests = (traffic.attempts.get(url.pathname) ?? 0) + 1;
@@ -145,9 +147,9 @@ function createMockApiServer() {
 			traffic.active++;
 			traffic.peak = Math.max(traffic.active, traffic.peak);
 			const delay = setTimeout(() => {
-				const fail = url.pathname.endsWith("/000000000000000000000001") && requests === 1;
+				const fail = url.pathname.endsWith("/000000000000000000000001") && url.searchParams.has("preview") && requests === 1;
 				res.writeHead(fail ? 503 : 200, { "Content-Type": "image/png", "Cache-Control": "no-store" });
-				res.end(fail ? "" : fixtureImage);
+				res.end(fail ? "" : image);
 			}, 700);
 			res.once("close", () => {
 				clearTimeout(delay);
@@ -391,9 +393,18 @@ async function checkScrollingGallery(browser, gallery, width) {
 		const photos = gallery === "photos";
 		const label = photos ? "photo" : "drawing";
 		const firstBatch = photos ? 24 : 12;
-		await page.setViewport({ width, height: 960 });
+		await page.setViewport({ width, height: width > 760 ? 960 : 760 });
 		await page.goto(`${baseUrl}/extra/${gallery}`, { waitUntil: "domcontentloaded" });
-		await page.waitForFunction(() => document.querySelector(".lead img")?.naturalWidth === 4);
+		await page.waitForSelector(".lead img[src]");
+		const pending = await page.$eval(".lead img", image => ({
+			alt: image.alt,
+			opacity: getComputedStyle(image).opacity,
+			source: image.getAttribute("src")
+		}));
+		assert.equal(pending.alt, "");
+		assert.equal(pending.opacity, "0");
+		assert.match(pending.source, /\?preview=1$/);
+		await page.waitForFunction(() => document.querySelector(".lead img")?.alt);
 		assert.equal((await page.$$(".photo-tile")).length, firstBatch);
 		assert.ok(traffic.attempts.size < firstBatch, "Offscreen media requested before scrolling");
 		assert.equal(traffic.attempts.get(`/api/gallery/${gallery}/000000000000000000000001`), 2);
@@ -405,10 +416,17 @@ async function checkScrollingGallery(browser, gallery, width) {
 		assert.ok(dimensions.width >= width - 48 && dimensions.lead > dimensions.regular);
 		assert.equal(dimensions.columns, width > 760 ? 3 : 2);
 		assert.equal(dimensions.fit, photos ? "cover" : "contain");
+		if (!photos) {
+			const [landscape, portrait] = await page.$$eval(".lead, .side-photos button:first-child", buttons =>
+				buttons.map(button => button.clientWidth / button.clientHeight));
+			assert.ok(Math.abs(landscape - 2) < 0.025, `Landscape fit ${landscape}`);
+			assert.ok(Math.abs(portrait - 0.5) < 0.025, `Portrait fit ${portrait}`);
+		}
 		if (photos && width > 760) assert.ok(dimensions.lead > dimensions.favorite && dimensions.favorite > dimensions.regular);
 		await page.click(".lead");
 		await page.waitForSelector("dialog[open]");
-		assert.equal(await page.$eval("dialog img", image => image.alt), `Test ${label} 1`);
+		await page.waitForFunction(expected => document.querySelector("dialog img")?.alt === expected, {}, `Test ${label} 1`);
+		assert.ok(await page.$eval("dialog img", image => !image.src.includes("preview=")));
 		await page.keyboard.press("ArrowRight");
 		await page.waitForFunction(expected => document.querySelector("dialog img")?.alt === expected, {}, `Test ${label} ${photos ? 4 : 2}`);
 		assert.equal(await page.$eval("dialog", dialog => dialog.clientWidth), width);
@@ -420,7 +438,7 @@ async function checkScrollingGallery(browser, gallery, width) {
 		assert.equal(await page.$eval(".lead img", image => image.alt), `Test ${label} 1`);
 		assert.equal(await page.$(".pagination"), null);
 		await page.$$eval(".photo-tile", tiles => tiles.at(-1).scrollIntoView());
-		await page.waitForFunction(() => Array.from(document.querySelectorAll(".photo-tile img")).at(-1)?.naturalWidth === 4);
+		await page.waitForFunction(() => Array.from(document.querySelectorAll(".photo-tile img")).at(-1)?.alt);
 		assert.ok(traffic.peak <= 4, `Too many simultaneous image requests: ${traffic.peak}`);
 		assert.ok(traffic.starts.every((start, index) => index < 7 || start - traffic.starts[index - 7] >= 1000), "Image request starts exceeded the paced rate");
 		console.log(`${gallery} continuous scroll at ${width}px, viewer, and 503 recovery passed (peak ${traffic.peak} image requests).`);

@@ -4,6 +4,7 @@ import { requestGalleryImage } from "~/utils/galleryImages";
 
 const props = defineProps<{ url: string; alt: string; width: number; height: number; immediate?: boolean }>();
 const image = ref<HTMLImageElement>();
+const loaded = ref(false);
 const lifetime = new AbortController();
 let observer: IntersectionObserver | undefined;
 let near = false;
@@ -16,10 +17,11 @@ async function load() {
 	const element = image.value;
 	if (!element || !near || busy || done || retry || lifetime.signal.aborted) return;
 	busy = true;
-	const result = await requestGalleryImage(element, props.url, () => near, lifetime.signal);
+	const result = await requestGalleryImage(element, props.url, () => near, lifetime.signal, props.immediate);
 	busy = false;
 	if (lifetime.signal.aborted || result === "skipped") return;
-	if (result === "loaded" || ++attempts >= 3) {
+	loaded.value = result === "loaded";
+	if (loaded.value || ++attempts >= 3) {
 		done = true;
 		observer?.disconnect();
 	} else {
@@ -58,5 +60,18 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<img ref="image" :alt="alt" :width="width" :height="height" decoding="async" />
+	<img
+		ref="image"
+		:alt="loaded ? alt : ''"
+		:width="width"
+		:height="height"
+		:class="{ pending: !loaded }"
+		decoding="async"
+	/>
 </template>
+
+<style scoped>
+.pending {
+	opacity: 0;
+}
+</style>

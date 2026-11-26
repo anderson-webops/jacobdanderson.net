@@ -38,7 +38,12 @@ const photos = computed(() => (hero.value ? [hero.value, ...side.value, ...favor
 const activeIndex = computed(() => photos.value.findIndex(photo => photo.id === activeId.value));
 const active = computed(() => photos.value[activeIndex.value]);
 const imageLabel = computed(() => (props.gallery === "photos" ? "photo" : "drawing"));
-const source = (photo: GalleryItem) => `/api/gallery/${props.gallery}/${photo.id}`;
+function source(photo: GalleryItem, preview = true) {
+	return `/api/gallery/${props.gallery}/${photo.id}${preview ? "?preview=1" : ""}`;
+}
+function drawingTileStyle(photo: GalleryItem) {
+	return props.gallery === "drawings" ? { "--drawing-ratio": photo.width / photo.height } : undefined;
+}
 
 async function appendBatch() {
 	loading.value = true;
@@ -161,6 +166,7 @@ onBeforeUnmount(() => {
 		<div v-if="hero" class="opening-grid" :class="{ 'hero-only': !side.length }">
 			<button
 				class="photo-tile lead"
+				:style="drawingTileStyle(hero)"
 				type="button"
 				:aria-label="`Enlarge: ${hero.description}`"
 				@click="open(hero, $event)"
@@ -172,6 +178,7 @@ onBeforeUnmount(() => {
 					v-for="photo in side"
 					:key="photo.id"
 					class="photo-tile"
+					:style="drawingTileStyle(photo)"
 					type="button"
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
@@ -189,6 +196,7 @@ onBeforeUnmount(() => {
 			<li v-for="photo in favorites" :key="photo.id">
 				<button
 					class="photo-tile"
+					:style="drawingTileStyle(photo)"
 					type="button"
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
@@ -206,6 +214,7 @@ onBeforeUnmount(() => {
 			<li v-for="photo in rest" :key="photo.id">
 				<button
 					class="photo-tile"
+					:style="drawingTileStyle(photo)"
 					type="button"
 					:aria-label="`Enlarge: ${photo.description}`"
 					@click="open(photo, $event)"
@@ -222,7 +231,9 @@ onBeforeUnmount(() => {
 		<div v-if="failed" class="gallery-message" role="alert">
 			Couldn’t load {{ gallery }}. <button class="section-link" type="button" @click="loadNext">Try again</button>
 		</div>
-		<p v-else-if="loading" class="gallery-message" role="status">Loading {{ gallery }}…</p>
+		<p v-else-if="loading" :class="items.length ? 'visually-hidden' : 'gallery-message'" role="status">
+			Loading {{ gallery }}…
+		</p>
 		<p v-else-if="!items.length" class="gallery-message">No {{ gallery }} yet.</p>
 		<div v-if="cursor && !failed && !loading" ref="sentinel" class="gallery-sentinel" aria-hidden="true" />
 
@@ -247,7 +258,7 @@ onBeforeUnmount(() => {
 				>
 					<GalleryImage
 						:key="active.id"
-						:url="source(active)"
+						:url="source(active, false)"
 						:alt="active.description"
 						:width="active.width"
 						:height="active.height"
@@ -316,10 +327,6 @@ onBeforeUnmount(() => {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-}
-
-.artwork .photo-tile img {
-	object-fit: contain;
 }
 
 .gallery-sentinel {
@@ -423,5 +430,27 @@ onBeforeUnmount(() => {
 		grid-template-columns: minmax(0, 1fr);
 		grid-auto-rows: 78vw;
 	}
+}
+.artwork .opening-grid,
+.artwork .side-photos {
+	height: auto;
+	align-items: start;
+	grid-auto-rows: auto;
+}
+
+.artwork .photo-grid {
+	grid-auto-rows: auto;
+}
+
+.artwork .photo-tile {
+	width: min(100%, calc(80svh * var(--drawing-ratio)));
+	height: auto;
+	aspect-ratio: var(--drawing-ratio);
+	background: transparent;
+	border-radius: 0;
+}
+
+.artwork .photo-tile img {
+	object-fit: contain;
 }
 </style>

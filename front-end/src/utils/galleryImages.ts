@@ -9,11 +9,12 @@ interface Request {
 }
 
 const MAX_ACTIVE = 4;
-const START_INTERVAL_MS = 150;
+const MAX_STARTS = 7;
+const RATE_WINDOW_MS = 1_050;
 const LOAD_TIMEOUT_MS = 15_000;
 const pending: Request[] = [];
 let active = 0;
-let nextStart = 0;
+const recentStarts: number[] = [];
 let scheduled: ReturnType<typeof setTimeout> | undefined;
 
 function drain() {
@@ -22,8 +23,10 @@ function drain() {
 		pending.shift()!.resolve("skipped");
 	}
 	if (!pending.length) return;
-	const wait = nextStart - performance.now();
-	if (wait > 0) {
+	const now = performance.now();
+	while (recentStarts[0] !== undefined && now - recentStarts[0] >= RATE_WINDOW_MS) recentStarts.shift();
+	if (recentStarts.length >= MAX_STARTS) {
+		const wait = RATE_WINDOW_MS - (now - recentStarts[0]!);
 		scheduled = setTimeout(() => {
 			scheduled = undefined;
 			drain();
@@ -33,7 +36,7 @@ function drain() {
 
 	const request = pending.shift()!;
 	active++;
-	nextStart = performance.now() + START_INTERVAL_MS;
+	recentStarts.push(now);
 	const { element, signal } = request;
 
 	let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -60,10 +63,13 @@ export function requestGalleryImage(
 	element: HTMLImageElement,
 	url: string,
 	needed: () => boolean,
-	signal: AbortSignal
+	signal: AbortSignal,
+	priority = false
 ): Promise<Result> {
 	return new Promise(resolve => {
-		pending.push({ element, url, needed, signal, resolve });
+		const request = { element, url, needed, signal, resolve };
+		if (priority) pending.unshift(request);
+		else pending.push(request);
 		drain();
 	});
 }

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { spawn, spawnSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import net from "node:net";
 import os from "node:os";
@@ -298,6 +299,28 @@ try {
 					assert.equal(media.headers.get("content-type"), "image/png");
 					assert.equal(Buffer.from(await media.arrayBuffer()).subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
 					assert.equal((await fetch(`${apiBaseUrl}/api/gallery/${category === "photos" ? "drawings" : "photos"}/${id}`)).status, 404);
+					if (category === "drawings") {
+						const large = await fetch(path, {
+							...upload,
+							body: randomBytes(768 * 1024 * 4),
+							headers: { ...upload.headers, "X-Image-Width": "768", "X-Image-Height": "1024" }
+						});
+						assert.equal(large.status, 201);
+						const largerId = (await large.json()).id;
+						const fullUrl = `${publicPath}/${largerId}`;
+						const full = Buffer.from(await (await fetch(fullUrl)).arrayBuffer());
+						const previewResponse = await fetch(`${fullUrl}?preview=1`);
+						assert.equal(previewResponse.headers.get("content-type"), "image/png");
+						assert.match(previewResponse.headers.get("cache-control"), /public/);
+						const preview = Buffer.from(await previewResponse.arrayBuffer());
+						assert.equal(full.readUInt32BE(20), 1024);
+						assert.equal(preview.readUInt32BE(16), 384);
+						assert.equal(preview.readUInt32BE(20), 512);
+						assert.ok(preview.length < full.length * 0.35);
+						const cached = Buffer.from(await (await fetch(`${fullUrl}?preview=1`)).arrayBuffer());
+						assert.deepEqual(cached, preview);
+						assert.equal((await fetch(`${fullUrl}?preview=2`)).status, 400);
+					}
 					const record = await databaseClient.db().collection("gallery_images").findOne({ gallery: category });
 					assert.equal(record.actor, "artifact-test");
 					assert.equal(record.requestId, requestId);

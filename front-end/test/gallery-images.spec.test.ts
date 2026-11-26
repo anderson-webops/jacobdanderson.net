@@ -8,6 +8,7 @@ it("stops retrying after the third image failure", async () => {
 	const wrapper = mount(GalleryImage, { props: { url, alt: "Test photo", width: 4, height: 2, immediate: true } });
 	try {
 		expect(wrapper.attributes("src")).toBe(url);
+		expect(wrapper.attributes("alt")).toBe("");
 		for (const delay of [750, 2000]) {
 			await wrapper.trigger("error");
 			await flushPromises();
@@ -21,7 +22,8 @@ it("stops retrying after the third image failure", async () => {
 		await flushPromises();
 		await vi.advanceTimersByTimeAsync(30_000);
 		expect(wrapper.attributes("src")).toBeUndefined();
-		expect(wrapper.attributes("alt")).toBe("Test photo");
+		expect(wrapper.attributes("alt")).toBe("");
+		expect(wrapper.classes()).toContain("pending");
 	} finally {
 		wrapper.unmount();
 		vi.useRealTimers();

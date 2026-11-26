@@ -11,7 +11,8 @@ import express from "express";
 import helmet from "helmet";
 import { MongoClient } from "mongodb";
 import { z } from "zod";
-import { createGalleryStore, encodePixels, isGallery, isImageId, MAX_SIDE } from "./models/gallery.js";
+import { createGalleryStore, isGallery, isImageId } from "./models/gallery.js";
+import { encodePixels, MAX_SIDE } from "./models/galleryPng.js";
 import { createProjectVisibilityStore } from "./models/projectVisibility.js";
 import { isProjectSlug } from "./projectCatalog.js";
 import {
@@ -324,15 +325,16 @@ export function createApp({
 	app.get(["/api/gallery/:gallery", "/api/gallery/:gallery/:id"], async (request, response) => {
 		response.set("Cache-Control", "no-store");
 		const { gallery, id } = request.params;
-		const before = request.query.before;
+		const { before, preview } = request.query;
 		if (!isGallery(gallery) || (id !== undefined && !isImageId(id))) return response.sendStatus(404);
 		if (before !== undefined && !isImageId(before)) return response.sendStatus(400);
+		if (preview !== undefined && (!id || preview !== "1")) return response.sendStatus(400);
 		if (!services.gallery) return response.sendStatus(503);
 		const release = publicDatabaseCapacity.tryAcquire();
 		if (!release) return sendDatabaseBusy(response);
 		try {
 			if (!id) return response.json(await services.gallery.list(gallery, before));
-			const image = await services.gallery.image(gallery, id);
+			const image = await services.gallery.image(gallery, id, preview === "1");
 			if (!image) return response.sendStatus(404);
 			return response.type("image/png").set("Cache-Control", "public, max-age=86400").send(image);
 		}

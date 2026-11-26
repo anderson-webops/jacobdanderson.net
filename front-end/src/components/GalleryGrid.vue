@@ -71,7 +71,7 @@ onMounted(load);
 		<ul v-if="items.length">
 			<li v-for="item in items" :key="item.id">
 				<GalleryImage
-					:url="`/api/gallery/${gallery}/${item.id}`"
+					:url="`/api/gallery/${gallery}/${item.id}?preview=1`"
 					:alt="item.description"
 					:width="item.width"
 					:height="item.height"
