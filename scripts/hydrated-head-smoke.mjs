@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { Buffer } from "node:buffer";
 import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import http from "node:http";
@@ -6,6 +7,7 @@ import { extname, resolve, sep } from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer";
 import { TRACKER_INTEGRITY, TRACKER_URL } from "../front-end/src/config/analytics.ts";
+import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "../front-end/src/config/gallerySites.ts";
 import { fetchPinnedTracker } from "./tracker-integrity.mjs";
 
 const root = resolve(process.env.HEAD_SMOKE_STATIC_ROOT || "front-end/dist");
@@ -13,16 +15,32 @@ const output = resolve(process.env.HEAD_SMOKE_OUTPUT_DIRECTORY || ".ai-work/runs
 const provider = await fetchPinnedTracker();
 await mkdir(output, { recursive: true });
 const profile = await mkdtemp(`${output}/profile-`);
-const report = { passed: false, tracker: provider.receipt, pages: [], externalRequestsSent: 0, mockedCollectorRequests: 0, privateCollectorRequests: 0 };
+const report = { passed: false, tracker: provider.receipt, pages: [], gallerySites: [], externalRequestsSent: 0, mockedCollectorRequests: 0, privateCollectorRequests: 0 };
+const fixtureImageId = "0123456789abcdef01234567";
+const fixtureImage = Buffer.from("89504e470d0a1a0a0000000d49484452000000040000000208060000007fa87d630000001249444154789c63b0c89df31f1933a00b000028211201228457dd0000000049454e44ae426082", "hex");
 const server = http.createServer(async (request, response) => {
 	try {
-		const pathname = decodeURIComponent(new URL(request.url, "http://fixture.invalid").pathname);
+		const url = new URL(request.url, `http://${request.headers.host}`);
+		const pathname = decodeURIComponent(url.pathname);
+		const site = GALLERY_SITES.find(gallery => gallery.hostname === url.hostname);
+		if (site && pathname === `/api/gallery/${site.gallery}`) {
+			response.writeHead(200, { "content-type": "application/json" });
+			response.end(JSON.stringify({ items: [{ id: fixtureImageId, description: `Fixture ${site.gallery}`, width: 4, height: 2 }], next: null }));
+			return;
+		}
+		if (site && pathname === `/api/gallery/${site.gallery}/${fixtureImageId}`) {
+			response.writeHead(200, { "content-type": "image/png" });
+			response.end(fixtureImage);
+			return;
+		}
 		if (pathname === "/integrity-fixture") {
 			response.writeHead(200, { "content-type": "text/html" });
 			response.end("<!doctype html><html><head><title>Integrity fixture</title></head><body></body></html>");
 			return;
 		}
-		const normalized = /^\/admin\/?$/iu.test(pathname) ? "/admin/" : pathname;
+		const normalized = site && pathname === "/"
+			? galleryDocumentPath(site)
+			: /^\/admin\/?$/iu.test(pathname) ? "/admin/" : pathname;
 		let filepath = resolve(root, `.${normalized}`);
 		assert.ok(filepath === root || filepath.startsWith(root + sep), "Fixture path escapes static root");
 		if ((await stat(filepath)).isDirectory()) filepath = resolve(filepath, "index.html");
@@ -36,11 +54,19 @@ const server = http.createServer(async (request, response) => {
 	}
 });
 await new Promise(resolveListen => server.listen(0, "127.0.0.1", resolveListen));
-const origin = `http://127.0.0.1:${server.address().port}`;
+const port = server.address().port;
+const origin = `http://127.0.0.1:${port}`;
+const galleryFixtureOrigins = new Set(GALLERY_SITES.map(site => `http://${site.hostname}:${port}`));
 let browser;
 try {
 	const executable = [process.env.PUPPETEER_EXECUTABLE_PATH, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "/usr/bin/google-chrome", "/usr/bin/chromium"].find(filepath => filepath && existsSync(filepath));
-	browser = await puppeteer.launch({ executablePath: executable, userDataDir: profile, headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+	const localGalleryMappings = GALLERY_SITES.map(site => `MAP ${site.hostname} 127.0.0.1`).join(", ");
+	browser = await puppeteer.launch({
+		executablePath: executable,
+		userDataDir: profile,
+		headless: true,
+		args: ["--no-sandbox", "--disable-dev-shm-usage", "--no-proxy-server", `--host-resolver-rules=${localGalleryMappings}`]
+	});
 	const page = await browser.newPage();
 	page.setDefaultTimeout(10_000);
 	await page.setViewport({ width: 1440, height: 1000 });
@@ -60,7 +86,7 @@ try {
 		else if (url.origin === origin && url.pathname.startsWith("/api/")) {
 			void request.respond({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, items: [], results: [], data: [], total: 0, pageview: 0, startAt: 0 }) });
 		}
-		else if (url.origin === origin) {
+		else if (url.origin === origin || galleryFixtureOrigins.has(url.origin)) {
 			void request.continue();
 		}
 		else {
@@ -120,6 +146,38 @@ try {
 			assert.ok(snapshot.providerAvailable, `${snapshot.label}: approved tracker did not execute`);
 		}
 	}
+	const collectorCount = report.mockedCollectorRequests;
+	for (const site of GALLERY_SITES) {
+		const mediaPath = `/api/gallery/${site.gallery}/${fixtureImageId}`;
+		await page.goto(`http://${site.hostname}:${port}/`, { waitUntil: "networkidle0" });
+		await page.waitForFunction((path) => {
+			const image = document.querySelector(".photo-tile img");
+			return image?.complete && image.naturalWidth > 0 && new URL(image.src).pathname === path;
+		}, {}, mediaPath);
+		const snapshot = await page.evaluate(trackerUrl => ({
+			path: location.pathname,
+			heading: document.querySelector("h1")?.textContent,
+			canonical: document.querySelector("link[rel=\"canonical\"]")?.getAttribute("href"),
+			tracker: Boolean(document.querySelector(`script[src="${trackerUrl}"]`)),
+			switchback: document.querySelector(".gallery-intro a")?.getAttribute("href"),
+			portfolioNav: Boolean(document.querySelector("nav[aria-label=\"Primary\"]")),
+			stylesheet: [...document.querySelectorAll("link[rel=\"stylesheet\"]")].some(link => link.sheet?.cssRules.length > 0)
+		}), TRACKER_URL);
+		assert.deepEqual(snapshot, {
+			path: "/",
+			heading: site.title.split(" | ")[0],
+			canonical: `${galleryOrigin(site)}/`,
+			tracker: false,
+			switchback: "https://jacobdanderson.net/extra",
+			portfolioNav: false,
+			stylesheet: true
+		});
+		await page.click(".lead");
+		await page.waitForSelector("dialog[open]");
+		assert.equal(await page.$eval("dialog[open]", dialog => dialog.getAttribute("aria-label")), site.gallery === "photos" ? "Photo viewer" : "Drawing viewer");
+		report.gallerySites.push({ hostname: site.hostname, ...snapshot });
+	}
+	assert.equal(report.mockedCollectorRequests, collectorCount, "Standalone galleries must not load analytics.");
 	await page.goto(`${origin}/integrity-fixture`, { waitUntil: "networkidle0" });
 	report.wrongIntegrityRejected = await page.evaluate(async url => new Promise((resolveProbe, rejectProbe) => {
 		const script = document.createElement("script");

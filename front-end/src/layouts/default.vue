@@ -5,7 +5,7 @@ const route = useRoute();
 <template>
 	<a class="skip-link" href="#main-content">Skip to main content</a>
 	<div class="site-shell">
-		<TheHeader />
+		<TheHeader v-if="route.meta.standaloneGallery !== true" />
 		<main
 			id="main-content"
 			class="site-main"
@@ -14,7 +14,7 @@ const route = useRoute();
 		>
 			<RouterView />
 		</main>
-		<TheFooter />
+		<TheFooter v-if="route.meta.standaloneGallery !== true" />
 	</div>
 </template>
 

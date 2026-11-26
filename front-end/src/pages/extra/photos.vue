@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import MediaGallery from "~/components/MediaGallery.vue";
+import GalleryPage from "~/components/GalleryPage.vue";
 </script>
 
 <template>
-	<header class="page-intro gallery-intro">
-		<RouterLink class="section-link" to="/extra"
-			><span aria-hidden="true">←</span> Galleries &amp; games</RouterLink
-		>
-		<h1>Top Photos</h1>
-	</header>
-	<MediaGallery key="photos" gallery="photos" />
+	<GalleryPage gallery="photos" />
 </template>
 
 <route lang="yaml">

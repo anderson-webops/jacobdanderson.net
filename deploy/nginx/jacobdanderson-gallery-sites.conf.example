@@ -1,0 +1,120 @@
+# Read-only gallery virtual hosts. The shared limit zones are defined in
+# jacobdanderson-rate-limits.conf.example. TLS identity is host-managed.
+map $host $jacobdanderson_gallery_collection {
+	default "";
+	pictures.jacobdanderson.net photos;
+	drawings.jacobdanderson.net drawings;
+}
+
+server {
+	listen 80;
+	listen [::]:80;
+	server_name pictures.jacobdanderson.net drawings.jacobdanderson.net;
+	server_tokens off;
+	if ($jacobdanderson_gallery_collection = "") { return 404; }
+
+	location ^~ /.well-known/acme-challenge/ {
+		root /var/www/acme;
+		try_files $uri =404;
+	}
+
+	location / {
+		return 301 https://$host$request_uri;
+	}
+}
+
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	http2 on;
+	server_name pictures.jacobdanderson.net drawings.jacobdanderson.net;
+	server_tokens off;
+
+	# ssl_certificate /etc/letsencrypt/live/gallery-sites/fullchain.pem;
+	# ssl_certificate_key /etc/letsencrypt/live/gallery-sites/privkey.pem;
+
+	root /srv/jacobdanderson.net/current/front-end/dist;
+	limit_conn_status 503;
+	limit_req_status 429;
+	if ($jacobdanderson_gallery_collection = "") { return 404; }
+	if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+
+	add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; script-src-attr 'none'; connect-src 'self'; frame-src 'none'; media-src 'self'; worker-src 'none'; manifest-src 'none'; upgrade-insecure-requests" always;
+	add_header Cross-Origin-Opener-Policy "same-origin" always;
+	add_header Cross-Origin-Resource-Policy "same-origin" always;
+	add_header Permissions-Policy "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=(), xr-spatial-tracking=()" always;
+	add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+	add_header X-Content-Type-Options "nosniff" always;
+	add_header X-Frame-Options "DENY" always;
+
+	location = / {
+		expires -1;
+		try_files /.gallery-sites/$jacobdanderson_gallery_collection/index.html =404;
+	}
+
+	location = /robots.txt {
+		default_type text/plain;
+		try_files /.gallery-sites/$jacobdanderson_gallery_collection/robots.txt =404;
+	}
+
+	location = /sitemap.xml {
+		default_type application/xml;
+		try_files /.gallery-sites/$jacobdanderson_gallery_collection/sitemap.xml =404;
+	}
+
+	location = /deployment.json {
+		expires -1;
+		default_type application/json;
+		try_files $uri =404;
+	}
+
+	location = /release.json {
+		expires -1;
+		return 307 /deployment.json;
+	}
+
+	location ~ "^/api/gallery/(?<requested_gallery>photos|drawings)(?:/[a-f0-9]{24})?$" {
+		if ($requested_gallery != $jacobdanderson_gallery_collection) { return 404; }
+		limit_conn jacobdanderson_per_ip 10;
+		limit_req zone=jacobdanderson_public burst=20 nodelay;
+		proxy_http_version 1.1;
+		proxy_connect_timeout 3s;
+		proxy_read_timeout 5s;
+		proxy_send_timeout 5s;
+		proxy_set_header Connection "";
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $remote_addr;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header Authorization "";
+		proxy_set_header X-Portfolio-Admin-Actor "";
+		proxy_set_header X-Portfolio-Admin-Key "";
+		proxy_set_header X-Portfolio-Request-Id "";
+		proxy_hide_header X-Powered-By;
+		proxy_pass http://127.0.0.1:3003;
+	}
+
+	location ~ (^|/)\. {
+		return 404;
+	}
+
+	location /assets/ {
+		expires 1y;
+		try_files $uri =404;
+	}
+
+	location /favicons/ {
+		expires 1d;
+		try_files $uri =404;
+	}
+
+	location = /favicon.ico {
+		expires 1d;
+		try_files $uri =404;
+	}
+
+	location / {
+		return 404;
+	}
+}

@@ -1,3 +1,5 @@
+import type { RouteRecordRaw } from "vue-router";
+import type { GallerySite } from "./config/gallerySites";
 import type { UserModule } from "~/types.ts";
 import { setupLayouts } from "virtual:generated-layouts";
 import { ViteSSG } from "vite-ssg";
@@ -5,6 +7,7 @@ import { ViteSSG } from "vite-ssg";
 import { routes } from "vue-router/auto-routes";
 import App from "./App.vue";
 import { installAnalyticsPrivacy, isAdministrationRoute } from "./config/analytics";
+import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "./config/gallerySites";
 import { installAnalyticsPageviews } from "./utils/analytics";
 import { installSsgHeadBridge } from "./utils/ssgHead";
 // Assuming you have styles defined in these files
@@ -12,11 +15,35 @@ import "@unocss/reset/tailwind.css";
 import "./styles/main.css";
 import "uno.css";
 
+const currentGallerySite = import.meta.env.SSR
+	? undefined
+	: GALLERY_SITES.find(site => site.hostname === window.location.hostname);
+
+function standaloneGalleryRoute(site: GallerySite, path = galleryDocumentPath(site)): RouteRecordRaw {
+	return {
+		path,
+		component: () => import("./components/GalleryPage.vue"),
+		props: { gallery: site.gallery, standalone: true },
+		meta: {
+			layout: "default",
+			wideGallery: true,
+			standaloneGallery: true,
+			galleryCanonicalUrl: `${galleryOrigin(site)}/`,
+			title: site.title,
+			description: site.description
+		}
+	};
+}
+
+const appRoutes = currentGallerySite
+	? [standaloneGalleryRoute(currentGallerySite, "/")]
+	: [...routes, ...(import.meta.env.SSR ? GALLERY_SITES.map(site => standaloneGalleryRoute(site)) : [])];
+
 // https://github.com/antfu/vite-ssg
 export const createApp = ViteSSG(
 	App,
 	{
-		routes: setupLayouts([...routes]),
+		routes: setupLayouts(appRoutes),
 		base: import.meta.env.BASE_URL,
 		scrollBehavior(to, _from, savedPosition) {
 			if (savedPosition) return savedPosition;
@@ -27,7 +54,7 @@ export const createApp = ViteSSG(
 		}
 	},
 	ctx => {
-		if (ctx.isClient) {
+		if (ctx.isClient && !currentGallerySite) {
 			const adminDocument = /^\/admin\/?$/iu.test(window.location.pathname);
 			ctx.router.beforeEach(to => {
 				if (isAdministrationRoute(to) === adminDocument) return true;

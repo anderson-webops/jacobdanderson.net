@@ -8,6 +8,7 @@ import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
+import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "../front-end/src/config/gallerySites.ts";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
 const nginxBinary = process.env.NGINX_BIN || "nginx";
@@ -53,17 +54,17 @@ async function listen(server) {
 	return address.port;
 }
 
-function request(port, pathname, { body, headers = {}, method = "GET" } = {}) {
+function request(port, pathname, { body, headers = {}, hostname = "jacobdanderson.net", method = "GET" } = {}) {
 	if (!trustedCertificate) throw new Error("The test certificate is not ready.");
 	return new Promise((resolve, reject) => {
 		const request = https.request({
 			ca: trustedCertificate,
-			headers: { Host: "jacobdanderson.net", ...headers },
+			headers: { Host: hostname, ...headers },
 			host: "127.0.0.1",
 			method,
 			path: pathname,
 			port,
-			servername: "jacobdanderson.net",
+			servername: hostname,
 			timeout: 5_000
 		}, (response) => {
 			const chunks = [];
@@ -80,10 +81,10 @@ function request(port, pathname, { body, headers = {}, method = "GET" } = {}) {
 	});
 }
 
-function httpRequest(port, pathname) {
+function httpRequest(port, pathname, hostname = "jacobdanderson.net") {
 	return new Promise((resolve, reject) => {
 		const request = http.request({
-			headers: { Host: "jacobdanderson.net" },
+			headers: { Host: hostname },
 			host: "127.0.0.1",
 			path: pathname,
 			port,
@@ -152,6 +153,15 @@ try {
 	await writeFile(path.join(staticRoot, "index.html"), "ok\n");
 	await writeFile(path.join(staticRoot, "deployment.json"), "{\"commit\":\"synthetic\",\"ref\":\"v2.14.2\"}\n");
 	await writeFile(path.join(staticRoot, "admin", "index.html"), "admin\n");
+	for (const site of GALLERY_SITES) {
+		const directory = path.join(staticRoot, galleryDocumentPath(site).slice(1));
+		await mkdir(directory, { recursive: true });
+		await writeFile(path.join(directory, "index.html"), `<title>${site.title}</title>\n`);
+		await writeFile(path.join(directory, "robots.txt"), `Sitemap: ${galleryOrigin(site)}/sitemap.xml\n`);
+		await writeFile(path.join(directory, "sitemap.xml"), `<loc>${galleryOrigin(site)}/</loc>\n`);
+	}
+	await mkdir(path.join(staticRoot, "assets", "fonts"), { recursive: true });
+	await writeFile(path.join(staticRoot, "assets", "fonts", "fixture.woff2"), "font fixture\n");
 	await writeFile(path.join(acmeRoot, ".well-known", "acme-challenge", "contract-token"), "challenge-ok\n");
 	await writeFile(passwordFile, "jacob:{PLAIN}test-password\n");
 	await writeFile(secretSnippet, "proxy_set_header X-Portfolio-Admin-Key test-proxy-key-0123456789abcdef;\n");
@@ -166,7 +176,7 @@ try {
 		"-subj",
 		"/CN=jacobdanderson.net",
 		"-addext",
-		"subjectAltName=DNS:jacobdanderson.net",
+		`subjectAltName=DNS:jacobdanderson.net,${GALLERY_SITES.map(site => `DNS:${site.hostname}`).join(",")}`,
 		"-keyout",
 		certificateKey,
 		"-out",
@@ -196,6 +206,22 @@ try {
 			.replace("\thttp2 on;", "");
 	}
 
+	let galleryHosts = await readFile(
+		path.join(repositoryRoot, "deploy/nginx/jacobdanderson-gallery-sites.conf.example"),
+		"utf8"
+	);
+	galleryHosts = galleryHosts
+		.replace("proxy_pass http://127.0.0.1:3003;", `proxy_pass http://127.0.0.1:${backendPort};`)
+		.replace("\tlisten 80;", `\tlisten 127.0.0.1:${httpPort};`)
+		.replace("\tlisten [::]:80;", "")
+		.replace("\tlisten 443 ssl;", `\tlisten 127.0.0.1:${httpsPort} ssl${supportsHttp2Directive ? "" : " http2"};`)
+		.replace("\tlisten [::]:443 ssl;", "")
+		.replace("\t# ssl_certificate /etc/letsencrypt/live/gallery-sites/fullchain.pem;", `\tssl_certificate ${certificate};`)
+		.replace("\t# ssl_certificate_key /etc/letsencrypt/live/gallery-sites/privkey.pem;", `\tssl_certificate_key ${certificateKey};`)
+		.replace("root /srv/jacobdanderson.net/current/front-end/dist;", `root ${staticRoot};`)
+		.replace("root /var/www/acme;", `root ${acmeRoot};`);
+	if (!supportsHttp2Directive) galleryHosts = galleryHosts.replace("\thttp2 on;", "");
+
 	const limits = await readFile(
 		path.join(repositoryRoot, "deploy/nginx/jacobdanderson-rate-limits.conf.example"),
 		"utf8"
@@ -214,6 +240,7 @@ http {
 	scgi_temp_path ${path.join(workDirectory, "scgi")};
 	${limits}
 	${virtualHost}
+	${galleryHosts}
 }
 `);
 	await mkdir(path.join(workDirectory, "client-body"));
@@ -321,7 +348,58 @@ http {
 	assert.notEqual(adminPayload.headers.requestId, "spoofed-request-id");
 	assert.equal((await request(httpsPort, "/api/not-a-route")).status, 404);
 
-	console.log(`Nginx ${nginxVersion.join(".")} edge contract passed.`);
+	for (const site of GALLERY_SITES) {
+		const { hostname } = site;
+		const origin = galleryOrigin(site);
+		const home = await request(httpsPort, "/", { hostname });
+		assert.equal(home.status, 200);
+		assert.equal(home.body, `<title>${site.title}</title>\n`);
+		assert.match(home.headers["content-type"], /^text\/html/);
+		assert.equal(home.headers["x-content-type-options"], "nosniff");
+		assert.equal((await request(httpsPort, "/", { hostname, method: "HEAD" })).status, 200);
+		const redirect = await httpRequest(httpPort, "/?view=gallery", hostname);
+		assert.equal(redirect.headers.location, `${origin}/?view=gallery`);
+		assert.equal((await request(httpsPort, "/robots.txt", { hostname })).body, `Sitemap: ${origin}/sitemap.xml\n`);
+		assert.equal((await request(httpsPort, "/sitemap.xml", { hostname })).body, `<loc>${origin}/</loc>\n`);
+		assert.equal((await request(httpsPort, "/deployment.json", { hostname })).body, canonicalRelease.body);
+		assert.equal((await request(httpsPort, "/assets/fonts/fixture.woff2", { hostname })).body, "font fixture\n");
+		assert.equal((await request(httpsPort, `${galleryDocumentPath(site)}/index.html`)).status, 404);
+		const media = `/api/gallery/${site.gallery}`;
+		const image = `${media}/0123456789abcdef01234567?preview=1`;
+		for (const pathname of [`${media}?before=0123456789abcdef01234567`, image]) {
+			const response = await request(httpsPort, pathname, {
+				hostname,
+				headers: {
+					"Authorization": "Bearer fixture",
+					"X-Portfolio-Admin-Actor": "fixture",
+					"X-Portfolio-Admin-Key": "fixture",
+					"X-Portfolio-Request-Id": "fixture"
+				}
+			});
+			assert.equal(response.status, 200);
+			const payload = JSON.parse(response.body);
+			assert.equal(payload.path, pathname);
+			assert.deepEqual(payload.headers, { actor: null, authorization: null, key: null, requestId: null });
+		}
+		assert.equal((await request(httpsPort, image, { hostname, method: "HEAD" })).status, 200);
+		assert.equal((await request(httpsPort, media, { hostname, method: "POST" })).status, 405);
+		const other = site.gallery === "photos" ? "drawings" : "photos";
+		for (const pathname of [
+			"/admin",
+			"/api/admin/access",
+			"/api/projects/visibility",
+			"/index.html",
+			"/extra/photos",
+			`${galleryDocumentPath(site)}/index.html`,
+			`${media}/invalid`,
+			`/api/gallery/${other}`,
+			`/api/gallery/${other}/0123456789abcdef01234567`
+		]) {
+			assert.equal((await request(httpsPort, pathname, { hostname })).status, 404, hostname + pathname);
+		}
+	}
+
+	console.log(`Nginx ${nginxVersion.join(".")} edge contract passed for the portfolio and both gallery hosts.`);
 }
 finally {
 	if (nginxProcess && nginxProcess.exitCode === null) {

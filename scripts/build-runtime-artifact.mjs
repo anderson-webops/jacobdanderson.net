@@ -32,7 +32,8 @@ const buildSdk = {
 	payloadTreeSha256: "266bb8045b5fd0c689010b9b1b1ec44a489147607836dc583243087e23fcc7b8",
 	archiveSha256: "937f92496a66d6a89955961eb2c70a8e873e4b407b1d4c09e77a0ddec0fafe4d"
 };
-const runtimeContract = JSON.parse(await readFile(path.join(root, "deploy/runtime-artifact.json"), "utf8")).runtime;
+const artifactContract = JSON.parse(await readFile(path.join(root, "deploy/runtime-artifact.json"), "utf8"));
+const runtimeContract = artifactContract.runtime;
 if (
 	runtimeContract?.node !== "26.13.1"
 	|| runtimeContract.npmBuildOnly !== "12.2.2"
@@ -163,6 +164,13 @@ for (const relativePath of [
 	"front-end/dist/index.html"
 ]) await assertFile(relativePath);
 
+const galleryFiles = Object.values(artifactContract.gallerySites).flatMap(site => [
+	site.document,
+	path.posix.join(path.posix.dirname(site.document), "robots.txt"),
+	path.posix.join(path.posix.dirname(site.document), "sitemap.xml")
+]);
+for (const relativePath of galleryFiles) await assertFile(relativePath);
+
 await rm(artifactRoot, { force: true, recursive: true });
 await Promise.all([
 	mkdir(path.join(artifactRoot, "back-end"), { recursive: true }),
@@ -194,7 +202,7 @@ await rm(path.join(artifactRoot, "back-end/node_modules/.bin"), { force: true, r
 await removeSourceMaps(path.join(artifactRoot, "back-end/dist"));
 await normalizeTree(artifactRoot);
 
-for (const relativePath of requiredPaths) {
+for (const relativePath of [...requiredPaths, ...galleryFiles]) {
 	const metadata = await lstat(path.join(artifactRoot, relativePath));
 	if (!metadata.isFile()) throw new Error(`Runtime artifact is missing required file: ${relativePath}`);
 }

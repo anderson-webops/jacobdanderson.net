@@ -20,6 +20,18 @@
     "front-end/dist/deployment.json",
     "front-end/dist/index.html"
   ],
+  "gallerySites": {
+    "pictures.jacobdanderson.net": {
+      "collection": "photos",
+      "document": "front-end/dist/.gallery-sites/photos/index.html",
+      "mediaPath": "/api/gallery/photos"
+    },
+    "drawings.jacobdanderson.net": {
+      "collection": "drawings",
+      "document": "front-end/dist/.gallery-sites/drawings/index.html",
+      "mediaPath": "/api/gallery/drawings"
+    }
+  },
   "readiness": {
     "method": ["GET", "HEAD"],
     "liveness": "/healthz",

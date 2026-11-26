@@ -1,4 +1,5 @@
 // vite.config.ts
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,10 +15,12 @@ import generateSitemap from "vite-ssg-sitemap";
 import { VueRouterAutoImports } from "vue-router/unplugin";
 import VueRouter from "vue-router/vite";
 import { createCriticalCssRenderer } from "./scripts/critical-css.mts";
+import { GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "./src/config/gallerySites.ts";
 import { renderSsgDocumentHead } from "./src/utils/ssgHead.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const renderCriticalCss = createCriticalCssRenderer(path.join(__dirname, "dist"));
+const distDir = path.join(__dirname, "dist");
+const renderCriticalCss = createCriticalCssRenderer(distDir);
 
 export default defineConfig(({ command }) => ({
 	resolve: {
@@ -97,9 +100,9 @@ export default defineConfig(({ command }) => ({
 		onPageRendered(_route, html, context) {
 			return renderCriticalCss(renderSsgDocumentHead(html, context));
 		},
-		onFinished() {
-			generateSitemap({
-				exclude: ["/admin", "/other-projects"],
+		async onFinished() {
+			await generateSitemap({
+				exclude: ["/admin", "/other-projects", ...GALLERY_SITES.map(galleryDocumentPath)],
 				hostname: "https://jacobdanderson.net",
 				robots: [
 					{ userAgent: "GPTBot", disallow: "/" },
@@ -115,6 +118,15 @@ export default defineConfig(({ command }) => ({
 					{ userAgent: "*", allow: "/", disallow: ["/admin", "/api"] }
 				]
 			});
+			const robots = await readFile(path.join(distDir, "robots.txt"), "utf8");
+			await Promise.all(GALLERY_SITES.map(async site => {
+				const origin = galleryOrigin(site);
+				const directory = path.join(distDir, galleryDocumentPath(site).slice(1));
+				await Promise.all([
+					writeFile(path.join(directory, "robots.txt"), robots.replace("https://jacobdanderson.net/sitemap.xml", `${origin}/sitemap.xml`)),
+					writeFile(path.join(directory, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${origin}/</loc></url></urlset>\n`)
+				]);
+			}));
 		}
 	},
 

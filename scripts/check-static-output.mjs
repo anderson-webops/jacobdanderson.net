@@ -2,11 +2,16 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { GALLERY_DOCUMENTS, GALLERY_SITES, galleryDocumentPath, galleryOrigin } from "../front-end/src/config/gallerySites.ts";
 import { externalScriptsMatchPolicy } from "./static-script-policy.mjs";
 
 const distDir = fileURLToPath(new URL("../front-end/dist/", import.meta.url));
 
+const galleryFiles = GALLERY_SITES.flatMap(site =>
+	["index.html", "robots.txt", "sitemap.xml"].map(file => `${galleryDocumentPath(site).slice(1)}/${file}`)
+);
 const requiredFiles = [
+	...galleryFiles,
 	"index.html",
 	"about/index.html",
 	"experience/index.html",
@@ -80,9 +85,9 @@ requireMatch(
 	"noindex metadata missing"
 );
 for (const file of requiredFiles.filter(name => name.endsWith("index.html"))) {
-	const adminPage = file === "admin/index.html";
-	if (!externalScriptsMatchPolicy(readOutput(file), adminPage)) {
-		console.error(`Static output check failed for front-end/dist/${file}: external scripts must be absent from admin or exactly one integrity-pinned analytics tracker on public pages.`);
+	const localScriptsOnly = file === "admin/index.html" || galleryFiles.includes(file);
+	if (!externalScriptsMatchPolicy(readOutput(file), localScriptsOnly)) {
+		console.error(`Static output check failed for front-end/dist/${file}: external scripts must be absent from admin and standalone galleries, or exactly one integrity-pinned analytics tracker on other public pages.`);
 		process.exit(1);
 	}
 }
@@ -95,7 +100,7 @@ if (!sitemapTargets.length || sitemapTargets.some(target =>
 	console.error("Static output check failed for front-end/dist/sitemap.xml: canonical site URLs are required.");
 	process.exit(1);
 }
-if (sitemap.includes("/admin") || sitemap.includes("/other-projects")) {
+if (sitemap.includes("/admin") || sitemap.includes("/other-projects") || sitemap.includes(GALLERY_DOCUMENTS)) {
 	console.error("Static output check failed for front-end/dist/sitemap.xml: unlisted routes must be excluded.");
 	process.exit(1);
 }
@@ -121,4 +126,27 @@ if (readOutput("robots.txt").trim() !== expectedRobots) {
 	process.exit(1);
 }
 
+const contract = JSON.parse(readFileSync(new URL("../deploy/runtime-artifact.json", import.meta.url), "utf8"));
+const robots = readOutput("robots.txt");
+if (Object.keys(contract.gallerySites ?? {}).length !== GALLERY_SITES.length) {
+	throw new Error("Gallery site contract does not enumerate each built host.");
+}
+for (const site of GALLERY_SITES) {
+	const document = galleryDocumentPath(site).slice(1);
+	const origin = galleryOrigin(site);
+	const html = readOutput(`${document}/index.html`);
+	const mapping = contract.gallerySites[site.hostname];
+	if (mapping?.collection !== site.gallery || mapping.document !== `front-end/dist/${document}/index.html`
+		|| mapping.mediaPath !== `/api/gallery/${site.gallery}`) {
+		throw new Error(`Gallery host mapping drift for ${site.hostname}.`);
+	}
+	if (!html.includes(`<title>${site.title}</title>`) || !html.includes(`rel="canonical" href="${origin}/"`)
+		|| !html.includes("href=\"https://jacobdanderson.net/extra\"") || html.includes("aria-label=\"Primary\"")) {
+		throw new Error(`Invalid standalone gallery document for ${site.hostname}.`);
+	}
+	if (readOutput(`${document}/robots.txt`) !== robots.replace("https://jacobdanderson.net/sitemap.xml", `${origin}/sitemap.xml`)
+		|| !readOutput(`${document}/sitemap.xml`).includes(`<loc>${origin}/</loc>`)) {
+		throw new Error(`Invalid gallery robots or sitemap for ${site.hostname}.`);
+	}
+}
 console.log("Static output shape and metadata ok.");

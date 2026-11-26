@@ -34,7 +34,12 @@ const robotsContent = computed(() =>
 			? "noindex,nofollow"
 			: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
 );
-const canonicalUrl = computed(() => new URL(route.path || "/", `${siteUrl}/`).toString());
+const standaloneGallery = computed(() => route.meta.standaloneGallery === true);
+const canonicalUrl = computed(() =>
+	typeof route.meta.galleryCanonicalUrl === "string"
+		? route.meta.galleryCanonicalUrl
+		: new URL(route.path || "/", `${siteUrl}/`).toString()
+);
 const structuredData = computed(() => {
 	const person = {
 		"@context": "https://schema.org",
@@ -59,7 +64,7 @@ const structuredData = computed(() => {
 		url: canonicalUrl.value
 	};
 
-	if (route.path === "/") {
+	if (route.path === "/" && !standaloneGallery.value) {
 		return [
 			person,
 			{
@@ -166,17 +171,14 @@ useHead(() => ({
 			sizes: "180x180",
 			href: "/favicons/original-logo-bo-light/apple-touch-icon.png"
 		},
-		{
-			rel: "manifest",
-			href: "/site.webmanifest"
-		},
+		...(standaloneGallery.value ? [] : [{ rel: "manifest" as const, href: "/site.webmanifest" }]),
 		{
 			rel: "canonical",
 			href: canonicalUrl.value
 		}
 	],
 	script: [
-		...(import.meta.env.PROD && !isAdministrationRoute(route)
+		...(import.meta.env.PROD && !standaloneGallery.value && !isAdministrationRoute(route)
 			? [
 					{
 						key: TRACKER_KEY,

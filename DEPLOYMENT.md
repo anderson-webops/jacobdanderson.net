@@ -18,6 +18,12 @@ The archive and checksum become deployment-ready only after the corresponding ex
 
 The release also publishes the runtime manifest, versioned source contract and digest-bound provenance as separate JSON assets. They identify the exact source, SDK and archive independently of the archive's internal inventory.
 
+## Gallery Sites
+
+The `gallerySites` map in the [runtime contract](deploy/runtime-artifact.json) pairs each gallery origin with its static home document and media path. Both gallery homepages are built into the same release under `front-end/dist/.gallery-sites/` and reuse the existing gallery assets and preview/full-size URLs. Each has its own canonical URL, sitemap and robots policy.
+
+The [gallery virtual host contract](deploy/nginx/jacobdanderson-gallery-sites.conf.example) exposes each homepage and only its collection’s read-only media paths. The portfolio’s existing gallery URLs and `/admin` remain unchanged. Both hosts read from the same loopback API and MongoDB data, with the existing limits and no schema migration.
+
 ## Retained Compatibility
 
 The current retained release is `v2.14.7`, commit `9109c6f4008c35f08e7f3f563a0f56d9c87adc0d`, built with Node `26.13.0` and npm `12.2.1`. Its unchanged archive must remain recoverable under the updated runtime, with bounded explicit retained-release verification and an exact expected-current identity.
