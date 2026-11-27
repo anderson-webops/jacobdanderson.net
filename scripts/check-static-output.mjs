@@ -23,6 +23,7 @@ const requiredFiles = [
 	"experience/index.html",
 	"projects/index.html",
 	"extra/index.html",
+	"extra/websites/index.html",
 	"extra/photos/index.html",
 	"extra/drawings/index.html",
 	"images/gallery-photos.svg",

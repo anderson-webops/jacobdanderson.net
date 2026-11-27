@@ -58,6 +58,11 @@ const collections = [
 				</ul>
 			</section>
 		</div>
+		<div class="collection-links">
+			<RouterLink to="/extra/websites"
+				>Websites I’ve built <span class="link-arrow" aria-hidden="true">→</span></RouterLink
+			>
+		</div>
 	</div>
 </template>
 
