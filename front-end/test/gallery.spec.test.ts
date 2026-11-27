@@ -157,3 +157,46 @@ describe("photo favorites", () => {
 		}
 	);
 });
+describe("list priority", () => {
+	it("waits for Retry-After and retries the same cursor before starting thumbnails", async () => {
+		vi.useFakeTimers();
+		try {
+			vi.resetModules();
+			const { fetchGalleryPage: readPage } = await import("../src/utils/gallery");
+			const { requestGalleryImage } = await import("../src/utils/galleryImages");
+			const fetcher = vi
+				.fn()
+				.mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "2" } }))
+				.mockResolvedValueOnce(response([photo]));
+			const signal = new AbortController();
+			const pending = readPage("photos", photo.id, signal.signal, fetcher);
+			const image = document.createElement("img");
+			const thumbnail = requestGalleryImage(image, "/thumbnail", () => true, signal.signal);
+			await vi.advanceTimersByTimeAsync(1999);
+			expect(fetcher).toHaveBeenCalledTimes(1);
+			expect(image.hasAttribute("src")).toBe(false);
+			await vi.advanceTimersByTimeAsync(1);
+			await pending;
+			expect(fetcher.mock.calls[1]).toEqual(fetcher.mock.calls[0]);
+			expect(image.getAttribute("src")).toBe("/thumbnail");
+			signal.abort();
+			await thumbnail;
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+	it("stops after three retries", async () => {
+		vi.useFakeTimers();
+		try {
+			const fetcher = vi.fn(async () => new Response(null, { status: 503 }));
+			const rejected = expect(fetchGalleryPage("photos", null, undefined, fetcher)).rejects.toThrow(
+				"Gallery request failed"
+			);
+			await vi.runAllTimersAsync();
+			await rejected;
+			expect(fetcher).toHaveBeenCalledTimes(4);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+});

@@ -19,6 +19,7 @@ declare module 'vue' {
     GalleryPage: typeof import('./components/GalleryPage.vue')['default']
     GalleryPublisher: typeof import('./components/GalleryPublisher.vue')['default']
     MediaGallery: typeof import('./components/MediaGallery.vue')['default']
+    MusicEditor: typeof import('./components/MusicEditor.vue')['default']
     MusicRoom: typeof import('./components/MusicRoom.vue')['default']
     MusicTrackPlayer: typeof import('./components/MusicTrackPlayer.vue')['default']
     ProjectVisibilityControls: typeof import('./components/ProjectVisibilityControls.vue')['default']

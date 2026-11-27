@@ -263,7 +263,8 @@ onBeforeUnmount(() => {
 			</li>
 		</ul>
 		<div v-if="failed" class="gallery-message" role="alert">
-			Couldn’t load {{ gallery }}. <button class="section-link" type="button" @click="loadNext">Try again</button>
+			Couldn’t load {{ gallery }}.
+			<button class="section-link" type="button" @click="loadNext">Reload gallery</button>
 		</div>
 		<p v-else-if="loading" :class="items.length ? 'visually-hidden' : 'gallery-message'" role="status">
 			Loading {{ gallery }}…

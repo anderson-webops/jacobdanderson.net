@@ -1,3 +1,5 @@
+import { prioritizeGalleryList } from "./galleryImages";
+
 export type Gallery = "photos" | "drawings";
 
 export interface GalleryItem {
@@ -18,9 +20,32 @@ export async function fetchGalleryPage(
 	hiddenFetch?: typeof fetch
 ) {
 	const path = hiddenFetch ? `/api/admin/gallery/${gallery}/hidden` : `/api/gallery/${gallery}`;
-	const response = await (hiddenFetch ?? fetch)(`${path}${before ? `?before=${before}` : ""}`, {
-		credentials: "omit",
-		signal
+	const url = path + (before ? `?before=${before}` : "");
+	const response = await prioritizeGalleryList(async () => {
+		for (let attempt = 0; ; attempt++) {
+			signal?.throwIfAborted();
+			const result = await (hiddenFetch ?? fetch)(url, { credentials: "omit", signal });
+			if (![429, 503].includes(result.status) || attempt >= 3) return result;
+			const header = result.headers?.get("Retry-After")?.trim();
+			const requested =
+				header && /^\d+$/.test(header) ? Number(header) * 1000 : Date.parse(header || "") - Date.now();
+			const delay = Number.isNaN(requested) ? 750 * 2 ** attempt : Math.max(100, requested);
+			if (delay > 30000) return result;
+			await result.body?.cancel();
+			await new Promise<void>((resolve, reject) => {
+				let timer: ReturnType<typeof setTimeout>;
+				const abort = () => {
+					clearTimeout(timer);
+					reject(signal?.reason);
+				};
+				timer = setTimeout(() => {
+					signal?.removeEventListener("abort", abort);
+					resolve();
+				}, delay);
+				signal?.addEventListener("abort", abort, { once: true });
+				if (signal?.aborted) abort();
+			});
+		}
 	});
 	if (!response.ok) throw new Error("Gallery request failed");
 	const payload = await response.json();

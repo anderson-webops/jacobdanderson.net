@@ -46,15 +46,16 @@ function standaloneGalleryRoute(site: GallerySite, admin = false, standalone = f
 }
 
 const currentMusicSite = !import.meta.env.SSR && window.location.hostname === MUSIC_HOST;
-function standaloneMusicRoute(path: string): RouteRecordRaw {
+function standaloneMusicRoute(path: string, admin = false): RouteRecordRaw {
 	return {
 		path,
-		component: () => import("./components/MusicRoom.vue"),
-		props: { standalone: true },
+		component: admin ? () => import("./pages/admin.vue") : () => import("./components/MusicRoom.vue"),
+		props: admin ? { music: true } : { standalone: true },
 		meta: {
 			layout: "default",
 			standaloneGallery: true,
-			galleryCanonicalUrl: `${MUSIC_ORIGIN}/`,
+			galleryCanonicalUrl: `${MUSIC_ORIGIN}/${admin ? "admin" : ""}`,
+			...(admin ? { robots: "noindex,nofollow" } : {}),
 			title: MUSIC_TITLE,
 			description: MUSIC_DESCRIPTION
 		}
@@ -62,7 +63,7 @@ function standaloneMusicRoute(path: string): RouteRecordRaw {
 }
 
 const appRoutes = currentMusicSite
-	? [standaloneMusicRoute("/")]
+	? [standaloneMusicRoute("/"), standaloneMusicRoute("/admin", true)]
 	: currentGallerySite
 		? [
 				standaloneGalleryRoute(currentGallerySite, false, true),
@@ -70,7 +71,9 @@ const appRoutes = currentMusicSite
 			]
 		: [
 				...routes,
-				...(import.meta.env.SSR ? [standaloneMusicRoute(MUSIC_DOCUMENT)] : []),
+				...(import.meta.env.SSR
+					? [standaloneMusicRoute(MUSIC_DOCUMENT), standaloneMusicRoute(`${MUSIC_DOCUMENT}/admin`, true)]
+					: []),
 				...(import.meta.env.SSR
 					? GALLERY_SITES.flatMap(site => [standaloneGalleryRoute(site), standaloneGalleryRoute(site, true)])
 					: [])

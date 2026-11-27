@@ -103,7 +103,7 @@ export default defineConfig(({ command }) => ({
 		},
 		async onFinished() {
 			await generateSitemap({
-				exclude: [MUSIC_DOCUMENT, "/admin", "/other-projects", ...GALLERY_SITES.flatMap(site => [galleryDocumentPath(site), `${galleryDocumentPath(site)}/admin`])],
+				exclude: [MUSIC_DOCUMENT, `${MUSIC_DOCUMENT}/admin`, "/admin", "/other-projects", ...GALLERY_SITES.flatMap(site => [galleryDocumentPath(site), `${galleryDocumentPath(site)}/admin`])],
 				hostname: "https://jacobdanderson.net",
 				robots: [
 					{ userAgent: "GPTBot", disallow: "/" },

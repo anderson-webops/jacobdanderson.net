@@ -1,6 +1,10 @@
 import { GALLERY_SITES, galleryOrigin } from "~/config/gallerySites";
 
-const origins = new Set(["https://jacobdanderson.net", ...GALLERY_SITES.map(galleryOrigin)]);
+const origins = new Set([
+	"https://jacobdanderson.net",
+	"https://music.jacobdanderson.net",
+	...GALLERY_SITES.map(galleryOrigin)
+]);
 export type GatewayState = { mode: "basic" | "login" | "unavailable" } | { mode: "session"; csrf: string };
 
 export async function probeAdminGateway(origin: string, signal: AbortSignal): Promise<GatewayState> {

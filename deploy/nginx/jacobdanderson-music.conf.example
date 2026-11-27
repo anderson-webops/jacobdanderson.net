@@ -1,3 +1,9 @@
+map "$request_method:$uri" $jacobdanderson_music_allowed {
+	default 0;
+	~^(GET|HEAD): 1;
+	POST:/api/admin/music 1;
+}
+
 server {
 	listen 80;
 	listen [::]:80;
@@ -21,7 +27,7 @@ server {
 	# ssl_certificate_key /etc/letsencrypt/live/music.jacobdanderson.net/privkey.pem;
 
 	root /srv/jacobdanderson.net/current/front-end/dist;
-	if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+	if ($jacobdanderson_music_allowed = 0) { return 405; }
 
 	add_header Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors https://jacobdanderson.net; form-action 'none'; img-src 'self' data:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; script-src-attr 'none'; connect-src 'self'; frame-src https://w.soundcloud.com; media-src 'self'; worker-src 'none'; manifest-src 'none'; upgrade-insecure-requests" always;
 	add_header Cross-Origin-Opener-Policy "same-origin" always;
@@ -34,6 +40,30 @@ server {
 	location = / {
 		expires -1;
 		try_files /.gallery-sites/music/index.html =404;
+	}
+	location = /admin/ { return 308 /admin; }
+	location = /admin {
+		add_header Cache-Control "no-store" always;
+		add_header X-Frame-Options DENY always;
+		add_header Content-Security-Policy "default-src 'self'; frame-ancestors 'none'; form-action 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src 'self'; frame-src https://w.soundcloud.com" always;
+		try_files /.gallery-sites/music/admin/index.html =404;
+	}
+	location @music_denied { return 403; }
+	location ~ ^/api/admin/(access|music)$ {
+		auth_basic "Project administration";
+		auth_basic_user_file /etc/nginx/jacobdanderson-admin.htpasswd;
+		auth_delay 750ms;
+		error_page 401 = @music_denied;
+		client_max_body_size 48m;
+		limit_conn jacobdanderson_per_ip 2;
+		limit_req zone=jacobdanderson_admin burst=3 nodelay;
+		proxy_set_header Authorization "";
+		proxy_set_header Cookie "";
+		proxy_set_header Host $host;
+		proxy_set_header X-Portfolio-Admin-Actor $remote_user;
+		proxy_set_header X-Portfolio-Request-Id $request_id;
+		include /etc/nginx/snippets/jacobdanderson-admin-secret.conf;
+		proxy_pass http://jacobdanderson_api;
 	}
 	location = /robots.txt { default_type text/plain; try_files /.gallery-sites/music/robots.txt =404; }
 	location = /sitemap.xml { default_type application/xml; try_files /.gallery-sites/music/sitemap.xml =404; }

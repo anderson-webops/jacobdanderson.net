@@ -1,5 +1,6 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import MusicEditor from "../src/components/MusicEditor.vue";
 import MusicRoom from "../src/components/MusicRoom.vue";
 import catalog from "../src/data/music.json";
 import { loadMusicCatalog, musicTime, readMusicCatalog, widgetUrl } from "../src/utils/music";
@@ -49,8 +50,46 @@ describe("music library", () => {
 		expect(await loadMusicCatalog(tracks, signal)).toBe(tracks);
 		expect(fetch).toHaveBeenCalledWith("/music-library/catalog.json", { credentials: "omit", signal });
 	});
+	it("edits sections and visibility, confirms removal, and submits an audio file", async () => {
+		const adminFetch = vi.fn(async (_url: string, init?: RequestInit) =>
+			init?.method === "POST"
+				? new Response(null, { status: 204 })
+				: Response.json({ version: 1, tracks: [local] })
+		);
+		const wrapper = mount(MusicEditor, { props: { adminFetch: adminFetch as typeof fetch } });
+		await flushPromises();
+		await wrapper.get(".song select").setValue("finished");
+		await flushPromises();
+		expect(
+			adminFetch.mock.calls.some(
+				([, init]) => init?.body === JSON.stringify({ action: "move", id: local.id, section: "finished" })
+			)
+		).toBe(true);
+		await wrapper.get(".song button").trigger("click");
+		await flushPromises();
+		expect(
+			adminFetch.mock.calls.some(
+				([, init]) => init?.body === JSON.stringify({ action: "visibility", id: local.id, hidden: true })
+			)
+		).toBe(true);
+		await wrapper.findAll(".song button")[1]!.trigger("click");
+		expect(wrapper.text()).toContain("Cancel");
+		await wrapper.findAll(".song button")[2]!.trigger("click");
+		await flushPromises();
+		expect(
+			adminFetch.mock.calls.some(([, init]) => init?.body === JSON.stringify({ action: "remove", id: local.id }))
+		).toBe(true);
+		const song = new File(["sample"], "New Song.mp3", { type: "audio/mpeg" });
+		Object.defineProperty(wrapper.get("input[type=file]").element, "files", { value: [song] });
+		await wrapper.get("form").trigger("submit");
+		await flushPromises();
+		expect(adminFetch.mock.calls.some(([url, init]) => url.includes("title=New+Song") && init?.body === song)).toBe(
+			true
+		);
+		wrapper.unmount();
+	});
 	it("opens a single player on request and retains a fallback for the published performance", async () => {
-		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+		vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => catalog }));
 		vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
 		vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
 		const wrapper = mount(MusicRoom);

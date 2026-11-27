@@ -155,7 +155,8 @@ try {
 	const musicSnippet = path.join(workDirectory, "music.locations.conf");
 	const musicFile = "/music-library/audio/recording-ab9876543210.mp3";
 	const musicDirectory = path.join(staticRoot, MUSIC_DOCUMENT.slice(1));
-	await mkdir(musicDirectory, { recursive: true });
+	await mkdir(path.join(musicDirectory, "admin"), { recursive: true });
+	await writeFile(path.join(musicDirectory, "admin/index.html"), "music sign-in");
 	await mkdir(path.join(staticRoot, "extra/music"), { recursive: true });
 	await mkdir(path.join(mediaRoot, "music-library/audio"), { recursive: true });
 	await writeFile(path.join(mediaRoot, musicFile), "0123456789");
@@ -244,6 +245,8 @@ try {
 	if (!supportsHttp2Directive) galleryHosts = galleryHosts.replace("\thttp2 on;", "");
 
 	let musicHost = (await readFile(path.join(repositoryRoot, "deploy/nginx/jacobdanderson-music.conf.example"), "utf8"))
+		.replaceAll("/etc/nginx/jacobdanderson-admin.htpasswd", passwordFile)
+		.replaceAll("/etc/nginx/snippets/jacobdanderson-admin-secret.conf", secretSnippet)
 		.replace("/etc/nginx/snippets/jacobdanderson-music.locations.conf", musicSnippet)
 		.replace("\tlisten 80;", `\tlisten 127.0.0.1:${httpPort};`)
 		.replace("\tlisten [::]:80;", "")
@@ -309,7 +312,11 @@ http {
 		assert.equal((await request(httpsPort, musicFile, { hostname, method: "POST" })).status, 405);
 		assert.equal((await request(httpsPort, "/music-library/SHA256SUMS", { hostname })).status, 404);
 	}
-	for (const pathname of ["/api/admin/access", "/admin", "/extra", `${MUSIC_DOCUMENT}/index.html`]) {
+	const musicSignIn = await request(httpsPort, "/admin", { hostname: MUSIC_HOST });
+	assert.equal(musicSignIn.body, "music sign-in");
+	assert.equal(musicSignIn.headers["cache-control"], "no-store");
+	assert.equal((await request(httpsPort, "/api/admin/music", { hostname: MUSIC_HOST })).status, 403);
+	for (const pathname of ["/api/admin/projects", "/extra", `${MUSIC_DOCUMENT}/index.html`]) {
 		assert.equal((await request(httpsPort, pathname, { hostname: MUSIC_HOST })).status, 404);
 	}
 	assert.ok((await request(httpsPort, "/")).headers["content-security-policy"].includes("frame-src 'none';"));

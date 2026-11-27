@@ -14,6 +14,7 @@ const galleryFiles = GALLERY_SITES.flatMap(site =>
 const musicFiles = ["index.html", "robots.txt", "sitemap.xml"].map(file => `${MUSIC_DOCUMENT.slice(1)}/${file}`);
 const requiredFiles = [
 	...musicFiles,
+	`${MUSIC_DOCUMENT.slice(1)}/admin/index.html`,
 	"extra/music/index.html",
 	"images/music-sleeve.svg",
 	...galleryFiles,
@@ -90,7 +91,7 @@ requireMatch(
 	"noindex metadata missing"
 );
 for (const file of requiredFiles.filter(name => name.endsWith("index.html"))) {
-	const localScriptsOnly = file === "admin/index.html" || galleryFiles.includes(file) || musicFiles.includes(file);
+	const localScriptsOnly = file === "admin/index.html" || galleryFiles.includes(file) || musicFiles.includes(file) || file === `${MUSIC_DOCUMENT.slice(1)}/admin/index.html`;
 	if (!externalScriptsMatchPolicy(readOutput(file), localScriptsOnly)) {
 		console.error(`Static output check failed for front-end/dist/${file}: external scripts must be absent from admin and standalone galleries, or exactly one integrity-pinned analytics tracker on other public pages.`);
 		process.exit(1);
@@ -171,4 +172,5 @@ if (contract.musicSite?.hostname !== MUSIC_HOST || contract.musicSite.document !
 	|| !readOutput(musicFiles[2]).includes(`<loc>${MUSIC_ORIGIN}/</loc>`)) {
 	throw new Error("Invalid music host mapping");
 }
+requireMatch(`${MUSIC_DOCUMENT.slice(1)}/admin/index.html`, /Admin sign-in/u, "missing music sign-in form");
 console.log("Static output shape and metadata ok.");

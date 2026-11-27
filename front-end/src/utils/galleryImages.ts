@@ -17,8 +17,19 @@ let active = 0;
 const recentStarts: number[] = [];
 let scheduled: ReturnType<typeof setTimeout> | undefined;
 
+let listRequests = 0;
+export async function prioritizeGalleryList<T>(read: () => Promise<T>): Promise<T> {
+	listRequests++;
+	try {
+		return await read();
+	} finally {
+		listRequests--;
+		drain();
+	}
+}
+
 function drain() {
-	if (scheduled || active >= MAX_ACTIVE) return;
+	if (listRequests || scheduled || active >= MAX_ACTIVE) return;
 	while (pending[0] && (pending[0].signal.aborted || !pending[0].needed())) {
 		pending.shift()!.resolve("skipped");
 	}

@@ -6,7 +6,7 @@ import GalleryPublisher from "~/components/GalleryPublisher.vue";
 import ProjectVisibilityControls from "~/components/ProjectVisibilityControls.vue";
 import { probeAdminGateway } from "~/utils/adminGateway";
 
-const props = defineProps<{ collection?: Gallery }>();
+const props = defineProps<{ music?: boolean; collection?: Gallery }>();
 const signedIn = ref(false);
 const busy = ref(false);
 const ready = ref(false);
@@ -59,10 +59,11 @@ const adminFetch: typeof fetch = async (path, init = {}) => {
 		/^\/api\/admin\/gallery\/(photos|drawings)(?:\/hidden(?:\/[a-f0-9]{24}|\?before=[a-f0-9]{24})?|\/[a-f0-9]{24}\/(?:favorite|visibility|move|rename|delete))?$/.exec(
 			path
 		);
-	const permitted =
-		path === "/api/admin/access" ||
-		(gallery && (!props.collection || gallery[1] === props.collection)) ||
-		(!props.collection && /^\/api\/admin\/projects\/[a-z0-9-]+$/.test(path));
+	const permitted = props.music
+		? path === "/api/admin/access" || path.split("?")[0] === "/api/admin/music"
+		: path === "/api/admin/access" ||
+			(gallery && (!props.collection || gallery[1] === props.collection)) ||
+			(!props.collection && /^\/api\/admin\/projects\/[a-z0-9-]+$/.test(path));
 	if (!permitted) throw new Error("Invalid admin path");
 	if ((!authorization && !csrf) || Date.now() >= expires) {
 		signOut("Please sign in again.");
@@ -201,7 +202,15 @@ onBeforeUnmount(() => {
 		<div v-show="!previewing" class="workspace">
 			<header>
 				<h1 ref="heading" tabindex="-1">
-					{{ collection ? (collection === "photos" ? "Manage photos" : "Manage drawings") : "Site admin" }}
+					{{
+						music
+							? "Manage music"
+							: collection
+								? collection === "photos"
+									? "Manage photos"
+									: "Manage drawings"
+								: "Site admin"
+					}}
 				</h1>
 				<div class="switcher">
 					<button
@@ -218,7 +227,7 @@ onBeforeUnmount(() => {
 				</div>
 			</header>
 			<p v-if="error" role="alert">{{ error }}</p>
-			<div v-if="!collection" class="switcher" role="group" aria-label="Manage">
+			<div v-if="!collection && !music" class="switcher" role="group" aria-label="Manage">
 				<button
 					v-for="option in ['photos', 'drawings', 'projects'] as const"
 					:key="option"
@@ -229,14 +238,16 @@ onBeforeUnmount(() => {
 					{{ { photos: "Photos", drawings: "Drawings", projects: "Projects" }[option] }}
 				</button>
 			</div>
-			<ProjectVisibilityControls v-if="view === 'projects'" :admin-fetch="adminFetch" />
+			<MusicEditor v-if="music" :admin-fetch="adminFetch" />
+			<ProjectVisibilityControls v-else-if="view === 'projects'" :admin-fetch="adminFetch" />
 			<GalleryPublisher v-else :key="view" :gallery="view" :admin-fetch="adminFetch" />
 		</div>
 		<section v-if="previewing && view !== 'projects'" class="visitor-preview">
 			<button ref="returnButton" class="secondary" type="button" data-editor @click="swapPreview(false)">
 				Back to editing
 			</button>
-			<GalleryPage :gallery="view" :standalone="Boolean(collection)" />
+			<MusicRoom v-if="music" standalone />
+			<GalleryPage v-else :gallery="view" :standalone="Boolean(collection)" />
 		</section>
 	</template>
 </template>

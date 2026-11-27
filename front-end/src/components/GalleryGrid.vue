@@ -43,7 +43,9 @@ function load(reset = false, keepSlot = false): Promise<void> {
 	});
 	return pending;
 }
+let retryReset = false;
 async function readPages(reset: boolean, keepSlot: boolean) {
+	retryReset = reset;
 	const count = reset ? items.value.length : 0;
 	try {
 		const result = reset ? [] : [...items.value];
@@ -402,7 +404,7 @@ onBeforeUnmount(() => {
 		<p v-if="loading && !items.length" role="status">Loading {{ gallery }}…</p>
 		<p v-else-if="!failed && !items.length">No {{ hidden ? "hidden " : "" }}{{ gallery }} yet.</p>
 		<div v-if="failed" role="alert">
-			Couldn’t load the gallery. <button type="button" @click="load(true)">Reload gallery</button>
+			Couldn’t load the gallery. <button type="button" @click="load(retryReset)">Reload gallery</button>
 		</div>
 		<div v-if="next && !busy && !loading" ref="sentinel" class="sentinel" aria-hidden="true"></div>
 	</section>

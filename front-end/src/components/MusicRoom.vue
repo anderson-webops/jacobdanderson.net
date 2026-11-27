@@ -2,11 +2,12 @@
 import type { MusicTrack } from "~/utils/music";
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
 import MusicTrackPlayer from "~/components/MusicTrackPlayer.vue";
-import catalog from "~/data/music.json";
-import { loadMusicCatalog, musicSections, musicTime, readMusicCatalog, soundcloudProfile } from "~/utils/music";
+import { loadMusicCatalog, musicSections, musicTime, soundcloudProfile } from "~/utils/music";
 
 defineProps<{ standalone?: boolean }>();
-const tracks = shallowRef(readMusicCatalog(catalog));
+const tracks = shallowRef<MusicTrack[]>([]);
+const ready = ref(false);
+const unavailable = ref(false);
 const active = ref("");
 const groups = computed(() =>
 	musicSections.map(section => ({
@@ -17,8 +18,13 @@ const groups = computed(() =>
 let request: AbortController | undefined;
 onMounted(async () => {
 	request = new AbortController();
-	const result = await loadMusicCatalog(tracks.value, request.signal);
-	if (!request.signal.aborted) tracks.value = result;
+	const fallback: MusicTrack[] = [];
+	const result = await loadMusicCatalog(fallback, request.signal);
+	if (!request.signal.aborted) {
+		tracks.value = result;
+		unavailable.value = result === fallback;
+		ready.value = true;
+	}
 });
 onBeforeUnmount(() => request?.abort());
 
@@ -47,13 +53,13 @@ function toggle(track: MusicTrack) {
 				</div>
 			</header>
 			<div class="library">
+				<p v-if="unavailable" role="alert">Couldn’t load the music library.</p>
 				<nav aria-label="Music sections" class="section-index">
 					<a v-for="group in groups" :key="group.id" :href="`#${group.id}`">{{ group.label }}</a>
 				</nav>
 				<section v-for="group in groups" :key="group.id" :aria-labelledby="group.id">
 					<div class="section-heading">
 						<h2 :id="group.id" tabindex="-1">{{ group.label }}</h2>
-						<span>{{ group.source }}</span>
 					</div>
 					<ol>
 						<li
@@ -79,7 +85,7 @@ function toggle(track: MusicTrack) {
 							<MusicTrackPlayer v-if="active === track.id" :key="track.id" :track="track" />
 						</li>
 					</ol>
-					<p v-if="!group.tracks.length">No recordings yet.</p>
+					<p v-if="ready && !unavailable && !group.tracks.length">No recordings yet.</p>
 				</section>
 			</div>
 		</div>

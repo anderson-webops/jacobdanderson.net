@@ -38,6 +38,7 @@
     "hostname": "music.jacobdanderson.net",
     "document": "front-end/dist/.gallery-sites/music/index.html",
     "portfolioPath": "/extra/music",
+    "adminDocument": "front-end/dist/.gallery-sites/music/admin/index.html",
     "catalog": "/music-library/catalog.json",
     "audioPath": "/music-library/audio/"
   },

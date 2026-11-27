@@ -171,7 +171,7 @@ const galleryFiles = Object.values(artifactContract.gallerySites).flatMap(site =
 	path.posix.join(path.posix.dirname(site.document), "sitemap.xml")
 ]);
 const musicDocument = artifactContract.musicSite.document;
-const musicFiles = [musicDocument, ...["robots.txt", "sitemap.xml"].map(file => path.posix.join(path.posix.dirname(musicDocument), file)), "front-end/dist/extra/music/index.html"];
+const musicFiles = [musicDocument, artifactContract.musicSite.adminDocument, ...["robots.txt", "sitemap.xml"].map(file => path.posix.join(path.posix.dirname(musicDocument), file)), "front-end/dist/extra/music/index.html"];
 for (const relativePath of [...galleryFiles, ...musicFiles]) await assertFile(relativePath);
 
 await rm(artifactRoot, { force: true, recursive: true });

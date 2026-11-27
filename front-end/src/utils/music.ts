@@ -1,7 +1,7 @@
 export const musicSections = [
-	{ id: "finished", label: "Finished", source: "SoundCloud" },
-	{ id: "in-progress", label: "In Progress", source: "Logic Pro" },
-	{ id: "older", label: "Older", source: "Sibelius" }
+	{ id: "finished", label: "Finished" },
+	{ id: "in-progress", label: "In Progress" },
+	{ id: "older", label: "Older" }
 ] as const;
 
 export interface MusicTrack {
@@ -45,7 +45,7 @@ export function readMusicCatalog(value: unknown): MusicTrack[] {
 			(item.audio !== undefined &&
 				(typeof item.audio !== "string" ||
 					!/^[a-z0-9]+(?:-[a-z0-9]+)*-[a-f0-9]{12}\.mp3$/u.test(item.audio))) ||
-			(item.section === "finished"
+			(item.soundcloudId !== undefined || item.permalink !== undefined
 				? !Number.isSafeInteger(item.soundcloudId) ||
 					Number(item.soundcloudId) <= 0 ||
 					typeof item.permalink !== "string" ||

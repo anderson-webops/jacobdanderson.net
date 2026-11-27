@@ -51,8 +51,7 @@ Installed-helper support and protected current/rollback acceptance remain host p
 The release contains the player at `/extra/music` and a standalone document for
 `music.jacobdanderson.net/`. Both use the same read-only library outside the
 application release. The host mapping is in `deploy/runtime-artifact.json`;
-the virtual host and shared media locations are in `deploy/nginx/`. The music
-host has no API, sign-in, database, or write endpoints.
+the virtual host and shared media locations are in `deploy/nginx/`. The music host exposes its editor at `/admin` using the existing portfolio admin identity.
 
 The separately supplied archive contains `music-library/catalog.json`,
 `audio/` under that directory, and file hashes in `SHA256SUMS`. The example
@@ -61,6 +60,7 @@ origins. Verify the archive and its file hashes before serving a library;
 publish audio before switching the catalog and retain the previous library
 until rollback is no longer needed. Serve MP3s as `audio/mpeg` with byte ranges.
 The version-1 catalog orders tracks within `finished`, `in-progress`, and
-`older`; it contains no personal filesystem paths. The bundled site catalog
-also renders before any network request. SoundCloud players load only on
+`older`; it contains no personal filesystem paths. Public track lists come only from the current server catalog. SoundCloud players load only on
 selection. Unreleased session and score files stay outside the public media tree.
+
+Music editing requires `MUSIC_LIBRARY_DIR=/srv/jacobdanderson.net/media/music-library` and a narrowly scoped systemd `ReadWritePaths` for that directory. Preserve the seed catalog, recordings, and private `.managed.json` together in backups. The single API process atomically replaces the private catalog; both public sites read its visible tracks. Hide and remove withdraw listings, preserving the original recording and existing direct audio URLs. Enroll only the music access check and music management endpoint in the shared admin gateway, preserving its origin and CSRF checks.

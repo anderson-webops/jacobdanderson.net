@@ -14,6 +14,7 @@ import { z } from "zod";
 import { createGalleryStore, isGallery, isImageId } from "./models/gallery.js";
 import { encodePixels, MAX_SIDE } from "./models/galleryPng.js";
 import { createProjectVisibilityStore } from "./models/projectVisibility.js";
+import { installMusicAdmin } from "./musicAdmin.js";
 import { isProjectSlug } from "./projectCatalog.js";
 import {
 	parseProjectAdminAuditContext,
@@ -258,6 +259,10 @@ export function createApp({
 			return;
 		}
 		const host = request.get("Host")?.toLowerCase().split(":")[0];
+		if (host === "music.jacobdanderson.net" && !["/api/admin/access", "/api/admin/music"].includes(request.path)) {
+			response.sendStatus(404);
+			return;
+		}
 		const collection = host === "photos.jacobdanderson.net" ? "photos" : host === "drawings.jacobdanderson.net" ? "drawings" : undefined;
 		if (collection && request.path !== "/api/admin/access"
 			&& request.path !== `/api/admin/gallery/${collection}` && !request.path.startsWith(`/api/admin/gallery/${collection}/`)) {
@@ -267,6 +272,7 @@ export function createApp({
 		response.locals.projectAdminAudit = auditContext;
 		next();
 	};
+	installMusicAdmin(app, requireAdmin);
 	app.get("/api/admin/access", requireAdmin, (_request, response) => {
 		response.set("Cache-Control", "no-store").sendStatus(204);
 	});
