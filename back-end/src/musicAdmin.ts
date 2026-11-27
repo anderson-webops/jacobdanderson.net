@@ -30,6 +30,7 @@ const catalog = z.object({ version: z.literal(1), tracks: z.array(track).max(100
 const change = z.discriminatedUnion("action", [
 	z.object({ action: z.literal("move"), id: z.string(), section }),
 	z.object({ action: z.literal("visibility"), id: z.string(), hidden: z.boolean() }),
+	z.object({ action: z.literal("reorder"), id: z.string(), targetId: z.string(), placement: z.enum(["before", "after"]) }),
 	z.object({ action: z.literal("remove"), id: z.string() })
 ]);
 
@@ -167,9 +168,22 @@ export function installMusicAdmin(
 					if (index < 0) return res.sendStatus(404);
 					id = edit.id;
 					action = edit.action;
-					if (edit.action === "move") data.tracks[index]!.section = edit.section;
-					else if (edit.action === "visibility") data.tracks[index]!.hidden = edit.hidden;
-					else data.tracks.splice(index, 1);
+					if (edit.action === "move") {
+						data.tracks[index]!.section = edit.section;
+					}
+					else if (edit.action === "visibility") {
+						data.tracks[index]!.hidden = edit.hidden;
+					}
+					else if (edit.action === "reorder") {
+						const source = data.tracks[index]!;
+						const target = data.tracks.find(item => item.id === edit.targetId);
+						if (!target || target === source || target.section !== source.section) return res.sendStatus(409);
+						data.tracks.splice(index, 1);
+						data.tracks.splice(data.tracks.indexOf(target) + Number(edit.placement === "after"), 0, source);
+					}
+					else {
+						data.tracks.splice(index, 1);
+					}
 				}
 				const tmp = `${state}.${randomUUID()}`;
 				try {

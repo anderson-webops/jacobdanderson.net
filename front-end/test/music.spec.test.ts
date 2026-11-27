@@ -50,6 +50,29 @@ describe("music library", () => {
 		expect(await loadMusicCatalog(tracks, signal)).toBe(tracks);
 		expect(fetch).toHaveBeenCalledWith("/music-library/catalog.json", { credentials: "omit", signal });
 	});
+	it("places a picked track after another in the same section", async () => {
+		const second = { ...local, id: "second-song", title: "Second song" };
+		const adminFetch = vi.fn(async (_url: string, init?: RequestInit) =>
+			init?.method === "POST"
+				? new Response(null, { status: 204 })
+				: Response.json({ version: 1, tracks: [local, second] })
+		);
+		const wrapper = mount(MusicEditor, { props: { adminFetch: adminFetch as typeof fetch } });
+		await flushPromises();
+		const handles = wrapper.findAll(".reorder");
+		await handles[0]!.trigger("click");
+		expect(handles[0]!.attributes("aria-pressed")).toBe("true");
+		await handles[1]!.trigger("click");
+		await flushPromises();
+		expect(
+			adminFetch.mock.calls.some(
+				([, init]) =>
+					init?.body ===
+					JSON.stringify({ action: "reorder", id: local.id, targetId: second.id, placement: "after" })
+			)
+		).toBe(true);
+		wrapper.unmount();
+	});
 	it("edits sections and visibility, confirms removal, and submits an audio file", async () => {
 		const adminFetch = vi.fn(async (_url: string, init?: RequestInit) =>
 			init?.method === "POST"
@@ -65,16 +88,16 @@ describe("music library", () => {
 				([, init]) => init?.body === JSON.stringify({ action: "move", id: local.id, section: "finished" })
 			)
 		).toBe(true);
-		await wrapper.get(".song button").trigger("click");
+		await wrapper.get('button[aria-label^="Hide "]').trigger("click");
 		await flushPromises();
 		expect(
 			adminFetch.mock.calls.some(
 				([, init]) => init?.body === JSON.stringify({ action: "visibility", id: local.id, hidden: true })
 			)
 		).toBe(true);
-		await wrapper.findAll(".song button")[1]!.trigger("click");
+		await wrapper.get('button[aria-label^="Remove "]').trigger("click");
 		expect(wrapper.text()).toContain("Cancel");
-		await wrapper.findAll(".song button")[2]!.trigger("click");
+		await wrapper.get(".song div button").trigger("click");
 		await flushPromises();
 		expect(
 			adminFetch.mock.calls.some(([, init]) => init?.body === JSON.stringify({ action: "remove", id: local.id }))

@@ -56,6 +56,11 @@ test("music edits persist across reads and filter both public sections and remov
 		assert.equal((await add(Buffer.from("not audio"))).status, 415);
 		assert.equal((await add(mp3)).status, 204);
 		const [{ id }] = await pub();
+		assert.equal((await add(mp3)).status, 204);
+		const second = (await pub())[1].id;
+		assert.equal((await edit({ action: "reorder", id: second, targetId: id, placement: "before" })).status, 204);
+		assert.deepEqual((await pub()).map((item: { id: string }) => item.id), [second, id]);
+		assert.equal((await edit({ action: "remove", id: second })).status, 204);
 		assert.equal((await edit({ action: "move", id, section: "finished" })).status, 204);
 		assert.equal((await pub())[0].section, "finished");
 		assert.equal((await edit({ action: "visibility", id, hidden: true })).status, 204);

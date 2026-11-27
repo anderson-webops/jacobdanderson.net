@@ -7,6 +7,14 @@ const tracks = ref<(MusicTrack & { hidden?: boolean })[]>([]);
 const busy = ref(false);
 const error = ref("");
 const file = ref<HTMLInputElement>();
+const list = ref<HTMLElement>();
+const { picked, spot, reset, choose, down, move, up, cancelPointer, key } = useGalleryReorder(
+	list,
+	tracks,
+	() => busy.value,
+	(song, destination) => edit("reorder", song.id, destination),
+	song => song.section
+);
 const removal = ref("");
 const title = ref("");
 const section = ref("in-progress");
@@ -65,7 +73,10 @@ async function upload() {
 </script>
 
 <template>
-	<div>
+	<div ref="list" @keydown.esc="reset">
+		<p id="music-order-help" class="visually-hidden">
+			Pick a song, use the arrow keys to choose its position, then press Enter to drop. Escape cancels.
+		</p>
 		<form @submit.prevent="upload">
 			<label>MP3 <input ref="file" type="file" accept=".mp3,audio/mpeg" required /></label>
 			<label>Title <input v-model="title" maxlength="180" /></label>
@@ -80,7 +91,30 @@ async function upload() {
 		<p v-if="error" role="alert">{{ error }}</p>
 		<section v-for="group in musicSections" :key="group.id">
 			<h2>{{ group.label }}</h2>
-			<div v-for="song in tracks.filter(item => item.section === group.id)" :key="song.id" class="song">
+			<div
+				v-for="song in tracks.filter(item => item.section === group.id)"
+				:key="song.id"
+				class="song"
+				:data-item="song.id"
+				:data-drop="spot?.targetId === song.id ? spot.placement : undefined"
+			>
+				<button
+					type="button"
+					class="reorder grip"
+					:aria-label="`Reorder: ${song.title}`"
+					aria-describedby="music-order-help"
+					:aria-pressed="picked === song.id"
+					:disabled="busy"
+					@pointerdown="down($event, song)"
+					@pointermove="move"
+					@pointerup="up"
+					@pointercancel="cancelPointer"
+					@lostpointercapture="cancelPointer"
+					@click="choose(song, $event)"
+					@keydown="key($event, song)"
+				>
+					<GalleryIcon name="grip" />
+				</button>
 				<strong>{{ song.title }}</strong>
 				<select
 					:aria-label="`Section for ${song.title}`"
@@ -119,6 +153,19 @@ form,
 	align-items: center;
 	gap: 0.75rem;
 	padding: 0.65rem 0;
+}
+.grip {
+	cursor: grab;
+	touch-action: none;
+}
+.grip[aria-pressed="true"] {
+	background: var(--color-accent-soft);
+}
+.song[data-drop="before"] {
+	box-shadow: inset 0 2px var(--color-accent);
+}
+.song[data-drop="after"] {
+	box-shadow: inset 0 -2px var(--color-accent);
 }
 strong {
 	flex: 1 1 12rem;

@@ -112,7 +112,8 @@ const { picked, spot, ghost, reset, choose, down, move, up, cancelPointer, key }
 	() => busy.value || hidden.value,
 	(item, destination) => {
 		void edit(item, "move", destination);
-	}
+	},
+	item => Boolean(item.favorite)
 );
 function select(archive: boolean) {
 	if (saving.value || loading.value || hidden.value === archive) return;

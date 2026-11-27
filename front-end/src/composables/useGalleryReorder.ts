@@ -1,5 +1,4 @@
 import type { Ref } from "vue";
-import type { GalleryItem } from "~/utils/gallery";
 import { onBeforeUnmount, ref, shallowRef } from "vue";
 
 type Placement = "before" | "after";
@@ -8,24 +7,25 @@ interface Spot {
 	placement: Placement;
 }
 
-export function useGalleryReorder(
-	list: Ref<HTMLUListElement | undefined>,
-	items: Ref<GalleryItem[]>,
+export function useGalleryReorder<Item extends { id: string }>(
+	list: Ref<HTMLElement | undefined>,
+	items: Ref<Item[]>,
 	unavailable: () => boolean,
-	save: (item: GalleryItem, spot: Spot) => void
+	save: (item: Item, spot: Spot) => void,
+	groupOf: (item: Item) => string | boolean
 ) {
 	const picked = ref("");
 	const spot = shallowRef<Spot>();
 	const ghost = shallowRef<{ left: number; top: number }>();
 	let gesture:
-		| { id: number; item: GalleryItem; handle: HTMLElement; startX: number; startY: number; x: number; y: number }
+		| { id: number; item: Item; handle: HTMLElement; startX: number; startY: number; x: number; y: number }
 		| undefined;
 	let frame = 0;
 	let suppressClick = false;
 
-	function compatible(target: GalleryItem) {
+	function compatible(target: Item) {
 		const source = items.value.find(item => item.id === picked.value);
-		return Boolean(source && Boolean(source.favorite) === Boolean(target.favorite));
+		return Boolean(source && groupOf(source) === groupOf(target));
 	}
 	function reset() {
 		const current = gesture;
@@ -48,7 +48,7 @@ export function useGalleryReorder(
 				save(source, destination);
 		}
 	}
-	function choose(item: GalleryItem, event: MouseEvent) {
+	function choose(item: Item, event: MouseEvent) {
 		if (event.detail && suppressClick) return;
 		if (unavailable()) return;
 		if (picked.value === item.id) return reset();
@@ -99,7 +99,7 @@ export function useGalleryReorder(
 		spot.value = pointAt(x, y);
 		frame = requestAnimationFrame(track);
 	}
-	function down(event: PointerEvent, item: GalleryItem) {
+	function down(event: PointerEvent, item: Item) {
 		suppressClick = false;
 		if (unavailable() || gesture || !event.isPrimary || event.button !== 0) return;
 		if (event.pointerType === "touch" && !(event.target as Element).closest(".grip")) return;
@@ -133,7 +133,7 @@ export function useGalleryReorder(
 	function cancelPointer(event: PointerEvent) {
 		if (gesture?.id === event.pointerId) reset();
 	}
-	function key(event: KeyboardEvent, item: GalleryItem) {
+	function key(event: KeyboardEvent, item: Item) {
 		if (!picked.value) return;
 		const group = items.value.filter(compatible);
 		const index = group.indexOf(item);
