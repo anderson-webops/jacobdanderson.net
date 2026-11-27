@@ -6,7 +6,7 @@ import { MUSIC_HOST, MUSIC_ORIGIN, MUSIC_ROUTE } from "../front-end/src/config/m
 
 const catalog = JSON.parse(await readFile(new URL("../front-end/src/data/music.json", import.meta.url), "utf8"));
 const local = catalog.tracks.find(track => track.section === "in-progress");
-const published = catalog.tracks.find(track => track.section === "finished");
+const published = catalog.tracks.find(track => track.section === "finished" && !track.audio);
 const silentFrame = Buffer.from("//NExAAAAANIAAAAAExBTUU0LjBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVTEFNRTQu", "base64");
 const sample = process.env.MUSIC_SMOKE_MP3 ? await readFile(process.env.MUSIC_SMOKE_MP3) : Buffer.concat(Array.from({ length: 250 }).fill(silentFrame));
 
@@ -74,15 +74,12 @@ export async function checkMusic(page, origin, port, output) {
 			assert.ok(controls);
 			await page.waitForFunction(() => document.querySelector("audio")?.currentTime >= 1.4);
 			await page.click(`button[aria-label="Play ${published.title}"]`);
-			await page.waitForFunction(() => !!document.querySelector("iframe") && !document.querySelector("audio"));
-			const widget = new URL(await page.$eval("iframe", frame => frame.src));
-			assert.equal(widget.origin, "https://w.soundcloud.com");
-			assert.equal(widget.searchParams.get("url"), `https://api.soundcloud.com/tracks/${published.soundcloudId}`);
 			await page.waitForSelector(".sources a");
+			assert.equal(await page.$("iframe, audio"), null);
 			assert.equal(await page.$eval(".sources a", anchor => anchor.href), published.permalink);
 			await page.click(`button[aria-label="Close player for ${published.title}"]`);
 			assert.equal(await page.$("audio, iframe"), null);
-			assert.ok(activity.audio > start.audio && activity.widgets > start.widgets);
+			assert.ok(activity.audio > start.audio && activity.widgets === 0);
 		}
 		return activity;
 	}

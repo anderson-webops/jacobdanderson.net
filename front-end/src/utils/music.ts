@@ -72,17 +72,3 @@ export async function loadMusicCatalog(fallback: MusicTrack[], signal: AbortSign
 export function musicTime(seconds: number) {
 	return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
-
-export function widgetUrl(id: number) {
-	const url = new URL("https://w.soundcloud.com/player/");
-	url.search = new URLSearchParams({
-		url: `https://api.soundcloud.com/tracks/${id}`,
-		color: "#775038",
-		auto_play: "true",
-		show_artwork: "false",
-		show_comments: "false",
-		show_reposts: "false",
-		show_user: "false"
-	}).toString();
-	return url.href;
-}

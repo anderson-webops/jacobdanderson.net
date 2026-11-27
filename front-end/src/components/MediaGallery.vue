@@ -485,4 +485,15 @@ onBeforeUnmount(() => {
 	background: transparent;
 	border-radius: 0;
 }
+
+.photo-tile:has(> .pending) {
+	background:
+		radial-gradient(ellipse at 18% 85%, #567d85 0%, transparent 62%),
+		linear-gradient(135deg, #344b61 15%, #566679 58%, #a09a8b);
+}
+
+li:nth-child(3n + 2) .photo-tile:has(> .pending) {
+	background:
+		radial-gradient(ellipse at 80% 20%, #99958b 0%, transparent 65%), linear-gradient(145deg, #444e70, #657a82);
+}
 </style>

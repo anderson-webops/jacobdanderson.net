@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import MusicEditor from "../src/components/MusicEditor.vue";
 import MusicRoom from "../src/components/MusicRoom.vue";
 import catalog from "../src/data/music.json";
-import { loadMusicCatalog, musicTime, readMusicCatalog, widgetUrl } from "../src/utils/music";
+import { loadMusicCatalog, musicTime, readMusicCatalog } from "../src/utils/music";
 
 const tracks = readMusicCatalog(catalog);
 const local = tracks.find(track => track.section === "in-progress")!;
@@ -22,9 +22,6 @@ describe("music library", () => {
 		expect(tracks.find(track => track.title === "Void")?.section).toBe("in-progress");
 		expect(tracks.find(track => track.title === "The Train Station")?.section).toBe("older");
 		expect(musicTime(65)).toBe("1:05");
-		const src = new URL(widgetUrl(published.soundcloudId!));
-		expect(src.origin).toBe("https://w.soundcloud.com");
-		expect(src.searchParams.get("url")).toBe(`https://api.soundcloud.com/tracks/${published.soundcloudId}`);
 	});
 	it.each([
 		[local, local],
@@ -120,9 +117,6 @@ describe("music library", () => {
 		expect(wrapper.findAll("h2").map(heading => heading.text())).toEqual(["Finished", "In Progress", "Older"]);
 		expect(wrapper.find("audio, iframe").exists()).toBe(false);
 		await wrapper.get(`button[aria-label="Play ${published.title}"]`).trigger("click");
-		expect(wrapper.get("iframe").attributes("src")).toBe(widgetUrl(published.soundcloudId!));
-		expect(wrapper.get(".sources a").attributes("href")).toBe(published.permalink);
-		await wrapper.get(".sources button").trigger("click");
 		expect(wrapper.get("audio").attributes("src")).toBe(`/music-library/audio/${published.audio}`);
 		expect(wrapper.find("iframe").exists()).toBe(false);
 		await wrapper.get("audio").trigger("error");
