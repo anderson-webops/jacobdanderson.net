@@ -13,8 +13,7 @@ const externalProfiles = computed(() => profile.value.profiles.filter(item => !i
 			<div class="footer-identity">
 				<p class="footer-name">{{ profile.name }}</p>
 				<p class="footer-note">
-					{{ profile.location }}. Patent work is performed through Meunier Carlin & Curfman under attorney
-					supervision.
+					{{ profile.location }}. Patent work is performed through Meunier Carlin & Curfman.
 				</p>
 			</div>
 			<nav aria-label="Elsewhere" class="footer-links">

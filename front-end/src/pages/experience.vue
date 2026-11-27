@@ -41,8 +41,8 @@ const sections = [
 				open
 			/>
 			<p class="role-boundary">
-				Patent work is performed through Meunier Carlin & Curfman under attorney supervision. This personal site
-				describes my background, not an offer of legal or patent services.
+				Patent work is performed through Meunier Carlin & Curfman. This personal site describes my background,
+				not an offer of legal or patent services.
 			</p>
 		</section>
 

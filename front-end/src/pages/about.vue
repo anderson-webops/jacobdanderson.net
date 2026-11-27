@@ -19,7 +19,7 @@ const workingLanguages = computed(() =>
 					<h1>About Jacob</h1>
 					<p>
 						I’m a computer engineer and Patent Technical Specialist at Meunier Carlin & Curfman, supporting
-						patent attorneys with technical analysis and application preparation under attorney supervision.
+						patent attorneys with technical analysis and application preparation.
 					</p>
 				</header>
 				<div class="about-copy">

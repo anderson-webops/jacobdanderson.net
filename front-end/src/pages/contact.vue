@@ -37,8 +37,8 @@ async function copyEmail() {
 			<a :href="teachingProfile.href" rel="noopener" target="_blank">Lesson details</a>
 		</p>
 		<p class="professional-boundary">
-			My patent-related work is performed through Meunier Carlin & Curfman under attorney supervision. This
-			personal site is not an offer of legal or patent services.
+			My patent-related work is performed through Meunier Carlin & Curfman. This personal site is not an offer of
+			legal or patent services.
 		</p>
 	</div>
 </template>

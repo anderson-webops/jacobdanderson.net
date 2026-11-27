@@ -21,8 +21,8 @@ const githubProfile = computed(() => profile.value.profiles.find(item => item.la
 				<h1>{{ currentRole.title }}</h1>
 				<p class="firm">{{ currentRole.organization }} · {{ profile.location }}</p>
 				<p class="lede">
-					I support patent attorneys with technical analysis and application preparation under attorney
-					supervision, drawing on a background in computer engineering, embedded systems, and research.
+					I support patent attorneys with technical analysis and application preparation, drawing on a
+					background in computer engineering, embedded systems, and research.
 				</p>
 				<div class="button-row">
 					<RouterLink class="button-primary" to="/resume">View résumé</RouterLink>

@@ -38,7 +38,7 @@ describe("focused public content", () => {
 	it("leads Home with the current role without duplicating the experience list", () => {
 		const wrapper = mount(Home, { global });
 		expect(wrapper.get("h1").text()).toBe("Patent Technical Specialist");
-		expect(wrapper.text()).toContain("under attorney supervision");
+		expect(wrapper.text()).not.toContain("under attorney supervision");
 		expect(wrapper.text()).toContain("Expected May 2027");
 		expect(wrapper.text()).not.toContain("Start here");
 		expect(wrapper.findAll(".experience-entry")).toHaveLength(0);
@@ -113,7 +113,7 @@ describe("focused public content", () => {
 		const wrapper = mount(Contact, { global });
 		expect(wrapper.get(".button-primary").attributes("href")).toBe("mailto:jacob@jacobdanderson.net");
 		expect(wrapper.find('a[href^="tel:"]').exists()).toBe(false);
-		expect(wrapper.text()).toContain("under attorney supervision");
+		expect(wrapper.text()).toContain("My patent-related work is performed through Meunier Carlin & Curfman.");
 		wrapper.unmount();
 	});
 });

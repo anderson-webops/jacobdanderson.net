@@ -21,7 +21,7 @@ export const useMainStore = defineStore("main", {
 			email: "jacob@jacobdanderson.net",
 			lastUpdated: "August 2026",
 			summary:
-				"I support patent attorneys at Meunier Carlin & Curfman with technical analysis and application preparation under attorney supervision. My background is in computer engineering, embedded systems, and research.",
+				"I support patent attorneys at Meunier Carlin & Curfman with technical analysis and application preparation. My background is in computer engineering, embedded systems, and research.",
 			profiles: [
 				{
 					label: "LinkedIn",
@@ -56,8 +56,7 @@ export const useMainStore = defineStore("main", {
 				patent: {
 					label: "Current role",
 					title: "Patent Technical Specialist, MCC",
-					summary:
-						"Patent application preparation, technical analysis, figures, and research under attorney supervision.",
+					summary: "Patent application preparation, technical analysis, figures, and research.",
 					details: "Atlanta Metropolitan Area · Aug 2026 – Present"
 				},
 				engineering: {
@@ -102,7 +101,7 @@ export const useMainStore = defineStore("main", {
 					timeframe: "Aug 2026 – Present",
 					location: "Atlanta Metropolitan Area",
 					progression: "Previously Summer Intern, Jun – Aug 2026.",
-					summary: "Technical analysis and patent application preparation under attorney supervision.",
+					summary: "Technical analysis and patent application preparation.",
 					highlights: [
 						"Analyze invention disclosures and inventor discussions across electrical, computer, biomedical, and related technologies.",
 						"Assist attorneys with claims, technical descriptions, figures, application strategy, and research."
@@ -323,7 +322,7 @@ export const useMainStore = defineStore("main", {
 					"MongoDB"
 				],
 				competencies: [
-					"Patent application preparation and technical analysis under attorney supervision",
+					"Patent application preparation and technical analysis",
 					"Invention disclosure analysis, technical descriptions, figures, and research",
 					"Embedded systems, sensor integration, communication systems, and telemetry",
 					"Research tooling, simulation workflows, signal analysis, and technical documentation",

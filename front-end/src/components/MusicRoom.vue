@@ -38,7 +38,12 @@ function toggle(track: MusicTrack) {
 				<div class="sleeve-caption">
 					<h1>Music</h1>
 					<p>Jacob Anderson</p>
-					<a :href="soundcloudProfile">SoundCloud <span aria-hidden="true">↗</span></a>
+					<div class="music-profile-links">
+						<a :href="soundcloudProfile">SoundCloud <span aria-hidden="true">↗</span></a>
+						<a href="https://www.youtube.com/@J.D.Al.MusicLogic"
+							>YouTube <span aria-hidden="true">↗</span></a
+						>
+					</div>
 				</div>
 			</header>
 			<div class="library">
@@ -122,7 +127,11 @@ function toggle(track: MusicTrack) {
 	margin: 0.45rem 0;
 	font-size: 1.15rem;
 }
-.sleeve-caption a {
+.music-profile-links {
+	display: grid;
+	justify-items: start;
+}
+.music-profile-links a {
 	display: inline-block;
 	padding: 0.45rem 0;
 }
