@@ -64,3 +64,5 @@ The version-1 catalog orders tracks within `finished`, `in-progress`, and
 selection. Unreleased session and score files stay outside the public media tree.
 
 Music editing requires `MUSIC_LIBRARY_DIR=/srv/jacobdanderson.net/media/music-library` and a narrowly scoped systemd `ReadWritePaths` for that directory. Preserve the seed catalog, recordings, and private `.managed.json` together in backups. The single API process atomically replaces the private catalog; both public sites read its visible tracks. Hide and remove withdraw listings, preserving the original recording and existing direct audio URLs. Enroll only the music access check and music management endpoint in the shared admin gateway, preserving its origin and CSRF checks.
+
+The portfolio aliases `/extra/photos/admin`, `/extra/drawings/admin`, and `/extra/music/admin` open their corresponding standalone editors in the same tab. The portfolio edge redirects only GET and HEAD and does not forward query strings or credentials.

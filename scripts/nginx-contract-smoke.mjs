@@ -312,6 +312,14 @@ http {
 		assert.equal((await request(httpsPort, musicFile, { hostname, method: "POST" })).status, 405);
 		assert.equal((await request(httpsPort, "/music-library/SHA256SUMS", { hostname })).status, 404);
 	}
+	for (const editor of ["photos", "drawings", "music"]) {
+		for (const suffix of ["", "/?from=portfolio"]) {
+			const alias = await request(httpsPort, `/extra/${editor}/admin${suffix}`);
+			assert.equal(alias.status, 302);
+			assert.equal(alias.headers.location, `https://${editor}.jacobdanderson.net/admin`);
+		}
+		assert.equal((await request(httpsPort, `/extra/${editor}/admin`, { method: "POST" })).status, 405);
+	}
 	const musicSignIn = await request(httpsPort, "/admin", { hostname: MUSIC_HOST });
 	assert.equal(musicSignIn.body, "music sign-in");
 	assert.equal(musicSignIn.headers["cache-control"], "no-store");

@@ -64,6 +64,11 @@ server {
 	add_header X-Content-Type-Options "nosniff" always;
 	add_header X-Frame-Options "DENY" always;
 
+	location ~ ^/extra/(?<editor_site>photos|drawings|music)/admin/?$ {
+		if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+		return 302 https://$editor_site.jacobdanderson.net/admin;
+	}
+
 	location = /_dbinfo {
 		return 404;
 	}
