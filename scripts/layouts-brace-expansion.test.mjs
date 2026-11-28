@@ -1,19 +1,26 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
+import { findPackageJSON } from "node:module";
 import { resolve } from "node:path";
 import test from "node:test";
+import { pathToFileURL } from "node:url";
 import { compatibleImport, patchLayoutsSource, upstreamImport } from "./patch-layouts-brace-expansion.mjs";
 
 const repoRoot = resolve(import.meta.dirname, "..");
-const lock = JSON.parse(readFileSync(resolve(repoRoot, "package-lock.json"), "utf8"));
+const approved = JSON.parse(readFileSync(resolve(repoRoot, "package.json"), "utf8")).overrides["brace-expansion"];
 const targets = [
 	resolve(repoRoot, "node_modules/vite-plugin-vue-layouts-next/dist/index.mjs"),
 	resolve(repoRoot, "front-end/node_modules/vite-plugin-vue-layouts-next/dist/index.mjs")
 ].filter(existsSync);
 
 test("the layouts dependency uses audited brace-expansion", () => {
-	assert.equal(lock.packages["front-end/node_modules/brace-expansion"].version, "5.0.13");
-	assert.equal(lock.packages["front-end/node_modules/vite-plugin-vue-layouts-next/node_modules/brace-expansion"], undefined);
+	assert.ok(targets.length > 0);
+	for (const target of targets) {
+		const filename = findPackageJSON("brace-expansion", pathToFileURL(target));
+		assert.ok(filename, "The installed layouts module must resolve brace-expansion");
+		const dependency = JSON.parse(readFileSync(filename, "utf8"));
+		assert.equal(dependency.version, approved);
+	}
 });
 
 test("the installed layouts module has the compatible named import", () => {

@@ -107,12 +107,16 @@ jobs:
       - run: npm run verify:native-lock
       - name: Audit standalone backend dependency graph
         run: |
-          cd back-end
+          standalone=$(mktemp -d)
+          trap 'rm -rf -- "$standalone"' EXIT
+          cp back-end/package.json back-end/package-lock.json "$standalone/"
+          cd "$standalone"
           npm ci --workspaces=false --include=optional --strict-allow-scripts
+          npm ls --all --parseable > /dev/null
           npm audit --workspaces=false
           npm audit --workspaces=false --omit=dev
           npm audit --workspaces=false signatures
-          cd ..
+          cd "$GITHUB_WORKSPACE"
           npm ls --all --parseable > /dev/null
 
   accessibility:

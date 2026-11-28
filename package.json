@@ -93,10 +93,10 @@
 		"{eslint.config.js,scripts/*.{js,mjs,ts}}": "eslint --fix"
 	},
 	"overrides": {
-		"brace-expansion": "5.0.13",
+		"brace-expansion": "5.1.0",
 		"glob": "14.0.6",
 		"katex": "0.19.1",
-		"minimatch": "11.0.8",
+		"minimatch": "11.0.9",
 		"tinypool": "2.2.0"
 	}
 }
