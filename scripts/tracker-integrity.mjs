@@ -11,7 +11,7 @@ export const TRACKER_CONSUMER_ORIGIN = "https://jacobdanderson.net";
 export function verifyTrackerBytes(bytes, expected = TRACKER_INTEGRITY) {
 	assert.ok(bytes.length > 0 && bytes.length <= 65_536, "Tracker size is outside the reviewed bound");
 	const integrity = `sha384-${createHash("sha384").update(bytes).digest("base64")}`;
-	assert.equal(integrity, expected, "Pinned tracker integrity mismatch");
+	assert.ok(expected.split(/\s+/u).includes(integrity), "Pinned tracker integrity mismatch");
 	return integrity;
 }
 

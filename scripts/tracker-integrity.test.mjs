@@ -6,10 +6,14 @@ import { TRACKER_CONSUMER_ORIGIN, verifyTrackerBytes, verifyTrackerHeaders } fro
 
 test("tracker verification rejects changed, empty and oversized bytes", () => {
 	const bytes = Buffer.from("fixture");
+	const retained = Buffer.from("retained fixture");
 	const expected = `sha384-${createHash("sha384").update(bytes).digest("base64")}`;
-	assert.equal(verifyTrackerBytes(bytes, expected), expected);
+	const previous = `sha384-${createHash("sha384").update(retained).digest("base64")}`;
+	const integrity = `${expected} ${previous}`;
+	assert.equal(verifyTrackerBytes(bytes, integrity), expected);
+	assert.equal(verifyTrackerBytes(retained, integrity), previous);
 	for (const invalid of [Buffer.from("changed"), Buffer.alloc(0), Buffer.alloc(65_537)]) {
-		assert.throws(() => verifyTrackerBytes(invalid, expected));
+		assert.throws(() => verifyTrackerBytes(invalid, integrity));
 	}
 });
 

@@ -1,7 +1,10 @@
 import type { RouteLocationNormalizedLoaded } from "vue-router";
 
 export const TRACKER_URL = "https://analytics.jacobdanderson.net/script.js";
-export const TRACKER_INTEGRITY = "sha384-GCqIGuvWYg7O3NiELYWxOf/L6jh0MEUd1RXYXHaLbqZSLt7OY1ZAY8QSonb76YUk";
+export const TRACKER_INTEGRITY = [
+	"sha384-CkNPl88MXDks1Evu4VtRsedqFE8p/AtSz55c5ikp69favrC4FbrZNKoB95wX44K8",
+	"sha384-GCqIGuvWYg7O3NiELYWxOf/L6jh0MEUd1RXYXHaLbqZSLt7OY1ZAY8QSonb76YUk"
+].join(" ");
 export const TRACKER_KEY = "site-analytics";
 export const TRACKER_WEBSITE_ID = "2458e9b0-8758-42da-bf9b-d03167f78954";
 export const TRACKER_FILTER = "portfolioAnalyticsBeforeSend";
