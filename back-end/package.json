@@ -20,9 +20,9 @@
 		"server:once": "tsx -r dotenv/config src/server.ts",
 		"test": "node --test --import tsx test/*.test.ts",
 		"start": "node dist/server.js",
-		"build": "rm -rf dist && tsc -p tsconfig.build.json",
-		"typecheck": "tsc -p tsconfig.json --noEmit",
-		"watch": "tsc -w",
+		"build": "rm -rf dist && node scripts/run-typescript.mjs -p tsconfig.build.json",
+		"typecheck": "node scripts/run-typescript.mjs -p tsconfig.json --noEmit",
+		"watch": "node scripts/run-typescript.mjs -w",
 		"dev": "tsx watch -r dotenv/config src/server.ts",
 		"up": "taze major -I",
 		"lint": "eslint \"{src,test}/**/*.{js,ts}\"",
@@ -43,6 +43,7 @@
 		"@types/node": "^26.6.11",
 		"tsx": "^4.23.15",
 		"typescript": "^6.0.3",
+		"typescript-native": "npm:typescript@^7.0.2",
 		"typescript-eslint": "^8.74.0"
 	},
 	"overrides": {

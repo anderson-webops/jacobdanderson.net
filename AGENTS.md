@@ -47,6 +47,7 @@ Treat this as a standing instruction for this site.
 
 - Use Node `26.13.1` and the independent locked npm `12.2.2` profile from `node scripts/build-toolchain.mjs --print-bin`; select its returned bin directory in PATH and run `npm run verify:toolchain`. The one-time v2.11.0 legacy-capture helper retains its historical Node 24 check.
 - The root `package-lock.json` is authoritative for development and builds. `back-end/package-lock.json` is authoritative for the standalone production dependency tree.
+- Backend build, typecheck and watch select TypeScript 7 through the `typescript-native` alias. Vue and ESLint retain the supported TypeScript 6 JavaScript API.
 - Keep optional Linux ARM64/x64 glibc and musl bindings aligned with the exact resolved esbuild, OXC parser/formatter, Rolldown, Rollup, Unrs, and Lightning CSS versions.
 - Before dependency delivery, run a clean locked install, full and production audits, registry signatures, native/platform checks, lint, types, tests, accessibility, build, and runtime artifact acceptance.
 
